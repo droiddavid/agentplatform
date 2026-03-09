@@ -15,6 +15,9 @@ spring-boot-devtools.properties
 node_modules/
 frontend/agentplatform/node_modules/
 
+# Ignore embedded frontend git directory (do not add nested repo contents to root repo)
+frontend/agentplatform/.git/
+
 # Angular build outputs
 /frontend/agentplatform/dist/
 
