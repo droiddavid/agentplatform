@@ -1,6 +1,7 @@
 package com.agentplatform.backend.auth;
 
 import com.agentplatform.backend.auth.dto.SignUpRequest;
+import com.agentplatform.backend.auth.jwt.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
