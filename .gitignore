@@ -37,3 +37,6 @@ ehthumbs.db
 # Backend migrations (keep SQL files under source control) - do not ignore db/migration
 # Ignore local IDE or build artifacts in resources
 backend/src/main/resources/static/
+
+# Local CI overrides (do not commit local files containing secrets)
+.github/workflows/ci.local.yml
