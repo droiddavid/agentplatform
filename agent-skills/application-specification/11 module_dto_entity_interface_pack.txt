@@ -1,0 +1,1031 @@
+MODULE BY MODULE DTO ENTITY INTERFACE PACK
+Runtime AI Agent Platform
+Version 1
+
+Purpose
+This pack defines the major entities, DTOs, enums, and TypeScript or Java interface concepts that the implementation agent should create. It does not dictate exact package or file names, but it does prescribe the data contracts that must exist.
+
+Section 1: Shared Enums
+Create the following shared enums or equivalents.
+
+UserPlanType
+- FREE
+- LOCAL_PRO
+- CLOUD_PRO
+
+TaskStatus
+- DRAFT
+- READY
+- RUNNING
+- WAITING_FOR_APPROVAL
+- WAITING_FOR_INPUT
+- BLOCKED
+- COMPLETED
+- FAILED
+- CANCELLED
+- ARCHIVED
+
+RunState
+- DRAFT
+- READY
+- RUNNING
+- WAITING_FOR_APPROVAL
+- WAITING_FOR_INPUT
+- BLOCKED
+- COMPLETED
+- FAILED
+- CANCELLED
+- ARCHIVED
+
+AgentRunState
+- IDLE
+- ACTIVE
+- WAITING
+- NEEDS_APPROVAL
+- ERROR
+- COMPLETED
+- SUSPENDED
+
+ApprovalScope
+- ONCE
+- TASK
+- AGENT
+- USER
+- NEVER_ALLOW
+- ASK_EVERY_TIME
+
+MemoryScope
+- RUN
+- AGENT
+- USER
+- SHARED
+
+ToolRiskLevel
+- READ_ONLY
+- DRAFT_ONLY
+- EXTERNAL_WRITE
+- EXTERNAL_SEND
+- FINANCIAL_OR_SENSITIVE
+- DESTRUCTIVE
+
+ConnectionType
+- EMAIL
+- CALENDAR
+- WEB_SEARCH
+- DOCUMENT
+- ECOMMERCE
+- CUSTOM_API
+
+MessageType
+- TASK_REQUEST
+- TASK_RESPONSE
+- CLARIFICATION_REQUEST
+- CLARIFICATION_RESPONSE
+- DELEGATION_REQUEST
+- DELEGATION_RESULT
+- CRITIQUE_REQUEST
+- CRITIQUE_RESULT
+- SPAWN_PROPOSAL
+- SPAWN_RESULT
+- BROADCAST
+- HEARTBEAT
+- TOOL_INTENT
+- TOOL_RESULT
+- FINAL_SUMMARY
+
+DocumentType
+- NOTE
+- EMAIL_DRAFT
+- SUMMARY
+- PLAN
+- REPORT
+- CHECKLIST
+- PROPOSAL
+- CONTENT_DRAFT
+- STRUCTURED_EXPORT
+
+NotificationType
+- APPROVAL_NEEDED
+- TASK_COMPLETED
+- TASK_FAILED
+- CONNECTION_ERROR
+- BILLING_EVENT
+- MEMORY_DELETION_COMPLETE
+- EXPORT_READY
+- SUBSCRIPTION_EVENT
+
+Section 2: User and Identity Contracts
+
+UserEntity
+Fields:
+- id
+- email
+- passwordHash
+- emailVerified
+- createdAt
+- updatedAt
+- status
+
+UserProfileEntity
+Fields:
+- id
+- userId
+- displayName
+- primaryUseCase
+- preferredTone
+- timezone
+- locale
+- createdAt
+- updatedAt
+
+UserPreferenceEntity
+Fields:
+- id
+- userId
+- memoryEnabled
+- proactiveModeEnabled
+- defaultApprovalBehavior
+- defaultModelPreference
+- onboardingCompleted
+- createdAt
+- updatedAt
+
+UserSessionEntity
+Fields:
+- id
+- userId
+- refreshTokenHash
+- deviceLabel
+- ipAddress optional
+- userAgent optional
+- expiresAt
+- revokedAt optional
+- createdAt
+
+SignUpRequest DTO
+- email
+- password
+- acceptTerms
+- acceptPrivacy
+
+SignInRequest DTO
+- email
+- password
+
+AuthResponse DTO
+- accessToken
+- refreshToken
+- userSummary
+
+UserSummary DTO
+- id
+- email
+- displayName
+- planType
+- onboardingCompleted
+
+Section 3: Onboarding Contracts
+
+OnboardingProfileEntity
+Fields:
+- id
+- userId
+- goalCategory
+- audienceCategory
+- wantsSingleAgent
+- wantsMultiAgent
+- selectedTemplateId optional
+- toolInterestSummary JSON or structured fields
+- privacyPreference JSON
+- memoryPreference JSON
+- completedAt optional
+
+OnboardingStartRequest DTO
+- goalCategory
+- audienceCategory
+- desiredOutcome
+
+OnboardingCompleteRequest DTO
+- wantsSingleAgent
+- wantsMultiAgent
+- selectedConnections array
+- selectedCreationPath
+- privacyPreference
+- memoryPreference
+
+Section 4: Template Contracts
+
+AgentTemplateEntity
+Fields:
+- id
+- name
+- category
+- description
+- iconKey optional
+- defaultAgentSpec JSON
+- defaultTeamSpec JSON optional
+- isActive
+- createdAt
+- updatedAt
+
+TemplateSummary DTO
+- id
+- name
+- category
+- description
+
+TemplateDetail DTO
+- id
+- name
+- category
+- description
+- defaultAgentSpec
+- defaultTeamSpec
+
+Section 5: Agent Contracts
+
+AgentEntity
+Fields:
+- id
+- userId
+- name
+- roleTitle
+- plainLanguageDescription
+- persona
+- goals JSON or relation
+- modelPreference JSON
+- promptScaffold text
+- safetyConstraints text or JSON
+- status
+- archived
+- createdAt
+- updatedAt
+
+AgentCapabilityEntity
+Fields:
+- id
+- agentId
+- capabilityKey
+- displayName
+- description optional
+
+AgentToolPermissionEntity
+Fields:
+- id
+- agentId
+- toolId
+- accessMode
+- approvalRequired
+- allowedDataCategories JSON optional
+- usageLimit optional
+- scopeDescription optional
+
+AgentPolicyEntity
+Fields:
+- id
+- agentId
+- defaultApprovalMode
+- memoryPolicy JSON
+- collaborationPolicy JSON
+- spawnPolicy JSON
+- proactiveBehavior JSON optional
+
+AgentRelationshipEntity
+Fields:
+- id
+- sourceAgentId
+- targetAgentId
+- relationshipType
+- notes optional
+
+CreateAgentRequest DTO
+- name
+- roleTitle
+- plainLanguageDescription
+- persona
+- goals array
+- capabilities array
+- toolPermissions array
+- approvalPolicy
+- memoryPolicy
+- collaborationPolicy
+- spawnPolicy
+- modelPreference
+- promptScaffold
+- safetyConstraints
+
+CreateAgentFromTextRequest DTO
+- prompt
+- preferredCreationMode optional
+
+ProposedAgentSpec DTO
+- name
+- roleTitle
+- description
+- persona
+- goals array
+- capabilities array
+- toolPermissions array
+- approvalPolicy
+- memoryPolicy
+- collaborationPolicy
+- spawnPolicy
+- modelPreference
+- promptScaffold
+- safetyConstraints
+
+AgentSummary DTO
+- id
+- name
+- roleTitle
+- description
+- status
+- capabilityKeys array
+
+AgentDetail DTO
+- summary fields
+- goals
+- capabilities
+- toolPermissions
+- policies
+- relationships
+- modelPreference
+- promptScaffold
+- safetyConstraints
+
+Section 6: Task Contracts
+
+TaskEntity
+Fields:
+- id
+- userId
+- title
+- description
+- goalCategory
+- status
+- priority
+- dueAt optional
+- approvalRequired
+- createdAt
+- updatedAt
+
+TaskAssignmentEntity
+Fields:
+- id
+- taskId
+- agentId
+- assignmentRole optional
+- createdAt
+
+TaskArtifactEntity
+Fields:
+- id
+- taskId
+- documentId
+- artifactType
+- createdAt
+
+CreateTaskRequest DTO
+- title
+- description
+- goalCategory
+- priority
+- dueAt optional
+- assignedAgentIds array
+- linkedConnectionIds array optional
+
+TaskSummary DTO
+- id
+- title
+- status
+- priority
+- assignedAgentNames array
+- updatedAt
+
+TaskDetail DTO
+- summary fields
+- description
+- assignedAgents
+- linkedConnections
+- linkedDocuments
+- latestRunSummary optional
+
+Section 7: Run Contracts
+
+RunEntity
+Fields:
+- id
+- userId
+- taskId
+- state
+- startedAt optional
+- endedAt optional
+- usageEstimate optional
+- createdAt
+- updatedAt
+
+RunAgentEntity
+Fields:
+- id
+- runId
+- agentId
+- runState
+- turnOrder optional
+- parentAgentId optional for spawned agents
+- ephemeral optional
+- createdAt
+
+RunEventEntity
+Fields:
+- id
+- runId
+- sequenceNumber
+- eventType
+- actorType
+- actorId optional
+- payload JSON
+- createdAt
+
+RunStateTransitionEntity
+Fields:
+- id
+- runId
+- fromState
+- toState
+- reason
+- createdAt
+
+RunErrorEntity
+Fields:
+- id
+- runId
+- code
+- message
+- details JSON optional
+- createdAt
+
+StartRunRequest DTO
+- taskId
+- selectedAgentIds optional
+- runMode optional
+
+RunSummary DTO
+- id
+- taskId
+- state
+- activeAgentCount
+- startedAt
+- endedAt optional
+
+RunDetail DTO
+- summary fields
+- task
+- agents
+- approvalsPending count
+- documents
+- usageSummary
+- timelinePreview
+
+RunEvent DTO
+- id
+- sequenceNumber
+- eventType
+- actorType
+- actorId optional
+- payload
+- createdAt
+
+Section 8: Messaging and Collaboration Contracts
+
+AgentMessageEntity
+Fields:
+- id
+- runId
+- fromAgentId optional
+- toAgentId optional
+- messageType
+- content
+- context JSON optional
+- createdAt
+
+SharedTaskBoardItemEntity
+Fields:
+- id
+- runId
+- title
+- description optional
+- status
+- claimedByAgentId optional
+- parentItemId optional
+- createdAt
+- updatedAt
+
+SharedContextEntryEntity
+Fields:
+- id
+- runId
+- key
+- value JSON or text
+- visibilityScope
+- createdByAgentId optional
+- createdAt
+
+SendAgentMessageRequest DTO
+- toAgentId optional
+- messageType
+- content
+- context optional
+
+SpawnAgentRequest DTO
+- rationale
+- requestedRole
+- requestedCapabilities
+- inheritedContextMode
+
+GraphNode DTO
+- id
+- type
+- label
+- metadata
+
+GraphEdge DTO
+- id
+- sourceId
+- targetId
+- edgeType
+- metadata
+
+RunGraph DTO
+- nodes array
+- edges array
+
+Section 9: Approval Contracts
+
+ApprovalEntity
+Fields:
+- id
+- userId
+- runId
+- taskId optional
+- agentId optional
+- toolInvocationId optional
+- actionType
+- reasonSummary
+- dataSummary
+- scopeSuggested optional
+- status
+- requestedAt
+- resolvedAt optional
+
+ApprovalRuleEntity
+Fields:
+- id
+- userId
+- scope
+- agentId optional
+- taskPattern optional
+- toolId optional
+- actionType
+- decision
+- similarityRule JSON optional
+- createdAt
+- updatedAt
+
+ApprovalHistoryEntity
+Fields:
+- id
+- approvalId
+- decision
+- decidedByUserId
+- scopeApplied optional
+- note optional
+- createdAt
+
+ApprovalSummary DTO
+- id
+- actionType
+- reasonSummary
+- status
+- requestedAt
+
+ApprovalDetail DTO
+- id
+- actionType
+- reasonSummary
+- dataSummary
+- toolSummary
+- proposedScopeOptions
+- status
+- requestedAt
+
+ApprovalDecisionRequest DTO
+- decision
+- scope
+- rememberRule boolean
+- note optional
+
+Section 10: Memory Contracts
+
+MemoryItemEntity
+Fields:
+- id
+- userId
+- scope
+- runId optional
+- agentId optional
+- key
+- value text or JSON
+- summary optional
+- sensitivity optional
+- createdAt
+- updatedAt
+
+MemorySummaryEntity
+Fields:
+- id
+- scope
+- runId optional
+- agentId optional
+- userId
+- summaryText
+- createdAt
+- updatedAt
+
+MemoryLinkEntity
+Fields:
+- id
+- sourceMemoryId
+- targetMemoryId
+- relationType
+
+MemoryItem DTO
+- id
+- scope
+- key
+- summary
+- createdAt
+
+DeleteMemoryRequest DTO
+- memoryItemId optional
+- scope optional
+- agentId optional
+- runId optional
+
+Section 11: Connection and Tool Contracts
+
+ConnectionEntity
+Fields:
+- id
+- userId
+- type
+- displayName
+- status
+- lastTestedAt optional
+- lastError optional
+- createdAt
+- updatedAt
+
+ConnectionCredentialEntity
+Fields:
+- id
+- connectionId
+- encryptedSecretBlob
+- createdAt
+- updatedAt
+
+ConnectionScopeEntity
+Fields:
+- id
+- connectionId
+- scopeKey
+- granted
+- description optional
+
+ToolDefinitionEntity
+Fields:
+- id
+- key
+- displayName
+- type
+- requiredConnectionType optional
+- inputSchema JSON
+- outputSchema JSON
+- riskLevel
+- timeoutMs
+- retryPolicy JSON optional
+
+ToolInvocationEntity
+Fields:
+- id
+- runId
+- agentId optional
+- toolId
+- inputPayload JSON
+- outputPayload JSON optional
+- status
+- approvalRequired
+- createdAt
+- completedAt optional
+
+CustomConnectorEntity
+Fields:
+- id
+- userId
+- name
+- baseUrl
+- authType
+- defaultHeaders JSON optional
+- isActive
+- createdAt
+- updatedAt
+
+CustomConnectorFieldDefinitionEntity
+Fields:
+- id
+- connectorId
+- fieldKey
+- fieldType
+- required
+- description optional
+
+ConnectRequest DTO
+- type
+- authPayload
+- selectedScopes optional
+
+ConnectionSummary DTO
+- id
+- type
+- displayName
+- status
+- lastTestedAt
+
+ToolInvocationResult DTO
+- id
+- status
+- outputPayload
+- approvalTriggered optional
+
+Section 12: Document Contracts
+
+DocumentEntity
+Fields:
+- id
+- userId
+- runId optional
+- taskId optional
+- type
+- title
+- contentText or contentJson
+- createdByAgentId optional
+- createdAt
+- updatedAt
+
+DocumentVersionEntity
+Fields:
+- id
+- documentId
+- versionNumber
+- contentText or contentJson
+- createdAt
+
+DocumentExportEntity
+Fields:
+- id
+- documentId
+- exportType
+- status
+- filePath optional
+- createdAt
+- completedAt optional
+
+DocumentSummary DTO
+- id
+- type
+- title
+- updatedAt
+
+DocumentDetail DTO
+- id
+- type
+- title
+- content
+- versions
+- linkedTaskId optional
+- linkedRunId optional
+
+Section 13: Billing and Usage Contracts
+
+PlanEntity
+Fields:
+- id
+- planType
+- displayName
+- featureConfig JSON
+- priceConfig JSON
+- isActive
+
+SubscriptionEntity
+Fields:
+- id
+- userId
+- planId
+- status
+- currentPeriodStart
+- currentPeriodEnd
+- cancelAtPeriodEnd
+- createdAt
+- updatedAt
+
+InvoiceEntity
+Fields:
+- id
+- userId
+- providerInvoiceRef optional
+- amount
+- currency
+- status
+- issuedAt
+- dueAt optional
+
+PaymentMethodEntity
+Fields:
+- id
+- userId
+- providerRef
+- brand optional
+- last4 optional
+- expMonth optional
+- expYear optional
+- isDefault
+
+UsageRecordEntity
+Fields:
+- id
+- userId
+- runId optional
+- usageType
+- quantity
+- unit optional
+- createdAt
+
+FeatureEntitlementEntity
+Fields:
+- id
+- userId
+- key
+- value
+- sourcePlanId optional
+- updatedAt
+
+UsageSummary DTO
+- currentPlan
+- freeUsesRemaining optional
+- monthlyUsage
+- entitlements
+
+Section 14: Notification Contracts
+
+NotificationEntity
+Fields:
+- id
+- userId
+- type
+- title
+- body
+- readAt optional
+- actionUrl optional
+- createdAt
+
+NotificationDeliveryEntity
+Fields:
+- id
+- notificationId
+- channel
+- status
+- deliveredAt optional
+- error optional
+
+NotificationSummary DTO
+- id
+- type
+- title
+- read
+- createdAt
+
+Section 15: Compliance and Audit Contracts
+
+AuditLogEntity
+Fields:
+- id
+- userId optional
+- actorType
+- actorId optional
+- actionKey
+- targetType optional
+- targetId optional
+- reason optional
+- resultStatus
+- payloadSummary JSON optional
+- createdAt
+
+ConsentRecordEntity
+Fields:
+- id
+- userId
+- consentType
+- version optional
+- details JSON optional
+- grantedAt
+- revokedAt optional
+
+ExportRequestEntity
+Fields:
+- id
+- userId
+- status
+- filePath optional
+- createdAt
+- completedAt optional
+
+DeletionJobEntity
+Fields:
+- id
+- userId
+- scope
+- status
+- requestedAt
+- completedAt optional
+
+RetentionPolicyEntity
+Fields:
+- id
+- policyKey
+- config JSON
+- isActive
+
+Section 16: Frontend TypeScript Interfaces
+Create TypeScript interfaces that mirror the DTOs above for API responses and state management. Also create view model interfaces where needed for:
+- AgentCardViewModel
+- ApprovalCardViewModel
+- RunTimelineItemViewModel
+- WorkspaceGraphViewModel
+- TaskBoardColumnViewModel
+- UsageMeterViewModel
+- PrivacyDashboardViewModel
+
+Section 17: Backend Service Interfaces
+Define backend service interfaces or clear service contracts for:
+- AuthService
+- UserService
+- OnboardingService
+- TemplateService
+- AgentService
+- AgentFactoryService
+- TaskService
+- RunService
+- AgentMessagingService
+- AgentSpawnService
+- ApprovalService
+- MemoryService
+- ConnectionService
+- ToolExecutionService
+- ModelGatewayService
+- DocumentService
+- UsageService
+- BillingService
+- NotificationService
+- AuditService
+- ExportService
+- DeletionService
+
+Each service contract must expose explicit methods and not hide critical business rules in controllers.
+
+Section 18: Frontend Store Interfaces
+Create frontend store interfaces or signal store patterns for:
+- AuthStore
+- OnboardingStore
+- AgentStore
+- TaskStore
+- RunStore
+- ApprovalStore
+- ConnectionStore
+- DocumentStore
+- BillingStore
+- PrivacyStore
+- NotificationStore
+
+Each store should separate loading state, loaded data, error state, and user actions.
+
+Section 19: Validation Rules
+Add validation contracts for:
+- email format
+- password strength
+- required fields for agent creation
+- task title and description minimums
+- allowed connection configuration values
+- approval decision payload completeness
+- custom connector schema validation
+
+Section 20: Final Guidance
+The implementation agent should generate these entities, DTOs, enums, and interfaces early, because they anchor the rest of the application. Once generated, all controllers, services, repositories, stores, forms, and UI components should reuse them consistently. Any drift away from these shared contracts must be treated as a specification violation unless the master specification is intentionally updated.

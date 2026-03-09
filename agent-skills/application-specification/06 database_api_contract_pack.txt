@@ -1,0 +1,734 @@
+DATABASE AND API CONTRACT PACK
+Project: Consumer Runtime AI Agent Platform
+Version: V1
+Purpose: This document defines the database schema domains, major tables, key fields, relationships, enums, and external API contract expectations for implementation.
+
+1. DATABASE PRINCIPLES
+1.1 MySQL is the primary system of record.
+1.2 All user owned data must include ownership references.
+1.3 Secrets must be encrypted.
+1.4 Run events are append oriented and serve as canonical trace.
+1.5 Memory is separated by scope.
+1.6 Approval records are durable and auditable.
+
+2. CORE ENUMS
+2.1 RunState
+DRAFT
+READY
+RUNNING
+WAITING_FOR_APPROVAL
+WAITING_FOR_INPUT
+BLOCKED
+COMPLETED
+FAILED
+CANCELLED
+ARCHIVED
+
+2.2 AgentStatus
+ACTIVE
+IDLE
+SUSPENDED
+ARCHIVED
+ERROR
+
+2.3 RunAgentState
+IDLE
+ACTIVE
+WAITING
+NEEDS_APPROVAL
+ERROR
+COMPLETED
+SUSPENDED
+
+2.4 MemoryScope
+RUN
+AGENT
+USER
+SHARED
+
+2.5 ApprovalStatus
+PENDING
+APPROVED
+DENIED
+REVISED
+EXPIRED
+CANCELLED
+
+2.6 ApprovalDecisionScope
+ONCE
+TASK
+AGENT_PATTERN
+USER_PATTERN
+ALWAYS_ASK
+DENY_PATTERN
+
+2.7 ConnectionType
+EMAIL
+CALENDAR
+WEB_SEARCH
+WEB_BROWSE
+DOCUMENT_GENERATION
+ECOMMERCE
+CUSTOM_API
+
+2.8 ToolRiskClass
+READ_ONLY
+DRAFT_ONLY
+EXTERNAL_WRITE
+EXTERNAL_SEND
+FINANCIAL_OR_SENSITIVE
+DESTRUCTIVE
+
+2.9 DocumentType
+NOTE
+EMAIL_DRAFT
+SUMMARY
+PLAN
+REPORT
+CHECKLIST
+PROPOSAL
+CONTENT_DRAFT
+STRUCTURED_EXPORT
+
+2.10 NotificationType
+APPROVAL_NEEDED
+TASK_COMPLETED
+TASK_FAILED
+CONNECTION_ISSUE
+BILLING_EVENT
+EXPORT_READY
+DELETION_DONE
+
+3. TABLES
+3.1 users
+Fields:
+- id PK
+- email unique
+- password_hash
+- email_verified boolean
+- status
+- created_at
+- updated_at
+
+3.2 user_profiles
+- id PK
+- user_id FK users
+- display_name
+- timezone
+- primary_use_case
+- locale
+- created_at
+- updated_at
+
+3.3 user_sessions
+- id PK
+- user_id FK users
+- refresh_token_hash
+- device_label
+- ip_address nullable
+- user_agent nullable
+- expires_at
+- revoked_at nullable
+- created_at
+
+3.4 onboarding_profiles
+- id PK
+- user_id FK users unique
+- primary_goals_json
+- selected_audiences_json
+- initial_tool_choices_json
+- initial_memory_preference_json
+- initial_approval_preference_json
+- onboarding_completed boolean
+- completed_at nullable
+
+3.5 user_preferences
+- id PK
+- user_id FK users unique
+- notification_preferences_json
+- memory_defaults_json
+- approval_defaults_json
+- ui_preferences_json
+- created_at
+- updated_at
+
+3.6 agent_templates
+- id PK
+- category_id FK template_categories
+- name
+- slug unique
+- description
+- audience_json
+- agent_blueprint_json
+- created_at
+- updated_at
+- active boolean
+
+3.7 template_categories
+- id PK
+- name
+- slug unique
+
+3.8 agents
+- id PK
+- user_id FK users
+- template_id nullable FK agent_templates
+- display_name
+- role_title
+- description
+- persona_style
+- prompt_scaffold_text
+- model_preference_json
+- status
+- archived boolean
+- created_at
+- updated_at
+
+3.9 agent_capabilities
+- id PK
+- agent_id FK agents
+- capability_key
+- config_json nullable
+
+3.10 agent_tool_permissions
+- id PK
+- agent_id FK agents
+- tool_id FK tool_definitions
+- approval_required boolean
+- allowed_data_categories_json
+- limit_json nullable
+- active boolean
+
+3.11 agent_policies
+- id PK
+- agent_id FK agents unique
+- approval_policy_json
+- memory_policy_json
+- collaboration_policy_json
+- spawn_policy_json
+- safety_policy_json
+- updated_at
+
+3.12 agent_relationships
+- id PK
+- user_id FK users
+- source_agent_id FK agents
+- target_agent_id FK agents
+- relationship_type
+- active boolean
+- metadata_json nullable
+
+3.13 tasks
+- id PK
+- user_id FK users
+- title
+- description
+- category
+- status
+- priority
+- due_at nullable
+- created_at
+- updated_at
+
+3.14 task_agents
+- id PK
+- task_id FK tasks
+- agent_id FK agents
+- role_in_task nullable
+
+3.15 runs
+- id PK
+- user_id FK users
+- task_id FK tasks
+- state
+- started_at nullable
+- ended_at nullable
+- final_summary_text nullable
+- usage_summary_json nullable
+- created_at
+- updated_at
+
+3.16 run_agents
+- id PK
+- run_id FK runs
+- agent_id FK agents
+- state
+- parent_agent_id nullable FK agents
+- spawned_in_run boolean
+- created_at
+
+3.17 run_events
+- id PK
+- run_id FK runs
+- event_type
+- sequence_number
+- actor_type
+- actor_id nullable
+- summary
+- payload_json
+- created_at
+
+3.18 run_state_transitions
+- id PK
+- run_id FK runs
+- from_state
+- to_state
+- reason
+- created_at
+
+3.19 agent_messages
+- id PK
+- run_id FK runs
+- from_agent_id FK agents
+- to_agent_id nullable FK agents
+- message_type
+- content_text
+- payload_json nullable
+- sequence_number
+- created_at
+
+3.20 shared_task_board_items
+- id PK
+- run_id FK runs
+- title
+- description
+- status
+- assigned_agent_id nullable FK agents
+- dependency_item_id nullable FK shared_task_board_items
+- created_at
+- updated_at
+
+3.21 shared_context_entries
+- id PK
+- run_id FK runs
+- created_by_agent_id nullable FK agents
+- context_key
+- context_value_text or json
+- created_at
+
+3.22 approvals
+- id PK
+- user_id FK users
+- run_id FK runs
+- task_id FK tasks
+- agent_id FK agents
+- tool_id FK tool_definitions
+- action_type
+- target_summary
+- reason_summary
+- payload_snapshot_json
+- risk_class
+- status
+- requested_at
+- resolved_at nullable
+
+3.23 approval_rules
+- id PK
+- user_id FK users
+- agent_id nullable FK agents
+- task_id nullable FK tasks
+- rule_scope
+- pattern_json
+- decision
+- active boolean
+- created_at
+- expires_at nullable
+
+3.24 approval_history
+- id PK
+- approval_id FK approvals
+- decision
+- reason_text nullable
+- decided_at
+
+3.25 memory_items
+- id PK
+- user_id FK users
+- scope
+- agent_id nullable FK agents
+- run_id nullable FK runs
+- key_name
+- value_json or text
+- summary_text nullable
+- sensitivity_level
+- source_type
+- created_at
+- updated_at
+
+3.26 memory_summaries
+- id PK
+- user_id FK users
+- scope
+- agent_id nullable
+- run_id nullable
+- summary_text
+- window_start nullable
+- window_end nullable
+- updated_at
+
+3.27 connections
+- id PK
+- user_id FK users
+- type
+- display_name
+- status
+- scope_json
+- config_json
+- created_at
+- updated_at
+
+3.28 connection_credentials
+- id PK
+- connection_id FK connections unique
+- encrypted_secret_blob
+- created_at
+- updated_at
+
+3.29 tool_definitions
+- id PK
+- key unique
+- display_name
+- connection_type nullable
+- input_schema_json
+- output_schema_json
+- risk_class
+- timeout_ms
+- retry_policy_json
+- active boolean
+
+3.30 tool_invocations
+- id PK
+- run_id FK runs
+- agent_id FK agents
+- tool_id FK tool_definitions
+- approval_id nullable FK approvals
+- status
+- input_snapshot_json
+- output_snapshot_json nullable
+- error_summary nullable
+- started_at
+- ended_at nullable
+
+3.31 documents
+- id PK
+- user_id FK users
+- task_id nullable FK tasks
+- run_id nullable FK runs
+- agent_id nullable FK agents
+- title
+- type
+- content_text
+- format
+- created_at
+- updated_at
+
+3.32 document_versions
+- id PK
+- document_id FK documents
+- version_number
+- content_text
+- created_at
+
+3.33 document_exports
+- id PK
+- document_id FK documents
+- export_type
+- storage_path
+- created_at
+
+3.34 plans
+- id PK
+- key unique
+- name
+- pricing_json
+- entitlements_json
+- active boolean
+
+3.35 subscriptions
+- id PK
+- user_id FK users
+- plan_id FK plans
+- provider_subscription_ref nullable
+- status
+- started_at
+- renewed_at nullable
+- ended_at nullable
+
+3.36 invoices
+- id PK
+- user_id FK users
+- external_invoice_ref nullable
+- amount_minor
+- currency
+- status
+- issued_at
+
+3.37 payment_methods
+- id PK
+- user_id FK users
+- provider_reference
+- brand
+- last4
+- expiry_month
+- expiry_year
+- active boolean
+
+3.38 usage_records
+- id PK
+- user_id FK users
+- run_id nullable FK runs
+- plan_key
+- provider_type
+- billable_units
+- detail_json
+- created_at
+
+3.39 feature_entitlements
+- id PK
+- user_id FK users
+- key
+- value_json
+- updated_at
+
+3.40 notifications
+- id PK
+- user_id FK users
+- type
+- title
+- body
+- read_at nullable
+- created_at
+
+3.41 notification_deliveries
+- id PK
+- notification_id FK notifications
+- channel
+- status
+- sent_at nullable
+
+3.42 audit_logs
+- id PK
+- user_id FK users
+- actor_type
+- actor_id nullable
+- action
+- entity_type
+- entity_id
+- summary
+- metadata_json
+- created_at
+
+3.43 consent_records
+- id PK
+- user_id FK users
+- consent_type
+- scope
+- value_json
+- granted_at
+- revoked_at nullable
+
+3.44 export_requests
+- id PK
+- user_id FK users
+- status
+- storage_path nullable
+- requested_at
+- completed_at nullable
+
+3.45 deletion_jobs
+- id PK
+- user_id FK users
+- deletion_type
+- status
+- payload_json
+- requested_at
+- completed_at nullable
+
+4. API CONTRACT GROUPS
+4.1 Auth
+POST /api/auth/sign-up
+Request: email, password, displayName optional
+Response: user summary, verification state
+
+POST /api/auth/sign-in
+Request: email, password
+Response: accessToken, refreshToken, user summary, onboarding status
+
+POST /api/auth/refresh
+Request: refreshToken
+Response: accessToken, refreshToken
+
+POST /api/auth/sign-out
+Request: refreshToken or current session context
+Response: success
+
+POST /api/auth/forgot-password
+Request: email
+Response: success
+
+POST /api/auth/reset-password
+Request: token, newPassword
+Response: success
+
+POST /api/auth/verify-email
+Request: token
+Response: success
+
+4.2 Me
+GET /api/me
+Response: user profile, plan summary, onboarding status, entitlements
+
+PATCH /api/me/profile
+Request: displayName, timezone, locale
+Response: updated profile
+
+GET /api/me/preferences
+PATCH /api/me/preferences
+
+5. TEMPLATE CONTRACTS
+GET /api/templates
+Response: list of template summary DTOs
+Fields:
+- id
+- name
+- description
+- category
+- audienceTags
+- singleOrTeam
+
+GET /api/templates/:id
+Response must include agent blueprint summary.
+
+6. AGENT CONTRACTS
+POST /api/agents
+Request:
+- displayName
+- roleTitle
+- description
+- personaStyle
+- goals
+- capabilities
+- toolPermissions
+- approvalPolicy
+- memoryPolicy
+- collaborationPolicy
+- spawnPolicy
+- modelPreference
+
+Response: agent detail DTO
+
+POST /api/agents/from-text
+Request: promptText
+Response:
+- proposedAgents array
+- inferredTask optional
+- inferenceWarnings
+
+GET /api/agents/:id
+Response: full agent detail with policies and permissions
+
+PATCH /api/agents/:id
+DELETE /api/agents/:id
+
+7. TASK CONTRACTS
+POST /api/tasks
+Request:
+- title
+- description
+- category
+- priority
+- assignedAgentIds
+
+GET /api/tasks
+GET /api/tasks/:id
+PATCH /api/tasks/:id
+DELETE /api/tasks/:id
+POST /api/tasks/:id/start-run
+Response: run summary
+
+8. RUN CONTRACTS
+GET /api/runs
+GET /api/runs/:id
+Response:
+- run summary
+- state
+- agents
+- approvalsPending
+- usageSummary
+- finalSummary
+
+GET /api/runs/:id/events
+Response: ordered event list
+
+GET /api/runs/:id/messages
+Response: ordered message list
+
+POST /api/runs/:id/cancel
+POST /api/runs/:id/resume
+
+9. APPROVAL CONTRACTS
+GET /api/approvals
+GET /api/approvals/:id
+
+POST /api/approvals/:id/approve
+Request:
+- decisionScope
+- remember boolean optional
+- optional note
+Response: updated approval and run status impact
+
+POST /api/approvals/:id/deny
+Request: optional reason
+
+POST /api/approvals/:id/revise
+Request: revisedInstruction
+
+10. CONNECTION CONTRACTS
+GET /api/connections
+POST /api/connections/:type/connect
+POST /api/connections/:id/test
+DELETE /api/connections/:id
+GET /api/connections/:id/scopes
+
+11. DOCUMENT CONTRACTS
+GET /api/documents
+GET /api/documents/:id
+POST /api/documents/:id/export
+DELETE /api/documents/:id
+
+12. BILLING CONTRACTS
+GET /api/billing/plans
+GET /api/billing/subscription
+POST /api/billing/subscribe
+POST /api/billing/cancel
+GET /api/billing/invoices
+GET /api/usage
+
+13. PRIVACY CONTRACTS
+GET /api/privacy/memory
+DELETE /api/privacy/memory/:id
+POST /api/privacy/export
+GET /api/privacy/export/:id
+POST /api/privacy/delete-account
+
+14. STREAM CONTRACTS
+GET /api/stream/runs/:id
+Must stream run events in order.
+
+GET /api/stream/notifications
+Must stream notification DTOs.
+
+15. CONTRACT RULES
+- all timestamps use ISO 8601
+- all IDs should be opaque strings or UUIDs
+- pagination required for list endpoints where growth is expected
+- ownership and authorization checks mandatory
+- secrets excluded from DTOs
+- DTOs versionable
+
+16. ACCEPTANCE CRITERIA
+Accepted only if:
+- schema supports every declared feature in v1
+- all contracts are implementable without guessing missing fields
+- run traces, approvals, memory, and billing can all be persisted
+- future expansion to teams and marketplace is not blocked by schema shape

@@ -1,0 +1,364 @@
+PROJECT BOOTSTRAP PACK
+Runtime AI Agent Platform
+Version 1
+
+==================================================
+1. PURPOSE
+==================================================
+
+This pack provides the exact bootstrap sequence for starting the project from zero.
+It defines:
+- repository layout
+- initial folders
+- starter files
+- first commands
+- first implementation order
+- first-run verification sequence
+
+This is designed so a coding agent or developer can begin building immediately
+without inventing structure.
+
+==================================================
+2. REPOSITORY STRATEGY
+==================================================
+
+Recommended top-level repository:
+
+agentflow-platform/
+  frontend/
+  backend/
+  docs/
+  scripts/
+  .gitignore
+  README.md
+
+Purpose:
+- frontend contains Angular application
+- backend contains Spring Boot application
+- docs may store the specification packs
+- scripts may store local bootstrap helpers
+
+==================================================
+3. TOP-LEVEL STARTER FILES
+==================================================
+
+Create:
+- README.md
+- .gitignore
+- docs/README.md
+- scripts/README.md
+
+README.md should include:
+- project purpose
+- stack
+- local setup summary
+- links to spec packs
+- startup instructions
+
+.gitignore should cover:
+- node_modules
+- dist
+- .angular
+- target
+- .idea
+- .vscode where desired
+- local env files
+- build artifacts
+- logs
+- storage output folders
+
+==================================================
+4. FRONTEND BOOTSTRAP
+==================================================
+
+4.1 Frontend creation target
+
+Inside frontend/ create Angular app with:
+- routing enabled
+- SCSS or CSS based on preference, CSS is acceptable
+- standalone APIs preferred
+- PWA support added after initial bootstrap if not included at creation
+
+4.2 Recommended frontend structure after bootstrap
+
+frontend/
+  src/
+    app/
+      core/
+      shared/
+      features/
+    assets/
+    environments/ optional if runtime config also used
+  public/ optional based on Angular version
+  package.json
+  angular.json
+  tsconfig.json
+
+4.3 Initial frontend folders to create
+
+src/app/core/auth
+src/app/core/api
+src/app/core/config
+src/app/core/realtime
+src/app/core/errors
+src/app/core/guards
+src/app/core/interceptors
+src/app/core/models
+src/app/core/state
+
+src/app/shared/components
+src/app/shared/dialogs
+src/app/shared/layouts
+src/app/shared/pipes
+src/app/shared/directives
+src/app/shared/utils
+
+src/app/features/landing
+src/app/features/auth
+src/app/features/onboarding
+src/app/features/dashboard
+src/app/features/agents
+src/app/features/tasks
+src/app/features/runs
+src/app/features/workspace
+src/app/features/approvals
+src/app/features/connections
+src/app/features/documents
+src/app/features/billing
+src/app/features/privacy
+src/app/features/settings
+src/app/features/help
+
+==================================================
+5. BACKEND BOOTSTRAP
+==================================================
+
+5.1 Backend creation target
+
+Create Spring Boot app with:
+- Spring Web
+- Spring Security
+- Spring Data JPA
+- MySQL Driver
+- Validation
+- Flyway
+- Actuator
+- WebSocket if chosen, otherwise SSE support via Spring Web is enough initially
+
+5.2 Recommended backend package root
+
+com.agentflow.backend
+
+5.3 Initial backend folders
+
+src/main/java/com/agentflow/backend/config
+src/main/java/com/agentflow/backend/common
+src/main/java/com/agentflow/backend/auth
+src/main/java/com/agentflow/backend/user
+src/main/java/com/agentflow/backend/onboarding
+src/main/java/com/agentflow/backend/templates
+src/main/java/com/agentflow/backend/agents
+src/main/java/com/agentflow/backend/tasks
+src/main/java/com/agentflow/backend/runs
+src/main/java/com/agentflow/backend/messaging
+src/main/java/com/agentflow/backend/approvals
+src/main/java/com/agentflow/backend/memory
+src/main/java/com/agentflow/backend/connections
+src/main/java/com/agentflow/backend/tools
+src/main/java/com/agentflow/backend/model
+src/main/java/com/agentflow/backend/documents
+src/main/java/com/agentflow/backend/billing
+src/main/java/com/agentflow/backend/usage
+src/main/java/com/agentflow/backend/notifications
+src/main/java/com/agentflow/backend/audit
+src/main/java/com/agentflow/backend/compliance
+src/main/java/com/agentflow/backend/admin
+
+src/main/resources/db/migration
+
+==================================================
+6. FIRST FILE STUBS TO CREATE
+==================================================
+
+6.1 Frontend first stubs
+
+src/app/app.routes.ts
+src/app/app.config.ts
+src/app/app.component.ts
+src/app/app.component.html
+src/app/app.component.css
+
+src/app/core/config/app-config.model.ts
+src/app/core/config/config.service.ts
+
+src/app/core/api/api-client.service.ts
+src/app/core/auth/auth.service.ts
+src/app/core/auth/session.service.ts
+src/app/core/realtime/realtime.service.ts
+
+src/app/core/guards/auth.guard.ts
+src/app/core/guards/onboarding-complete.guard.ts
+
+src/app/shared/layouts/app-shell/app-shell.component.ts
+src/app/shared/layouts/public-shell/public-shell.component.ts
+src/app/shared/layouts/top-nav/top-nav.component.ts
+src/app/shared/layouts/side-nav/side-nav.component.ts
+src/app/shared/layouts/mobile-nav/mobile-nav.component.ts
+
+src/app/features/landing/landing-page.component.ts
+src/app/features/auth/pages/sign-in-page.component.ts
+src/app/features/auth/pages/sign-up-page.component.ts
+src/app/features/onboarding/pages/onboarding-shell-page.component.ts
+src/app/features/dashboard/dashboard-page.component.ts
+
+6.2 Backend first stubs
+
+src/main/java/com/agentflow/backend/AgentflowApplication.java
+
+src/main/java/com/agentflow/backend/config/SecurityConfig.java
+src/main/java/com/agentflow/backend/config/JwtConfig.java
+src/main/java/com/agentflow/backend/config/CorsConfig.java
+
+src/main/java/com/agentflow/backend/common/api/ApiResponse.java
+src/main/java/com/agentflow/backend/common/error/ErrorResponse.java
+src/main/java/com/agentflow/backend/common/error/GlobalExceptionHandler.java
+
+src/main/java/com/agentflow/backend/auth/AuthController.java
+src/main/java/com/agentflow/backend/auth/AuthService.java
+
+src/main/java/com/agentflow/backend/user/UserController.java
+src/main/java/com/agentflow/backend/user/UserService.java
+
+src/main/resources/application.yml
+src/main/resources/application-local.yml
+src/main/resources/application-test.yml
+src/main/resources/application-prod.yml
+
+src/main/resources/db/migration/V1__create_users.sql
+
+==================================================
+7. FIRST COMMAND ORDER
+==================================================
+
+7.1 Top-level
+
+1. create repository root
+2. initialize git
+3. create frontend and backend directories
+4. copy specification packs into docs if desired
+
+7.2 Frontend startup command sequence example
+
+1. create Angular app in frontend
+2. install Tailwind
+3. add routing setup
+4. create folder structure
+5. add core app shell files
+6. wire minimal routes for landing, sign-in, sign-up
+7. verify frontend compiles
+
+7.3 Backend startup command sequence example
+
+1. create Spring Boot app in backend
+2. add dependencies
+3. create package structure
+4. add application config files
+5. configure datasource and Flyway
+6. add first migration
+7. verify backend starts
+8. verify migration applies to empty database
+
+==================================================
+8. FIRST IMPLEMENTATION MILESTONE
+==================================================
+
+Milestone 1 goal:
+A user can open the app, see landing page, sign up, sign in, and the backend
+is connected to MySQL with Flyway migrations working.
+
+This milestone includes:
+- frontend route skeleton
+- backend auth skeleton
+- users table
+- config loading
+- basic CORS
+- JWT placeholders
+- local environment wiring
+
+==================================================
+9. SECOND IMPLEMENTATION MILESTONE
+==================================================
+
+Milestone 2 goal:
+User onboarding works and template browsing is visible.
+
+This milestone includes:
+- onboarding pages
+- onboarding backend
+- template category and template migrations
+- seeded template data
+- template listing APIs
+- frontend template browser
+
+==================================================
+10. THIRD IMPLEMENTATION MILESTONE
+==================================================
+
+Milestone 3 goal:
+User can create an agent and see it in the agent list.
+
+This milestone includes:
+- agent migrations
+- agent entities and DTOs
+- agent create/edit APIs
+- wizard flow
+- template-based instantiate flow
+- basic natural language parsing flow
+
+==================================================
+11. FIRST-RUN VERIFICATION CHECKLIST
+==================================================
+
+After bootstrap, verify:
+1. frontend starts locally
+2. backend starts locally
+3. database connection works
+4. Flyway migration V1 runs
+5. health endpoint responds
+6. landing page renders
+7. sign-in route loads
+8. sign-up route loads
+
+==================================================
+12. RECOMMENDED SCRIPTS
+==================================================
+
+Top-level scripts to add later:
+- scripts/start-local-frontend
+- scripts/start-local-backend
+- scripts/run-tests
+- scripts/reset-local-db
+- scripts/seed-local-data
+
+These may be shell or platform-specific scripts depending on environment.
+
+==================================================
+13. BOOTSTRAP DECISIONS TO KEEP CONSISTENT
+==================================================
+
+1. Use runtime-defined agents from day one.
+2. Do not build a fake static agent system as a temporary shortcut.
+3. Keep DB-backed run events in mind before building workspace UI.
+4. Keep approval-first architecture in place from the beginning.
+5. Design routes and backend packages so later modules fit cleanly.
+
+==================================================
+14. FINAL BOOTSTRAP DIRECTIVE
+==================================================
+
+The project is bootstrapped correctly only when:
+- directory structures align with spec packs
+- base apps compile and start
+- migrations run
+- auth foundation is in place
+- the implementation path remains aligned with the full specification

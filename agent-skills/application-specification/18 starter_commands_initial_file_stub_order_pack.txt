@@ -1,0 +1,159 @@
+STARTER COMMANDS AND INITIAL FILE STUB ORDER PACK
+Runtime AI Agent Platform
+Version 1
+
+==================================================
+1. PURPOSE
+==================================================
+
+This pack gives a coding agent a concrete first-pass command and file creation order.
+These are not the only possible commands, but they define a deterministic starting path.
+
+==================================================
+2. TOP-LEVEL COMMAND ORDER
+==================================================
+
+1. Create project root folder
+2. Initialize git repository
+3. Create frontend folder
+4. Create backend folder
+5. Create docs folder
+6. Create scripts folder
+
+Example sequence:
+- mkdir agentflow-platform
+- cd agentflow-platform
+- git init
+- mkdir frontend
+- mkdir backend
+- mkdir docs
+- mkdir scripts
+
+==================================================
+3. FRONTEND INITIALIZATION ORDER
+==================================================
+
+1. Generate Angular app in frontend
+2. Install Tailwind
+3. Confirm app builds
+4. Create feature and core folder structure
+5. Replace default routes with app shells and feature routes
+6. Add auth pages and landing page
+7. Add config service and API client service
+8. Verify build again
+
+After initialization, create these files first:
+- src/app/app.routes.ts
+- src/app/app.config.ts
+- src/app/core/config/app-config.model.ts
+- src/app/core/config/config.service.ts
+- src/app/core/api/api-client.service.ts
+- src/app/core/auth/auth.service.ts
+- src/app/core/auth/session.service.ts
+- src/app/core/guards/auth.guard.ts
+- src/app/shared/layouts/app-shell/app-shell.component.ts
+- src/app/shared/layouts/public-shell/public-shell.component.ts
+- src/app/features/landing/landing-page.component.ts
+- src/app/features/auth/pages/sign-in-page.component.ts
+- src/app/features/auth/pages/sign-up-page.component.ts
+
+==================================================
+4. BACKEND INITIALIZATION ORDER
+==================================================
+
+1. Generate Spring Boot project in backend
+2. Add required dependencies
+3. Create package root com.agentflow.backend
+4. Add application config files
+5. Configure datasource placeholders
+6. Add Flyway dependency and migration folder
+7. Create V1 migration
+8. Add AgentflowApplication main class
+9. Add SecurityConfig and basic auth scaffolding
+10. Add AuthController and AuthService
+11. Add UserEntity and UserRepository
+12. Verify application starts
+
+First backend files:
+- src/main/java/com/agentflow/backend/AgentflowApplication.java
+- src/main/java/com/agentflow/backend/config/SecurityConfig.java
+- src/main/java/com/agentflow/backend/config/JwtConfig.java
+- src/main/java/com/agentflow/backend/common/api/ApiResponse.java
+- src/main/java/com/agentflow/backend/common/error/ErrorResponse.java
+- src/main/java/com/agentflow/backend/common/error/GlobalExceptionHandler.java
+- src/main/java/com/agentflow/backend/user/UserEntity.java
+- src/main/java/com/agentflow/backend/user/UserRepository.java
+- src/main/java/com/agentflow/backend/auth/AuthController.java
+- src/main/java/com/agentflow/backend/auth/AuthService.java
+- src/main/resources/db/migration/V1__create_users.sql
+
+==================================================
+5. FIRST DATABASE STEPS
+==================================================
+
+1. Create local database
+2. Create local database user
+3. Set application-local.yml values
+4. Start backend
+5. Verify Flyway applies V1 migration
+
+==================================================
+6. FIRST API TARGETS
+==================================================
+
+Implement first:
+- POST /api/auth/sign-up
+- POST /api/auth/sign-in
+- GET /api/me
+
+These endpoints are enough to validate:
+- DTO flow
+- service layer
+- JWT/session strategy
+- protected route behavior
+
+==================================================
+7. FIRST FRONTEND TARGETS
+==================================================
+
+Implement first:
+- landing page
+- sign-up page
+- sign-in page
+- auth service
+- route guards
+- basic dashboard placeholder after sign-in
+
+==================================================
+8. FIRST INTEGRATION TEST TARGET
+==================================================
+
+A new user can:
+1. open landing page
+2. sign up
+3. sign in
+4. reach protected dashboard
+5. backend persists user
+6. frontend receives auth response successfully
+
+==================================================
+9. EARLY ANTI-DRIFT RULES
+==================================================
+
+1. Do not hard-code "PlannerAgentService" or similar as the fundamental agent model.
+2. Do not build a one-agent-only backend shape.
+3. Do not skip approval data structures just because the first milestone is auth.
+4. Keep route and package names aligned with the file map packs.
+5. Keep migration names aligned with the migration pack.
+
+==================================================
+10. NEXT STEP AFTER BOOTSTRAP
+==================================================
+
+After the first milestone works, immediately proceed to:
+- onboarding
+- template seed data
+- template browser
+- agent creation domain
+
+That is the correct next step because it preserves alignment with the full consumer-ready platform.

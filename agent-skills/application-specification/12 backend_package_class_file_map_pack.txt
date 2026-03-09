@@ -1,0 +1,988 @@
+BACKEND PACKAGE, CLASS, AND FILE MAP PACK
+Runtime AI Agent Platform
+Version 1
+Backend Stack: Spring Boot, Java, MySQL
+
+==================================================
+1. PURPOSE
+==================================================
+
+This pack defines the backend package structure, class responsibilities,
+file map, and implementation ordering for a production ready consumer AI
+agent platform. It is intentionally prescriptive so that a coding agent
+can build the backend with minimal ambiguity.
+
+==================================================
+2. TOP LEVEL BACKEND STRUCTURE
+==================================================
+
+Recommended Maven project layout:
+
+backend/
+  src/main/java/com/agentflow/backend/
+    config/
+    common/
+    auth/
+    user/
+    onboarding/
+    templates/
+    agents/
+    tasks/
+    runs/
+    messaging/
+    approvals/
+    memory/
+    connections/
+    tools/
+    model/
+    documents/
+    billing/
+    usage/
+    notifications/
+    audit/
+    compliance/
+    admin/
+  src/main/resources/
+    db/migration/
+    application.yml
+    application-local.yml
+    application-test.yml
+    application-prod.yml
+  src/test/java/com/agentflow/backend/
+    ...
+  pom.xml
+
+==================================================
+3. PACKAGE RULES
+==================================================
+
+1. Each domain package owns its controller, service, DTOs, entities, repository, mapper, and enums.
+2. Shared abstractions live in common or config, not in arbitrary feature folders.
+3. Domain services must not directly depend on unrelated domain repositories unless there is a clear cross-domain orchestration need.
+4. Cross-domain workflows should go through orchestration services.
+5. Controllers expose API boundary DTOs, not entities.
+6. Repositories return entities only within the service layer.
+7. All externally visible IDs should be ULID style strings.
+
+==================================================
+4. ROOT CONFIG PACKAGES
+==================================================
+
+4.1 config
+Files:
+- SecurityConfig.java
+- JwtConfig.java
+- JacksonConfig.java
+- CorsConfig.java
+- WebMvcConfig.java
+- WebSocketConfig.java or SseConfig.java
+- AsyncConfig.java
+- EncryptionConfig.java
+- OpenApiConfig.java
+- SchedulingConfig.java
+
+Responsibilities:
+- application security
+- JWT filters and auth wiring
+- serialization configuration
+- CORS
+- streaming configuration
+- async executor configuration
+- encryption beans
+- OpenAPI generation
+- scheduled jobs
+
+4.2 common
+Subpackages:
+- common/api
+- common/error
+- common/security
+- common/ids
+- common/time
+- common/json
+- common/paging
+- common/enums
+- common/events
+- common/util
+
+Required classes:
+- ApiResponse.java
+- PageResponse.java
+- ErrorResponse.java
+- DomainException.java
+- NotFoundException.java
+- ValidationException.java
+- ForbiddenException.java
+- UnauthorizedException.java
+- ConflictException.java
+- CurrentUser.java
+- CurrentUserProvider.java
+- UlidGenerator.java
+- AuditMetadata.java
+- JsonUtils.java
+
+==================================================
+5. AUTH PACKAGE
+==================================================
+
+Path:
+com.agentflow.backend.auth
+
+Files:
+- AuthController.java
+- AuthService.java
+- AuthTokenService.java
+- PasswordService.java
+- RefreshTokenService.java
+- EmailVerificationService.java
+- PasswordResetService.java
+- AuthMapper.java
+
+DTOs:
+- SignUpRequest.java
+- SignInRequest.java
+- AuthResponse.java
+- RefreshRequest.java
+- ForgotPasswordRequest.java
+- ResetPasswordRequest.java
+- VerifyEmailRequest.java
+
+Entities:
+- UserSessionEntity.java
+- EmailVerificationEntity.java
+- PasswordResetTokenEntity.java
+
+Repositories:
+- UserSessionRepository.java
+- EmailVerificationRepository.java
+- PasswordResetTokenRepository.java
+
+Responsibilities:
+- sign up
+- sign in
+- refresh
+- sign out
+- verify email
+- forgot and reset password
+- session revocation
+
+==================================================
+6. USER PACKAGE
+==================================================
+
+Path:
+com.agentflow.backend.user
+
+Files:
+- UserController.java
+- UserService.java
+- UserPreferenceService.java
+- UserModelPreferenceService.java
+- UserNotificationPreferenceService.java
+- UserDeletionService.java
+- UserExportService.java
+- UserMapper.java
+
+DTOs:
+- MeResponse.java
+- UpdateProfileRequest.java
+- UserProfileResponse.java
+- UserPreferencesResponse.java
+- UpdateUserPreferencesRequest.java
+- UserUsageSummaryResponse.java
+
+Entities:
+- UserEntity.java
+- UserProfileEntity.java
+- UserPreferenceEntity.java
+- UserModelPreferenceEntity.java
+- UserNotificationPreferenceEntity.java
+- TermsAcceptanceRecordEntity.java
+- PrivacyAcceptanceRecordEntity.java
+
+Repositories:
+- UserRepository.java
+- UserProfileRepository.java
+- UserPreferenceRepository.java
+- UserModelPreferenceRepository.java
+- UserNotificationPreferenceRepository.java
+- TermsAcceptanceRecordRepository.java
+- PrivacyAcceptanceRecordRepository.java
+
+==================================================
+7. ONBOARDING PACKAGE
+==================================================
+
+Path:
+com.agentflow.backend.onboarding
+
+Files:
+- OnboardingController.java
+- OnboardingService.java
+- OnboardingMapper.java
+
+DTOs:
+- OnboardingStateResponse.java
+- StartOnboardingRequest.java
+- CompleteOnboardingRequest.java
+
+Entities:
+- OnboardingProfileEntity.java
+
+Repositories:
+- OnboardingProfileRepository.java
+
+Responsibilities:
+- persist onboarding progress
+- store user goals and preferences
+- mark onboarding complete
+- prepare first agent defaults
+
+==================================================
+8. TEMPLATES PACKAGE
+==================================================
+
+Path:
+com.agentflow.backend.templates
+
+Files:
+- TemplateController.java
+- TemplateService.java
+- TemplateMapper.java
+
+DTOs:
+- TemplateSummaryResponse.java
+- TemplateDetailResponse.java
+- TemplateCategoryResponse.java
+
+Entities:
+- TemplateCategoryEntity.java
+- AgentTemplateEntity.java
+- TemplateVersionEntity.java
+
+Repositories:
+- TemplateCategoryRepository.java
+- AgentTemplateRepository.java
+- TemplateVersionRepository.java
+
+==================================================
+9. AGENTS PACKAGE
+==================================================
+
+Path:
+com.agentflow.backend.agents
+
+Files:
+- AgentController.java
+- AgentService.java
+- AgentFactoryService.java
+- AgentPolicyService.java
+- AgentMemoryFacadeService.java
+- AgentRelationshipService.java
+- AgentSpawnPolicyService.java
+- AgentVersionService.java
+- AgentParserService.java
+- AgentMapper.java
+
+DTOs:
+- AgentSummaryResponse.java
+- AgentDetailResponse.java
+- AgentMemoryResponse.java
+- AgentPermissionResponse.java
+- CreateAgentRequest.java
+- UpdateAgentRequest.java
+- CreateAgentFromTextRequest.java
+- CreateAgentFromTextResponse.java
+- AgentPolicyResponse.java
+- AgentRelationshipResponse.java
+
+Entities:
+- AgentEntity.java
+- AgentCapabilityEntity.java
+- AgentToolPermissionEntity.java
+- AgentPolicyEntity.java
+- AgentRelationshipEntity.java
+- AgentSpawnRuleEntity.java
+- AgentVersionEntity.java
+
+Repositories:
+- AgentRepository.java
+- AgentCapabilityRepository.java
+- AgentToolPermissionRepository.java
+- AgentPolicyRepository.java
+- AgentRelationshipRepository.java
+- AgentSpawnRuleRepository.java
+- AgentVersionRepository.java
+
+Responsibilities:
+- CRUD for runtime-defined agents
+- create agent from wizard inputs
+- create agent from natural language
+- manage policies
+- manage peer relationships
+- expose memory and permission views
+
+==================================================
+10. TASKS PACKAGE
+==================================================
+
+Path:
+com.agentflow.backend.tasks
+
+Files:
+- TaskController.java
+- TaskService.java
+- TaskAssignmentService.java
+- TaskMapper.java
+
+DTOs:
+- TaskSummaryResponse.java
+- TaskDetailResponse.java
+- CreateTaskRequest.java
+- UpdateTaskRequest.java
+- StartTaskRunRequest.java
+
+Entities:
+- TaskEntity.java
+- TaskArtifactEntity.java
+
+Repositories:
+- TaskRepository.java
+- TaskArtifactRepository.java
+
+Responsibilities:
+- CRUD for tasks
+- assign agents
+- initiate runs
+
+==================================================
+11. RUNS PACKAGE
+==================================================
+
+Path:
+com.agentflow.backend.runs
+
+Files:
+- RunController.java
+- RunService.java
+- RunStateMachine.java
+- RunEventService.java
+- RunResumeService.java
+- RunCancellationService.java
+- RunGraphService.java
+- RunMapper.java
+
+DTOs:
+- RunSummaryResponse.java
+- RunDetailResponse.java
+- RunEventResponse.java
+- RunGraphResponse.java
+- CancelRunRequest.java
+- ResumeRunRequest.java
+
+Entities:
+- RunEntity.java
+- RunAgentEntity.java
+- RunEventEntity.java
+- RunStateTransitionEntity.java
+- RunErrorEntity.java
+
+Repositories:
+- RunRepository.java
+- RunAgentRepository.java
+- RunEventRepository.java
+- RunStateTransitionRepository.java
+- RunErrorRepository.java
+
+Responsibilities:
+- run lifecycle
+- event persistence
+- state transitions
+- cancellation and resume
+- graph projection
+
+==================================================
+12. MESSAGING PACKAGE
+==================================================
+
+Path:
+com.agentflow.backend.messaging
+
+Files:
+- MessagingController.java
+- AgentMessagingService.java
+- MessageRoutingService.java
+- SharedTaskBoardService.java
+- SharedContextService.java
+- MessagingMapper.java
+
+DTOs:
+- AgentMessageResponse.java
+- PostAgentMessageRequest.java
+- SharedTaskBoardItemResponse.java
+- SharedContextEntryResponse.java
+- CreateSharedTaskBoardItemRequest.java
+
+Entities:
+- AgentMessageEntity.java
+- SharedTaskBoardItemEntity.java
+- SharedContextEntryEntity.java
+
+Repositories:
+- AgentMessageRepository.java
+- SharedTaskBoardItemRepository.java
+- SharedContextEntryRepository.java
+
+Responsibilities:
+- direct peer messaging
+- broadcast
+- shared board
+- shared context
+
+==================================================
+13. APPROVALS PACKAGE
+==================================================
+
+Path:
+com.agentflow.backend.approvals
+
+Files:
+- ApprovalController.java
+- ApprovalService.java
+- ApprovalRuleService.java
+- ApprovalDecisionService.java
+- ApprovalMapper.java
+
+DTOs:
+- ApprovalSummaryResponse.java
+- ApprovalDetailResponse.java
+- ApproveRequest.java
+- DenyRequest.java
+- ReviseApprovalRequest.java
+- ApprovalRuleResponse.java
+- CreateApprovalRuleRequest.java
+- UpdateApprovalRuleRequest.java
+
+Entities:
+- ApprovalEntity.java
+- ApprovalRuleEntity.java
+- ApprovalHistoryEntity.java
+
+Repositories:
+- ApprovalRepository.java
+- ApprovalRuleRepository.java
+- ApprovalHistoryRepository.java
+
+Responsibilities:
+- approval inbox
+- decision recording
+- remembered rule persistence
+- pause and resume integration
+
+==================================================
+14. MEMORY PACKAGE
+==================================================
+
+Path:
+com.agentflow.backend.memory
+
+Files:
+- MemoryController.java
+- MemoryService.java
+- MemorySummaryService.java
+- MemoryDeletionService.java
+- MemoryMapper.java
+
+DTOs:
+- MemoryItemResponse.java
+- MemorySummaryResponse.java
+- DeleteMemoryRequest.java
+
+Entities:
+- MemoryItemEntity.java
+- MemorySummaryEntity.java
+- MemoryLinkEntity.java
+- MemoryDeletionRequestEntity.java
+
+Repositories:
+- MemoryItemRepository.java
+- MemorySummaryRepository.java
+- MemoryLinkRepository.java
+- MemoryDeletionRequestRepository.java
+
+Responsibilities:
+- memory query
+- scoped memory retrieval
+- memory summarization
+- memory deletion jobs
+
+==================================================
+15. CONNECTIONS PACKAGE
+==================================================
+
+Path:
+com.agentflow.backend.connections
+
+Files:
+- ConnectionController.java
+- ConnectionService.java
+- ConnectionTestService.java
+- CredentialEncryptionService.java
+- ConnectionMapper.java
+
+Subpackages:
+- connections/email
+- connections/calendar
+- connections/web
+- connections/ecommerce
+- connections/customapi
+
+DTOs:
+- ConnectionSummaryResponse.java
+- ConnectionDetailResponse.java
+- ConnectionScopeResponse.java
+- ConnectEmailRequest.java
+- ConnectCalendarRequest.java
+- ConnectWebRequest.java
+- ConnectEcommerceRequest.java
+- ConnectCustomApiRequest.java
+- TestConnectionRequest.java
+
+Entities:
+- ConnectionEntity.java
+- ConnectionCredentialEntity.java
+- ConnectionScopeEntity.java
+- CustomConnectorEntity.java
+- ConnectorFieldDefinitionEntity.java
+
+Repositories:
+- ConnectionRepository.java
+- ConnectionCredentialRepository.java
+- ConnectionScopeRepository.java
+- CustomConnectorRepository.java
+- ConnectorFieldDefinitionRepository.java
+
+Responsibilities:
+- connect and disconnect tools
+- persist credentials securely
+- test connectors
+- custom connector definitions
+
+==================================================
+16. TOOLS PACKAGE
+==================================================
+
+Path:
+com.agentflow.backend.tools
+
+Files:
+- ToolController.java
+- ToolDefinitionService.java
+- ToolExecutionService.java
+- ToolAuthorizationService.java
+- ToolInvocationService.java
+- ToolMapper.java
+
+Subpackages:
+- tools/impl/websearch
+- tools/impl/webbrowse
+- tools/impl/email
+- tools/impl/calendar
+- tools/impl/document
+- tools/impl/ecommerce
+- tools/impl/customapi
+
+Interfaces:
+- ToolAdapter.java
+- ToolRequestContext.java
+- ToolExecutionResult.java
+
+DTOs:
+- ToolDefinitionResponse.java
+- ExecuteToolRequest.java
+- ToolInvocationResponse.java
+
+Entities:
+- ToolDefinitionEntity.java
+- ToolInvocationEntity.java
+
+Repositories:
+- ToolDefinitionRepository.java
+- ToolInvocationRepository.java
+
+Responsibilities:
+- common tool execution pipeline
+- approval checks before external action
+- invocation logging
+- result capture
+
+==================================================
+17. MODEL PACKAGE
+==================================================
+
+Path:
+com.agentflow.backend.model
+
+Files:
+- ModelController.java
+- ModelGatewayService.java
+- PromptAssemblyService.java
+- AgentTurnService.java
+- ProviderRoutingService.java
+- TokenUsageEstimatorService.java
+
+Subpackages:
+- model/provider
+- model/provider/local
+- model/provider/cloud
+- model/prompt
+- model/runtime
+
+Interfaces:
+- ModelProvider.java
+- ModelRequest.java
+- ModelResponse.java
+
+Implementations:
+- LocalModelProvider.java
+- CloudModelProvider.java
+
+DTOs:
+- ProviderSummaryResponse.java
+- ModelPreferenceResponse.java
+
+Responsibilities:
+- provider abstraction
+- prompt assembly
+- model dispatch
+- token usage reporting
+
+==================================================
+18. DOCUMENTS PACKAGE
+==================================================
+
+Path:
+com.agentflow.backend.documents
+
+Files:
+- DocumentController.java
+- DocumentService.java
+- DocumentExportService.java
+- DocumentVersionService.java
+- DocumentMapper.java
+
+DTOs:
+- DocumentSummaryResponse.java
+- DocumentDetailResponse.java
+- DocumentVersionResponse.java
+- ExportDocumentRequest.java
+- ExportDocumentResponse.java
+
+Entities:
+- DocumentEntity.java
+- DocumentVersionEntity.java
+- DocumentExportEntity.java
+
+Repositories:
+- DocumentRepository.java
+- DocumentVersionRepository.java
+- DocumentExportRepository.java
+
+==================================================
+19. BILLING PACKAGE
+==================================================
+
+Path:
+com.agentflow.backend.billing
+
+Files:
+- BillingController.java
+- BillingService.java
+- SubscriptionService.java
+- InvoiceService.java
+- PaymentMethodService.java
+- EntitlementService.java
+- BillingMapper.java
+
+DTOs:
+- PlanResponse.java
+- SubscriptionResponse.java
+- InvoiceResponse.java
+- SubscribeRequest.java
+- CancelSubscriptionRequest.java
+- PaymentMethodResponse.java
+
+Entities:
+- PlanEntity.java
+- SubscriptionEntity.java
+- InvoiceEntity.java
+- PaymentMethodEntity.java
+- FeatureEntitlementEntity.java
+
+Repositories:
+- PlanRepository.java
+- SubscriptionRepository.java
+- InvoiceRepository.java
+- PaymentMethodRepository.java
+- FeatureEntitlementRepository.java
+
+==================================================
+20. USAGE PACKAGE
+==================================================
+
+Path:
+com.agentflow.backend.usage
+
+Files:
+- UsageController.java
+- UsageService.java
+- UsageMeteringService.java
+- UsageMapper.java
+
+DTOs:
+- UsageRecordResponse.java
+- UsageSummaryResponse.java
+
+Entities:
+- UsageRecordEntity.java
+
+Repositories:
+- UsageRecordRepository.java
+
+Responsibilities:
+- meter plan usage
+- free tier enforcement
+- run cost aggregation
+
+==================================================
+21. NOTIFICATIONS PACKAGE
+==================================================
+
+Path:
+com.agentflow.backend.notifications
+
+Files:
+- NotificationController.java
+- NotificationService.java
+- NotificationDeliveryService.java
+- NotificationMapper.java
+
+DTOs:
+- NotificationResponse.java
+- MarkNotificationReadRequest.java
+
+Entities:
+- NotificationEntity.java
+- NotificationDeliveryEntity.java
+
+Repositories:
+- NotificationRepository.java
+- NotificationDeliveryRepository.java
+
+Responsibilities:
+- in-app notifications
+- email notification delivery
+- read status
+
+==================================================
+22. AUDIT PACKAGE
+==================================================
+
+Path:
+com.agentflow.backend.audit
+
+Files:
+- AuditService.java
+- AuditController.java
+- AuditMapper.java
+
+DTOs:
+- AuditLogResponse.java
+
+Entities:
+- AuditLogEntity.java
+
+Repositories:
+- AuditLogRepository.java
+
+Responsibilities:
+- append-only audit creation
+- audit querying for privacy and admin support
+
+==================================================
+23. COMPLIANCE PACKAGE
+==================================================
+
+Path:
+com.agentflow.backend.compliance
+
+Files:
+- ComplianceController.java
+- ConsentService.java
+- ExportService.java
+- DeletionJobService.java
+- RetentionPolicyService.java
+- ComplianceMapper.java
+
+DTOs:
+- ConsentRecordResponse.java
+- ExportRequestResponse.java
+- DeletionJobResponse.java
+
+Entities:
+- ConsentRecordEntity.java
+- ExportRequestEntity.java
+- DeletionJobEntity.java
+- RetentionPolicyEntity.java
+
+Repositories:
+- ConsentRecordRepository.java
+- ExportRequestRepository.java
+- DeletionJobRepository.java
+- RetentionPolicyRepository.java
+
+==================================================
+24. ADMIN PACKAGE
+==================================================
+
+Path:
+com.agentflow.backend.admin
+
+Version 1 note:
+Keep this minimal and internal-facing. No separate public admin panel is required,
+but package seams should exist for future support.
+
+Files:
+- AdminHealthController.java
+- AdminMetricsController.java
+
+==================================================
+25. EXECUTION ENGINE FILES
+==================================================
+
+The runtime engine is cross-domain and should be explicit.
+
+Recommended package:
+com.agentflow.backend.model.runtime
+
+Files:
+- RunExecutionCoordinator.java
+- AgentTurnExecutor.java
+- AgentContextAssembler.java
+- PeerDirectoryAssembler.java
+- ApprovalGateEvaluator.java
+- SpawnRequestEvaluator.java
+- RunCompletionEvaluator.java
+- RuntimeEventPublisher.java
+
+Responsibilities:
+- start and advance runs
+- execute one agent turn at a time
+- decide next actor
+- create approvals
+- dispatch tool invocations
+- request spawn
+- finalize run
+
+==================================================
+26. STREAMING FILES
+==================================================
+
+Recommended package:
+com.agentflow.backend.common.events
+
+Files:
+- RunStreamController.java
+- NotificationStreamController.java
+- StreamSubscriptionService.java
+- RunEventBroadcaster.java
+- NotificationBroadcaster.java
+
+Responsibilities:
+- SSE or WebSocket emission
+- stream run events and notifications to clients
+- reconnect friendliness
+
+==================================================
+27. MAPPER RULES
+==================================================
+
+1. Every package should contain a mapper class.
+2. Mappers translate between entities and DTOs.
+3. Business logic must not live in mappers.
+4. Never expose encrypted secrets or internal token hashes in response DTOs.
+
+==================================================
+28. REPOSITORY RULES
+==================================================
+
+1. Use Spring Data repositories.
+2. Keep custom queries in repository interfaces or dedicated query repositories.
+3. Avoid placing heavy business branching in repositories.
+4. Prefer specification or query objects for complex filtering if needed.
+
+==================================================
+29. EXCEPTION HANDLING FILES
+==================================================
+
+Create:
+- GlobalExceptionHandler.java
+- ErrorCode.java
+- ValidationErrorItem.java
+
+Behavior:
+- map domain exceptions to consistent HTTP responses
+- produce machine-readable and user-friendly error payloads
+
+==================================================
+30. TEST FILE MAP
+==================================================
+
+Create matching tests for:
+- controllers
+- services
+- repositories
+- state machine
+- execution engine
+- approval enforcement
+- billing and usage enforcement
+
+Suggested test packages mirror main packages.
+
+==================================================
+31. IMPLEMENTATION ORDER FOR BACKEND
+==================================================
+
+1. config and common
+2. auth
+3. user
+4. onboarding
+5. templates
+6. agents
+7. tasks
+8. runs
+9. messaging
+10. approvals
+11. memory
+12. connections
+13. tools
+14. model and runtime engine
+15. documents
+16. usage
+17. billing
+18. notifications
+19. audit
+20. compliance
+21. streaming
+22. integration hardening
+
+==================================================
+32. FINAL IMPLEMENTATION NOTE
+==================================================
+
+The backend must be optimized for:
+- runtime agent creation
+- traceable multi-agent collaboration
+- approval-first external action handling
+- database-backed recoverability
+- consumer trust and privacy

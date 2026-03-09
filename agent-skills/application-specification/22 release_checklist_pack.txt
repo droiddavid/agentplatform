@@ -1,0 +1,185 @@
+
+RELEASE CHECKLIST PACK
+Runtime AI Agent Platform
+Version 1
+
+==================================================
+1. PURPOSE
+==================================================
+This checklist defines the criteria that must be satisfied before the
+platform can be released to real users.
+
+It ensures that:
+- core product flows work
+- security controls exist
+- approvals cannot be bypassed
+- runtime agents function correctly
+- infrastructure can run reliably
+
+==================================================
+2. CORE PRODUCT CHECKS
+==================================================
+All of the following must work end‑to‑end:
+
+User Account
+• User can sign up
+• User can sign in
+• JWT authentication works
+• Session refresh works
+• Logout works
+
+Onboarding
+• User completes onboarding wizard
+• Preferences are saved
+• Default policies created
+
+Agents
+• Wizard creation works
+• Natural language creation works
+• Template creation works
+• Agents persist correctly
+• Agents appear in dashboard
+
+Tasks and Runs
+• User can create task
+• Task can start run
+• Multi‑agent run works
+• Run state transitions work
+• Run history stored
+
+Agent Collaboration
+• Peer messaging works
+• Shared task board works
+• Delegation works
+• Spawn proposals work
+• Spawn approvals work
+
+==================================================
+3. APPROVAL SYSTEM CHECKS
+==================================================
+
+Default Approval Behavior
+• External actions require approval
+• Approval prompt contains explanation
+• Approval cannot be bypassed
+
+Remembered Approvals
+• Approve once works
+• Approve for task works
+• Approve for agent works
+• Approve for user works
+
+Denial Behavior
+• Deny action stops tool invocation
+• Run state updates correctly
+
+==================================================
+4. TOOL EXECUTION CHECKS
+==================================================
+
+Each tool category must work:
+
+Web Search
+Web Browse
+Email Draft
+Calendar Create
+Document Generation
+Custom API Connector
+
+Verification requirements:
+
+• Tool definitions load from DB
+• Tool request recorded in run events
+• Tool execution logged
+• Failures handled correctly
+
+==================================================
+5. BILLING AND USAGE CHECKS
+==================================================
+
+Free Plan
+• 5 agent uses enforced
+• System blocks additional runs
+
+Local Pro
+• Local provider enabled
+
+Cloud Pro
+• Cloud provider enabled
+
+Usage Tracking
+• Usage records stored
+• Usage appears in dashboard
+
+==================================================
+6. PRIVACY AND COMPLIANCE CHECKS
+==================================================
+
+Privacy Dashboard
+• User can view stored memory
+• User can delete memory
+
+Data Export
+• Export package generated
+
+Account Deletion
+• Deletion workflow works
+• Data removed or anonymized
+
+Audit Logs
+• Run events stored
+• Approval decisions recorded
+
+==================================================
+7. FRONTEND UX CHECKS
+==================================================
+
+Desktop Layout
+• Navigation works
+• Graph visualization renders
+• Workspace panels function
+
+Mobile Layout
+• Navigation collapses correctly
+• Workspace usable on mobile
+
+Accessibility
+• Keyboard navigation works
+• Color contrast acceptable
+
+==================================================
+8. PERFORMANCE CHECKS
+==================================================
+
+Minimum requirements:
+
+• Page load under 2 seconds locally
+• Run event stream stable
+• Backend handles concurrent runs
+• Database queries indexed
+
+==================================================
+9. SECURITY CHECKS
+==================================================
+
+Authentication
+• Protected endpoints require JWT
+
+Authorization
+• Users cannot access other users’ data
+
+Secrets
+• Secrets encrypted in DB
+
+Validation
+• Input validation active
+
+==================================================
+10. FINAL RELEASE GATE
+==================================================
+
+The platform is release‑ready only if:
+
+• All checklist items pass
+• Acceptance tests pass
+• No critical security issues exist

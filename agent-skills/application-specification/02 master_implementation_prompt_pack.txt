@@ -1,0 +1,193 @@
+MASTER IMPLEMENTATION PROMPT PACK
+Runtime AI Agent Platform
+Version 1
+
+Purpose
+This pack provides implementation prompts that another AI coding agent can consume to build the application without further programmer interaction. The prompts are aligned to the master specification already established in this session. They assume Angular frontend, Spring Boot backend, MySQL persistence, provider agnostic model routing, runtime defined agents, peer to peer agent communication, approval gated external actions, and consumer ready non technical UX.
+
+Global Build Rules
+1. Treat the master specification as binding.
+2. Do not replace runtime agent definitions with hard coded agent classes.
+3. Angular services and backend services are infrastructure, not agent identity.
+4. The app must be understandable by non technical users.
+5. Every external action must require approval by default unless a remembered approval rule allows it.
+6. Persist audit, run events, approvals, and memory in MySQL.
+7. Build piece by piece in the order described below.
+8. Do not skip validation, error handling, or acceptance criteria.
+9. Keep the architecture extensible for later support of teams, marketplace publishing, enterprise tenancy, native mobile, and richer avatars.
+10. Always cross check implementation choices against the product goals: help run my business, help manage my life and tasks, help a team of agents research, plan, write, and act.
+
+Prompt 1: Repository and Foundation Setup
+Build a monorepo or two coordinated projects named frontend and backend. The frontend must use Angular with TypeScript, signals, Tailwind, route level lazy loading, and PWA support. The backend must use Spring Boot, Java, JPA or Spring Data, JWT authentication, Flyway or Liquibase migrations, REST APIs, and streaming updates via WebSocket or SSE. Configure MySQL as primary system of record. Add environment based configuration for database, JWT secrets, encryption keys, model provider keys, billing provider keys, and connector secrets. Produce a clean initial folder structure that matches the specification.
+Acceptance criteria:
+- frontend builds and runs
+- backend builds and runs
+- database migrations apply successfully
+- environment variables are externalized
+- health endpoints work
+
+Prompt 2: Authentication and User Identity
+Implement personal account authentication for version 1. Add sign up, sign in, sign out, refresh token flow, forgot password, reset password, and email verification. Create tables and entities for users, sessions, email verification records, password reset tokens, terms acceptance, and privacy acceptance. Build frontend screens and route guards. Persist user preferences and profile details separately from credentials.
+Acceptance criteria:
+- new user can register and verify email
+- user can sign in and sign out
+- protected routes require authentication
+- password reset works end to end
+- terms and privacy acceptance are recorded
+
+Prompt 3: Onboarding and First Value Flow
+Implement onboarding for non technical users. The flow must ask what they want help with, whether the use case is life, work, business, family, or creator oriented, whether they want one agent or a team, which tools they may want to connect, and their privacy and memory preferences. The onboarding must end by helping the user create a first agent or first multi agent setup and start a first task. Use plain language and zero developer jargon.
+Acceptance criteria:
+- onboarding persists user choices
+- onboarding can be resumed if interrupted
+- onboarding ends in a meaningful first task
+- copy is understandable to non technical users
+
+Prompt 4: Template Catalog
+Implement curated template browsing without public publishing in version 1. Include template categories such as household organizer, small business assistant, creator research assistant, planning assistant, document and email helper, ecommerce helper, and multi agent research team. Each template must define a runtime agent or group of agents, default capabilities, default tool permissions, approval policy defaults, and memory policy defaults.
+Acceptance criteria:
+- templates can be listed and viewed
+- a user can create an agent or team from a template
+- created agents are stored as runtime data definitions
+
+Prompt 5: Runtime Agent Domain
+Implement the core agent domain as runtime data, not compile time classes. Create schemas, entities, DTOs, services, and frontend forms for agents. An agent must include identity, role, plain language description, persona, goals, capabilities, tool permissions, approval policy, memory policy, collaboration policy, spawn policy, model preference, prompt scaffold, and safety constraints. Build agent CRUD and edit flows.
+Acceptance criteria:
+- agent can be created from wizard
+- agent can be created from text
+- agent can be edited
+- agent policies and permissions are visible
+- agent definitions are persisted in DB
+
+Prompt 6: Natural Language Agent Builder
+Implement a natural language parser flow where the user describes what they want and the system proposes one or more structured agent definitions. The backend must call the model gateway to convert user text into structured agent specs. The frontend must show a review screen where the user can confirm, adjust, or reject the proposed agents before creation.
+Acceptance criteria:
+- user input can produce one or more agent proposals
+- proposals can be edited before save
+- saved result becomes standard agent records
+
+Prompt 7: Task Domain
+Implement task creation and management. A task is a user facing work unit with title, description, goal category, status, priority, due date optional, assigned agents, linked documents, linked connections, approval requirement, and expected outputs. Build list, detail, edit, and delete flows. Tasks must be connectable to runs.
+Acceptance criteria:
+- tasks can be created and assigned to agents
+- tasks can be started as runs
+- task status updates from run progress
+
+Prompt 8: Run Domain and Event Ledger
+Implement run creation, run detail, run state machine, and run event ledger. Runs represent execution instances of tasks by one or more agents. Persist every state transition and important event. Build a run timeline UI and backend streaming updates. Required run states include Draft, Ready, Running, WaitingForApproval, WaitingForInput, Blocked, Completed, Failed, Cancelled, and Archived.
+Acceptance criteria:
+- runs can be started from tasks
+- run state transitions are validated and logged
+- run event timeline renders in UI
+- live updates stream to the frontend
+
+Prompt 9: Agent Messaging and Peer to Peer Collaboration
+Implement structured peer to peer agent messaging for direct communication, broadcast, delegation, critique loops, shared backlog participation, heartbeat, spawn proposals, tool intent, and final summaries. Persist messages in database and expose them in the run workspace UI. Build chat thread view and a shared task board.
+Acceptance criteria:
+- two or more agents can exchange messages
+- shared task board exists and updates
+- critique and delegation flows work
+- graph edges are derived from relationships and messaging
+
+Prompt 10: Graph Workspace
+Implement a workspace that shows the active agents, shared task board, chat thread, approvals, current run banner, and graph visualization of relationships. Use a graph library suitable for Angular. The graph must show agent nodes, task nodes, and message or delegation edges. On mobile, collapse graph controls into simplified views.
+Acceptance criteria:
+- workspace supports desktop and mobile layouts
+- graph updates as relationships change
+- user can inspect node details
+
+Prompt 11: Execution Engine
+Implement the backend execution engine. It must start runs, coordinate agent turns, load relevant memory, inject self and peer awareness summaries, call model providers, route peer messages, invoke tools, request approvals, pause when approval is needed, resume after approval, support dynamic spawning, finalize outputs, and record usage. It must treat runtime agent definitions as the source of behavior.
+Acceptance criteria:
+- engine can run a single agent task
+- engine can run a multi agent task
+- engine pauses on approval and resumes correctly
+- engine records every important event
+
+Prompt 12: Model Gateway and Provider Abstraction
+Implement a provider agnostic model gateway with at least one local implementation path and one cloud implementation path. The gateway must support model selection per agent or run, configurable temperature or similar settings, structured responses where needed, timeout handling, fallback or error reporting, and usage accounting hooks. The architecture must not assume a single provider.
+Acceptance criteria:
+- local provider adapter exists
+- cloud provider adapter exists
+- agents can specify model preference
+- usage can be measured per call
+
+Prompt 13: Tool Framework
+Implement a tool abstraction where each tool has id, display name, type, required connection type, input schema, output schema, approval class, risk level, timeout, and retry policy. Build initial tools for web search, browse fetch, email actions, calendar actions, document creation, document export, ecommerce actions, and custom API invocation. Tool results must be recorded.
+Acceptance criteria:
+- tools follow one common contract
+- tool invocations are logged
+- input and output schemas are validated
+
+Prompt 14: Connections and Integrations
+Implement the connection framework and initial integrations for email, calendar, web search and browse, document generation, ecommerce, and custom API connectors. The frontend must support connect, disconnect, test, show scopes, revoke, and display status. Secrets must be encrypted at rest and never returned in normal API responses.
+Acceptance criteria:
+- user can connect a supported integration
+- connection can be tested
+- connection scopes are visible
+- revoke works cleanly
+
+Prompt 15: Approval Center and Remembered Rules
+Implement approval gating for all external actions by default. Create approval records, history, and remembered approval rules. Support approve once, approve for task, approve for agent, approve for user, deny, never allow this pattern, and ask every time. Build a clear approval inbox and action review modal that explains what will happen, why it is being proposed, what data will be sent, which tool will be used, and whether the rule can be remembered.
+Acceptance criteria:
+- external action pauses run by default
+- user can choose approval scope
+- remembered rules are enforced later
+- audit records exist for every decision
+
+Prompt 16: Memory System and Privacy Controls
+Implement per run memory, per agent long term memory, user profile memory, and shared memory across cooperating agents. Store memory items and summaries in the database. Build the privacy dashboard so users can see memory, delete individual memory entries, delete by scope, review remembered approvals, and export data. The UI must explain what is stored and why.
+Acceptance criteria:
+- memory items are persisted and scoped correctly
+- memory can be viewed in UI
+- deletion works for item and scope
+- export requests include memory data
+
+Prompt 17: Documents and Artifact Library
+Implement document creation, versioning, preview, export request flow, and linking to tasks and runs. Required document categories include notes, plans, summaries, email drafts, reports, proposals, checklists, content drafts, and structured exports. Build a document library screen.
+Acceptance criteria:
+- agent can save generated documents
+- documents are linked to tasks and runs
+- document versions are visible
+- export flow is available
+
+Prompt 18: Notifications
+Implement in app and email notifications for approval needed, task completed, task failed, connection error, billing event, memory deletion complete, export ready, and subscription events. Add notification preferences to user settings.
+Acceptance criteria:
+- notifications appear in app
+- email notifications can be toggled
+- important workflow events produce notifications
+
+Prompt 19: Usage Metering and Billing
+Implement free tier limits, subscription models, entitlements, invoices, payment methods, and usage records. Version 1 includes Free, Local Pro, and Cloud Pro. Free allows five agent uses. Local Pro emphasizes local model use. Cloud Pro enables cloud routing and higher usage. Build plan selection and billing views.
+Acceptance criteria:
+- free limit is enforced
+- upgrade path exists
+- entitlements are checked in runtime flows
+- usage dashboard displays consumption
+
+Prompt 20: Compliance, Audit, Export, and Deletion
+Implement audit logs, consent records, export requests, deletion jobs, retention policies, and explainability surfaces. The user must be able to export data and request account deletion. The system must provide clear records of who did what, when, why if available, and with what result.
+Acceptance criteria:
+- audit logs are queryable
+- export requests can be created and fulfilled
+- account deletion flow exists
+- consent records are stored for terms, privacy, approvals, tool scopes, and memory choices
+
+Prompt 21: PWA, Help, and Polish
+Implement PWA support, installability, offline shell, help center, empty states, error states, and consumer friendly wording across the product. Ensure the app is mobile responsive. Make sure critical workflows remain understandable.
+Acceptance criteria:
+- PWA manifest and service worker exist
+- app is installable
+- key routes have empty and error states
+- help center exists
+
+Prompt 22: Testing and Release Hardening
+Implement frontend unit tests, backend unit and integration tests, end to end tests for critical flows, and final readiness checks. Cover onboarding, agent creation, multi agent collaboration, approval handling, memory deletion, export, billing gates, and connector revoke flows.
+Acceptance criteria:
+- CI can run tests
+- critical flows are covered
+- major regressions are detectable automatically
+
+Master Definition of Done
+The application is done only when a non technical user can sign up, create an agent or a team of agents through wizard, natural language, or templates, assign a task, see agents collaborate, approve or deny external actions, inspect memory and privacy settings, use at least one connection, generate documents, understand what happened, and remain within plan limits enforced by billing and usage logic.

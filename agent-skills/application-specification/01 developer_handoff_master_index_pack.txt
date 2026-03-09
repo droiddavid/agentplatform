@@ -1,0 +1,125 @@
+
+DEVELOPER HANDOFF MASTER INDEX
+Runtime AI Agent Platform
+Version 1
+
+==================================================
+1. PURPOSE
+==================================================
+This document provides the master index of all specification packs
+produced for the AI agent platform build. It enables a coding agent
+or developer team to locate each artifact needed to construct the
+application.
+
+==================================================
+2. SPECIFICATION PACK INDEX
+==================================================
+
+Core System Specifications
+--------------------------
+1. Frontend Specification Pack
+2. Backend Specification Pack
+3. Database and API Contract Pack
+4. Database Schema Pack
+5. Database Migration Pack
+
+Architecture and Runtime
+------------------------
+6. Backend Package, Class, and File Map Pack
+7. State Machine and Event Contract Pack
+8. Atomic Build Backlog
+9. Module DTO Entity Interface Pack
+
+UX and Product
+--------------
+10. Screen‑by‑Screen UX Specification Pack
+11. UX Copy and Onboarding Text Pack
+
+Operational
+-----------
+12. Environment and Configuration Pack
+13. Acceptance Test Pack
+
+Seed and Content
+----------------
+14. Seed Data and Curated Template Pack
+
+Implementation
+--------------
+15. Master Implementation Prompt Pack
+
+==================================================
+3. BUILD ORDER SUMMARY
+==================================================
+
+Step 1:
+Create backend skeleton and configuration.
+
+Step 2:
+Apply database migrations and seed data.
+
+Step 3:
+Implement authentication and user management.
+
+Step 4:
+Implement agent creation and management.
+
+Step 5:
+Implement tasks, runs, and state machines.
+
+Step 6:
+Implement collaboration messaging and spawn system.
+
+Step 7:
+Implement approval and safety controls.
+
+Step 8:
+Implement tools, integrations, and connectors.
+
+Step 9:
+Implement documents and artifacts.
+
+Step 10:
+Implement billing, usage tracking, and plan enforcement.
+
+Step 11:
+Implement notifications and streaming events.
+
+Step 12:
+Implement frontend UI and workflow screens.
+
+Step 13:
+Implement graph visualization and collaboration UI.
+
+Step 14:
+Integrate frontend and backend APIs.
+
+Step 15:
+Run acceptance test suite.
+
+Step 16:
+Prepare production configuration.
+
+==================================================
+4. FINAL GOAL
+==================================================
+
+When all packs are implemented correctly, the system will allow
+non‑technical users to:
+
+• Create AI agents
+• Assign tasks
+• Run collaborative multi‑agent workflows
+• Approve external actions
+• Generate documents and outputs
+• Connect external services
+• Manage memory and privacy
+• Monitor agent activity
+
+==================================================
+5. IMPLEMENTATION NOTE
+==================================================
+
+This specification set is designed so that a separate AI implementation
+agent can consume the documents and build the entire application with
+minimal human direction.

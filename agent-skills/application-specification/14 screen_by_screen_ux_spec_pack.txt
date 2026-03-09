@@ -1,0 +1,578 @@
+SCREEN-BY-SCREEN UX SPECIFICATION PACK
+Runtime AI Agent Platform v1
+
+1. PURPOSE
+This pack defines the user experience screen by screen for a non-technical consumer-facing AI agent platform. It assumes the master specification already established in this session. It is written so an implementation agent can build the frontend without guessing the user journey, layout, copy intent, or interaction rules.
+
+2. GLOBAL UX PRINCIPLES
+- Use plain language at all times.
+- Always explain what the system is doing, why it needs something, and what happens next.
+- Never expose technical internals unless the user explicitly asks for advanced detail.
+- Every action with external impact must be clearly marked.
+- Approval-related choices must be understandable in one glance.
+- Mobile layouts must preserve the core action path, even if secondary panels collapse.
+- Empty states must teach.
+- Error states must explain and recover.
+
+3. GLOBAL LAYOUT RULES
+3.1 Signed-out layout
+- Top nav: logo, product value statement, pricing, help, sign in, get started.
+- Main area: hero, trust section, use-case cards, feature highlights, footer.
+
+3.2 Signed-in desktop layout
+- Left rail: Dashboard, Agents, Tasks, Runs, Connections, Documents, Billing, Privacy, Settings, Help.
+- Top bar: page title, global search, notifications, usage meter, account menu.
+- Main content: route-specific.
+- Right utility rail on selected screens: approvals, context, recent activity.
+
+3.3 Signed-in mobile layout
+- Top bar with page title and overflow actions.
+- Bottom nav for core areas: Home, Agents, Tasks, Runs, More.
+- Slide-over drawers for context, approvals, and filters.
+
+4. SCREEN INVENTORY AND BEHAVIOR
+
+4.1 LANDING PAGE
+Purpose:
+- Explain value to a new user.
+Primary user question answered:
+- What does this do for me?
+Sections:
+- Hero with plain-language promise.
+- Three flagship use cases: business, life, team of agents.
+- How it works in 3 steps.
+- Trust and privacy summary.
+- Pricing preview.
+- FAQ.
+Primary CTAs:
+- Get started.
+- Sign in.
+Acceptance:
+- User can understand the product in under 30 seconds.
+
+4.2 SIGN UP
+Fields:
+- Email.
+- Password.
+- Confirm password.
+- Terms checkbox.
+- Privacy checkbox.
+Behavior:
+- Inline validation.
+- Success state instructs user to verify email.
+Acceptance:
+- Clear recovery for invalid input.
+
+4.3 SIGN IN
+Fields:
+- Email.
+- Password.
+- Remember me optional.
+- Forgot password link.
+Behavior:
+- Show human-readable auth errors.
+Acceptance:
+- User lands on onboarding if new, dashboard if existing.
+
+4.4 FORGOT PASSWORD
+Fields:
+- Email.
+Behavior:
+- Success copy should not reveal whether account exists.
+
+4.5 RESET PASSWORD
+Fields:
+- New password.
+- Confirm new password.
+Behavior:
+- Token validation.
+- Password strength indicator.
+
+4.6 EMAIL VERIFICATION
+Purpose:
+- Confirm account ownership.
+States:
+- Verifying.
+- Success.
+- Expired token.
+- Resend verification option.
+
+4.7 ONBOARDING INTRO
+Purpose:
+- Frame the product in plain language.
+Content:
+- “You describe the work. Your agents help do it. You stay in control.”
+Actions:
+- Start setup.
+- Watch sample tour.
+
+4.8 ONBOARDING GOAL SELECTION
+Question:
+- What do you want help with first?
+Choices:
+- Running my business.
+- Managing my life and tasks.
+- Creating content.
+- Household and family coordination.
+- Building a team of agents.
+Behavior:
+- Selecting one customizes next steps.
+
+4.9 ONBOARDING TOOL CONNECTIONS
+Purpose:
+- Let user connect email, calendar, commerce, and other tools.
+Behavior:
+- Connection cards with benefit explanation.
+- Skip allowed.
+- Explain that tools can be added later.
+
+4.10 ONBOARDING PRIVACY AND MEMORY
+Questions:
+- Should agents remember useful preferences over time?
+- Should the system ask before every external action?
+- Should the system let you save approval choices later?
+Behavior:
+- Default is safest settings.
+- Use educational helper text.
+
+4.11 ONBOARDING CREATE FIRST AGENT WIZARD
+Step 1:
+- Name or let system suggest name.
+Step 2:
+- Pick job to be done.
+Step 3:
+- Choose capabilities.
+Step 4:
+- Choose tools.
+Step 5:
+- Choose approval behavior.
+Step 6:
+- Choose memory behavior.
+Step 7:
+- Review and create.
+Behavior:
+- Each step has back, next, save draft.
+Acceptance:
+- User creates first agent without technical knowledge.
+
+4.12 ONBOARDING NATURAL LANGUAGE CREATION
+Input:
+- Large prompt box.
+Prompt hint:
+- “Describe what you want your agent to do in everyday language.”
+Behavior:
+- Parse into proposed agent structure.
+- Show editable review summary.
+- Ask for missing required permissions before creation.
+
+4.13 TEMPLATE BROWSER
+Layout:
+- Search box.
+- Category chips.
+- Template cards.
+Card contents:
+- Title.
+- Ideal use case.
+- What it can do.
+- Tools typically used.
+- Approval behavior summary.
+Actions:
+- Preview.
+- Use template.
+
+4.14 DASHBOARD
+Purpose:
+- User sees current value quickly.
+Widgets:
+- Active agents.
+- Open approvals.
+- Current tasks.
+- Recent runs.
+- Usage remaining.
+- Suggested next action.
+Behavior:
+- Surface friction points first.
+
+4.15 AGENT LIST
+Layout:
+- Search and filter.
+- Sort by recent, active, created, archived.
+- Grid or list toggle.
+Card contents:
+- Name.
+- Role.
+- Status.
+- Capabilities.
+- Last active.
+- Approval mode badge.
+Actions:
+- Open.
+- Edit.
+- Archive.
+- Start task.
+
+4.16 AGENT DETAIL
+Sections:
+- Overview.
+- Capabilities.
+- Allowed tools.
+- Approval policy.
+- Memory policy.
+- Collaboration policy.
+- Recent runs.
+- Linked tasks.
+- Linked peers.
+Actions:
+- Edit.
+- Duplicate.
+- Archive.
+- Start task.
+
+4.17 AGENT EDITOR
+Panels:
+- Identity.
+- Goals.
+- Capabilities.
+- Tools.
+- Approvals.
+- Memory.
+- Collaboration.
+- Spawn settings.
+- Model preference.
+Behavior:
+- Changes preview in a plain-language summary.
+- Dangerous changes require confirmation.
+
+4.18 AGENT MEMORY VIEWER
+Purpose:
+- Let the user inspect what is remembered.
+Views:
+- By scope: run, agent, user, shared.
+- By type: preference, summary, fact, connection context.
+Actions:
+- Delete item.
+- Delete group.
+- See origin.
+
+4.19 AGENT PERMISSIONS VIEWER
+Purpose:
+- Make permissions understandable.
+Display:
+- Tool name.
+- What it allows.
+- Whether approval is always required.
+- Any remembered rule attached.
+Actions:
+- Revoke.
+- Tighten.
+- Reset to safer defaults.
+
+4.20 TASK LIST
+Purpose:
+- Show user-facing work items.
+Views:
+- All, active, waiting for approval, completed, failed.
+Task card:
+- Title.
+- Goal category.
+- Assigned agents.
+- Status.
+- Due date optional.
+- Last update.
+Actions:
+- Open.
+- Start run.
+- Edit.
+
+4.21 TASK DETAIL
+Sections:
+- Summary.
+- Assigned agents.
+- Outputs.
+- Run history.
+- Approvals.
+- Documents.
+Actions:
+- Start or resume.
+- Add agent.
+- Edit task.
+- Cancel.
+
+4.22 MULTI-AGENT WORKSPACE
+Purpose:
+- Main operating screen.
+Desktop layout:
+- Left: agent roster + shared task board.
+- Center: conversation or live run stream.
+- Right: approvals, documents, context.
+Modes:
+- Chat.
+- Activity timeline.
+- Graph view.
+- Board view.
+Behavior:
+- Clear status banner.
+- Show blocking approvals prominently.
+
+4.23 GRAPH VIEW
+Purpose:
+- Visualize agent relationships.
+Node types:
+- User, agents, task, approvals, documents optionally simplified.
+Edges:
+- Collaborates with.
+- Spawned.
+- Assigned to.
+- Messaging flow.
+Interaction:
+- Click node to open detail drawer.
+- Filter edges.
+- Highlight active path.
+
+4.24 CHAT THREAD VIEW
+Purpose:
+- Human-readable collaboration view.
+Message bubble metadata:
+- Sender.
+- Recipient.
+- Type.
+- Timestamp.
+- Reason summary.
+Behavior:
+- Separate human messages, agent peer messages, system events.
+
+4.25 SHARED TASK BOARD
+Columns:
+- To do.
+- In progress.
+- Waiting approval.
+- Done.
+Card contents:
+- Subtask title.
+- Owner agent.
+- Status.
+- Related output.
+Behavior:
+- Agent changes should update live.
+
+4.26 RUN LIST
+Filters:
+- Active, completed, failed, waiting approval.
+Columns:
+- Task, start time, agents involved, status, usage.
+Actions:
+- Open.
+- Resume.
+- Cancel.
+
+4.27 RUN DETAIL
+Sections:
+- Run header with status.
+- Timeline of events.
+- Agent roster.
+- Messages.
+- Tool invocations.
+- Approvals.
+- Outputs.
+- Errors if any.
+Behavior:
+- Stream updates if active.
+- Allow replay style inspection after completion.
+
+4.28 APPROVAL CENTER
+Purpose:
+- Central inbox for all blocked actions.
+Card contents:
+- Proposed action.
+- Why it was proposed.
+- Data involved.
+- Tool/service involved.
+- Scope choices for remembering.
+Actions:
+- Approve once.
+- Approve for task.
+- Approve for agent.
+- Approve for user.
+- Deny.
+- Ask every time.
+- Revise instruction.
+
+4.29 ACTION REVIEW MODAL
+Purpose:
+- Deep review of a specific action.
+Include:
+- Plain-language summary.
+- Technical preview only in advanced toggle.
+- Risk label.
+- Data preview.
+- Consequence preview.
+
+4.30 CONNECTIONS LIST
+Cards:
+- Email.
+- Calendar.
+- Web/search.
+- Commerce.
+- Custom APIs.
+Contents:
+- Status.
+- Last tested.
+- Scope summary.
+Actions:
+- Connect.
+- Test.
+- Revoke.
+- View scopes.
+
+4.31 CONNECTION SETUP SCREEN
+Purpose:
+- Guide non-technical user through connecting a tool.
+Behavior:
+- Explain why connection helps.
+- Explain data access requested.
+- Show result of successful connection.
+
+4.32 DOCUMENT LIBRARY
+Views:
+- All documents.
+- By task.
+- By type.
+Document card:
+- Title.
+- Type.
+- Linked task.
+- Last updated.
+Actions:
+- Open.
+- Rename.
+- Export.
+- Delete.
+
+4.33 DOCUMENT DETAIL
+Sections:
+- Content preview.
+- Version history.
+- Linked task and run.
+- Export options.
+- Share or send actions if permitted.
+
+4.34 USAGE DASHBOARD
+Widgets:
+- Remaining free uses or plan quota.
+- Runs this period.
+- Active agents.
+- Cloud usage if applicable.
+- Upgrade recommendation.
+
+4.35 BILLING PAGE
+Sections:
+- Current plan.
+- Compare plans.
+- Payment method.
+- Invoice history.
+- Upgrade/downgrade.
+Behavior:
+- Human-readable explanation of local versus cloud plan.
+
+4.36 PRIVACY DASHBOARD
+Sections:
+- Memory overview.
+- Remembered approvals.
+- Connected tools.
+- Consent records.
+- Data export.
+- Account deletion.
+Behavior:
+- Always explain what deleting affects.
+
+4.37 EXPORT DATA SCREEN
+Purpose:
+- Request and download export.
+States:
+- Not requested.
+- Processing.
+- Ready.
+- Expired.
+
+4.38 DELETE DATA SCREEN
+Options:
+- Delete selected memory.
+- Delete by scope.
+- Delete account.
+Behavior:
+- Strong confirmation copy.
+- Explain irreversibility.
+
+4.39 SETTINGS GENERAL
+Fields:
+- Display name.
+- Time zone.
+- Default view.
+- Language later-ready.
+
+4.40 SETTINGS NOTIFICATIONS
+Controls:
+- In-app notifications.
+- Email notifications.
+- Approval alerts.
+- Task complete alerts.
+
+4.41 SETTINGS MODEL PREFERENCES
+Purpose:
+- Set preferred provider path.
+Fields:
+- Auto.
+- Prefer local.
+- Prefer cloud.
+- Budget-conscious mode.
+
+4.42 SETTINGS CONSENT AND MEMORY
+Purpose:
+- Global defaults.
+Fields:
+- Ask before all external actions.
+- Allow remembered approvals.
+- Default memory scope behavior.
+
+4.43 HELP CENTER
+Content:
+- Search.
+- Getting started articles.
+- Privacy explainer.
+- Approval explainer.
+- Troubleshooting.
+
+5. EMPTY STATE RULES
+Every empty state must contain:
+- Explanation.
+- Why this area matters.
+- Primary CTA.
+- Secondary learning link.
+
+6. ERROR STATE RULES
+Every error state must contain:
+- What failed.
+- What it means in plain language.
+- What the user can do next.
+- Retry where appropriate.
+
+7. MICROCOPY GUIDELINES
+- Say “agent” and “helper” more often than “model” or “runtime.”
+- Say “approval” not “authorization token.”
+- Say “remember this choice” not “persist rule.”
+- Say “connected tools” not “integrations” in user-facing labels where possible.
+
+8. ACCESSIBILITY REQUIREMENTS
+- Keyboard reachable.
+- Visible focus states.
+- Labels tied to inputs.
+- Graph view must have list fallback.
+- Approval buttons must have explicit descriptions.
+
+9. UX ACCEPTANCE SUMMARY
+The UX pack is accepted only if:
+- A non-technical user can create an agent.
+- A non-technical user can understand an approval request.
+- A non-technical user can follow what multiple agents are doing.
+- A non-technical user can inspect memory and delete it.
+- All critical flows are usable on mobile width.

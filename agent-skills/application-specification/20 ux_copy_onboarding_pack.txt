@@ -1,0 +1,208 @@
+
+UX COPY AND ONBOARDING TEXT PACK
+Runtime AI Agent Platform
+Version 1
+
+==================================================
+1. PURPOSE
+==================================================
+This pack provides all user-facing copy used in onboarding, dashboards,
+agent creation, approvals, and help guidance. Language is written for
+non‑technical users and must remain simple, supportive, and explanatory.
+
+Tone guidelines:
+- Friendly
+- Clear
+- Non‑technical
+- Trust‑building
+- Action‑oriented
+
+==================================================
+2. LANDING PAGE COPY
+==================================================
+
+Headline:
+"Create AI agents that work for you."
+
+Subheadline:
+"Design assistants that research, plan, write, organize, and take action —
+while you stay in control."
+
+Primary CTA:
+"Get Started"
+
+Secondary CTA:
+"See How It Works"
+
+Short explanation:
+"AgentFlow lets you create intelligent agents that collaborate, complete
+tasks, and help run your life or business."
+
+==================================================
+3. SIGN‑UP PAGE
+==================================================
+
+Title:
+"Create your account"
+
+Helper text:
+"Start building AI agents that work with you."
+
+Fields:
+Email
+Password
+
+Password hint:
+"Use at least 8 characters."
+
+Success message:
+"Your account has been created. Let's set up your first agent."
+
+==================================================
+4. ONBOARDING FLOW
+==================================================
+
+Screen 1 Title:
+"What would you like help with?"
+
+Options:
+- Running my business
+- Managing my life and tasks
+- Creating content
+- Organizing family or household
+- Research and learning
+
+Screen 2 Title:
+"How do you want your agents to work?"
+
+Options:
+- Ask before taking action
+- Ask for important actions
+- Let me review results afterward
+
+Default:
+"Ask before taking action"
+
+Screen 3 Title:
+"Choose your first agent"
+
+Description:
+"Start with a ready‑made template or create your own."
+
+Buttons:
+"Browse Templates"
+"Create My Own Agent"
+
+==================================================
+5. DASHBOARD COPY
+==================================================
+
+Page Title:
+"Your Agents"
+
+Description:
+"These agents are ready to help you complete tasks."
+
+Button:
+"Create New Agent"
+
+Empty state message:
+"You don't have any agents yet. Create your first one to begin."
+
+==================================================
+6. AGENT CREATION WIZARD COPY
+==================================================
+
+Step 1 Title:
+"What will this agent help you do?"
+
+Placeholder text:
+"For example: Help me organize customer emails."
+
+Step 2 Title:
+"What skills should this agent have?"
+
+Helper text:
+"Choose the abilities this agent will use."
+
+Step 3 Title:
+"What tools can this agent use?"
+
+Helper text:
+"Agents may need tools like email, calendar, or search."
+
+Step 4 Title:
+"When should the agent ask permission?"
+
+Options:
+- Always ask
+- Ask for important actions
+- Remember my decisions
+
+==================================================
+7. APPROVAL PROMPTS
+==================================================
+
+Title:
+"Approval Needed"
+
+Description:
+"Your agent wants to perform an action that may affect external systems."
+
+Example message:
+"The agent wants to send an email to a customer."
+
+Buttons:
+Approve
+Deny
+
+Checkbox:
+"Remember this decision"
+
+==================================================
+8. TASK AND RUN COPY
+==================================================
+
+Task description label:
+"What should the agents accomplish?"
+
+Placeholder:
+"For example: Research competitors and draft a marketing plan."
+
+Run start message:
+"Your agents are starting to work on this task."
+
+Completion message:
+"The task has been completed."
+
+==================================================
+9. ERROR AND RECOVERY MESSAGES
+==================================================
+
+Generic error:
+"Something went wrong. Please try again."
+
+Connection error:
+"We couldn't connect to that service. Please check your settings."
+
+Agent error:
+"The agent encountered a problem while completing the task."
+
+Retry message:
+"You can retry this step or adjust the task."
+
+==================================================
+10. HELP AND EDUCATION COPY
+==================================================
+
+Help title:
+"How agents work"
+
+Explanation:
+"Agents are digital helpers that can plan tasks, communicate with other
+agents, and use tools to complete work."
+
+Trust message:
+"Agents will always ask before taking actions outside the system unless
+you allow automatic approval."
+

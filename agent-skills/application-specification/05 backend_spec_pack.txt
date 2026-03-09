@@ -1,0 +1,592 @@
+BACKEND SPECIFICATION PACK
+Project: Consumer Runtime AI Agent Platform
+Version: V1
+Backend Stack: Spring Boot, Java, MySQL, REST, SSE or WebSocket
+Purpose: This document defines the complete backend implementation specification for a consumer facing runtime AI agent platform. It is written so an implementation agent can build the backend without further clarification.
+
+1. BACKEND MISSION
+The backend must provide identity, persistence, runtime execution, tool integration, approvals, privacy, billing, and traceability for a platform where runtime defined AI agents can collaborate and act on behalf of a non technical user.
+
+2. CORE BACKEND PRINCIPLES
+2.1 Agents are stored as data, not compiled as service classes.
+2.2 Every meaningful action is traceable.
+2.3 Every external action is approval gated by default.
+2.4 Every state transition must be explicit.
+2.5 The database is the source of truth for persisted user data, runs, approvals, memory, and consent.
+2.6 The runtime engine must support one agent or many agents.
+2.7 The architecture must support future teams and enterprise, but v1 remains single user account oriented.
+
+3. MODULES
+Required backend modules:
+- auth
+- users
+- onboarding
+- templates
+- agents
+- tasks
+- runs
+- messaging
+- approvals
+- memory
+- connections
+- tools
+- model-providers
+- documents
+- usage
+- billing
+- notifications
+- audit
+- compliance
+- privacy
+- common
+
+4. AUTH AND USER MANAGEMENT
+4.1 Required capabilities
+- user registration
+- email verification
+- sign in
+- refresh token issuance and rotation
+- logout
+- forgot password
+- reset password
+- session listing and revocation
+- account deletion initiation
+
+4.2 User account model
+Must support:
+- user identity
+- profile information
+- onboarding completion status
+- default preferences
+- plan and entitlements
+- privacy settings
+- notification settings
+
+5. ONBOARDING SERVICE
+Must store:
+- primary goals
+- use case categories
+- desired agent mode (single or team)
+- preferred tools
+- initial memory preference
+- initial approval preference
+- first task or first agent intent
+
+6. TEMPLATE SERVICE
+Must provide curated templates.
+Template payload must include:
+- template id
+- name
+- description
+- audience category
+- recommended capabilities
+- recommended tools
+- suggested approval defaults
+- suggested memory defaults
+- whether single agent or multi agent
+- optional spawn suggestion
+
+7. AGENT DOMAIN
+7.1 Agent entity responsibilities
+- store runtime defined agent specification
+- store tool permissions
+- store policies
+- store collaboration rules
+- store spawn rules
+- store model routing preference
+- store prompt scaffold fields
+
+7.2 Agent fields
+- id
+- user_id
+- display_name
+- role_title
+- description
+- persona_style
+- goal_json
+- capabilities_json or normalized relation
+- model_preference_json
+- prompt_scaffold_text or structured prompt fields
+- status
+- created_at
+- updated_at
+- archived
+
+7.3 Agent policies
+Separate policy object or table must hold:
+- approval policy
+- memory policy
+- collaboration policy
+- spawn policy
+- safety policy
+
+8. TASK DOMAIN
+Task entity must include:
+- id
+- user_id
+- title
+- description
+- category
+- status
+- priority
+- due_at nullable
+- current_run_id nullable
+- created_at
+- updated_at
+
+Task associations:
+- assigned agents
+- produced documents
+- approvals
+- runs
+
+9. RUN DOMAIN
+9.1 Run purpose
+A run is an execution instance for one task using one or more agents.
+
+9.2 Run states
+- DRAFT
+- READY
+- RUNNING
+- WAITING_FOR_APPROVAL
+- WAITING_FOR_INPUT
+- BLOCKED
+- COMPLETED
+- FAILED
+- CANCELLED
+- ARCHIVED
+
+9.3 Run records
+Must include:
+- id
+- user_id
+- task_id
+- state
+- started_at
+- ended_at nullable
+- active_agent_count
+- usage_summary_json
+- final_summary nullable
+
+9.4 Run event ledger
+Every important runtime action must create a run event.
+Event examples:
+- run_started
+- agent_turn_started
+- agent_message_sent
+- tool_intent_created
+- approval_requested
+- approval_granted
+- approval_denied
+- tool_executed
+- spawn_requested
+- spawn_created
+- document_saved
+- run_completed
+- run_failed
+
+10. MESSAGING DOMAIN
+10.1 Message types
+- TASK_REQUEST
+- TASK_RESPONSE
+- CLARIFICATION_REQUEST
+- CLARIFICATION_RESPONSE
+- DELEGATION_REQUEST
+- DELEGATION_RESULT
+- CRITIQUE_REQUEST
+- CRITIQUE_RESULT
+- BROADCAST
+- SPAWN_PROPOSAL
+- SPAWN_RESULT
+- TOOL_INTENT
+- TOOL_RESULT
+- FINAL_SUMMARY
+- HEARTBEAT
+
+10.2 Message record fields
+- id
+- run_id
+- from_agent_id
+- to_agent_id nullable for broadcast
+- message_type
+- content_text or structured payload
+- created_at
+- sequence_number
+
+11. APPROVAL DOMAIN
+11.1 Rule
+All external actions require approval by default.
+
+11.2 Approval entity fields
+- id
+- user_id
+- run_id
+- task_id
+- agent_id
+- tool_id
+- action_type
+- target_summary
+- reason_summary
+- payload_snapshot
+- risk_class
+- status
+- requested_at
+- resolved_at nullable
+- decision_scope nullable
+
+11.3 Decision options
+- APPROVE_ONCE
+- APPROVE_FOR_TASK
+- APPROVE_FOR_AGENT_PATTERN
+- APPROVE_FOR_USER_PATTERN
+- DENY
+- ALWAYS_ASK
+- REVISE
+
+11.4 Approval rules
+Remembered approval rules must be stored separately with:
+- rule pattern
+- scope
+- created_by_user
+- created_at
+- expiry optional
+- active flag
+
+12. MEMORY DOMAIN
+12.1 Memory scopes
+- RUN
+- AGENT
+- USER
+- SHARED
+
+12.2 Memory storage strategy
+Primary storage in database.
+Summaries and links must be queryable.
+Large artifacts can live in file storage with database references.
+
+12.3 Memory item fields
+- id
+- user_id
+- scope
+- agent_id nullable
+- run_id nullable
+- key
+- value_text or structured json
+- summary
+- sensitivity_level
+- source_type
+- created_at
+- updated_at
+
+13. CONNECTIONS DOMAIN
+13.1 Supported connection types in v1
+- email
+- calendar
+- web_search
+- web_browse
+- document_generation
+- ecommerce
+- custom_api
+
+13.2 Connection fields
+- id
+- user_id
+- type
+- display_name
+- status
+- scope_json
+- config_json non secret
+- created_at
+- updated_at
+
+13.3 Credential storage
+Secrets must be encrypted at rest.
+Never expose secrets in response DTOs.
+
+14. TOOLS DOMAIN
+14.1 Tool abstraction
+Each tool must declare:
+- tool id
+- display name
+- connection type if required
+- input schema
+- output schema
+- approval class
+- risk level
+- timeout
+- retry policy
+
+14.2 Tool invocation record
+- id
+- run_id
+- agent_id
+- tool_id
+- approval_id nullable
+- input_snapshot
+- output_snapshot
+- status
+- started_at
+- ended_at nullable
+- error_summary nullable
+
+15. MODEL PROVIDER ABSTRACTION
+15.1 Providers required
+At least:
+- one local provider adapter
+- one cloud provider adapter
+
+15.2 Provider gateway responsibilities
+- accept normalized generation request
+- route to selected provider
+- return normalized output
+- record usage metrics
+- record latency and errors
+
+15.3 Provider request model
+Must support:
+- system context
+- user or task instruction
+- peer directory context
+- memory context
+- tool availability summary
+- structured output request where applicable
+
+16. EXECUTION ENGINE
+16.1 Responsibilities
+- create runs
+- resolve participating agents
+- build turn context
+- invoke provider
+- interpret next action
+- send peer messages
+- create approvals
+- pause on approval
+- invoke tools after approval
+- handle spawn requests
+- persist events and outcomes
+- mark completion or failure
+
+16.2 Turn cycle
+1. load run state
+2. select next active agent
+3. assemble context
+4. call model provider
+5. parse result into internal action plan
+6. persist message or output
+7. if external action intended, create approval and pause
+8. if peer message intended, persist and queue recipient
+9. if spawn intended, evaluate policy and create child agent if allowed
+10. update memory
+11. emit run event
+12. continue or finish
+
+16.3 Scheduling approach
+Version 1 may use a simple orchestration scheduler inside backend service process with database backed persistence. Later versions can externalize queueing.
+
+17. SPAWN SERVICE
+17.1 Spawn conditions
+- missing specialty detected
+- workload partition beneficial
+- policy allows spawn
+- entitlement allows additional runtime agent
+
+17.2 Spawn constraints
+- child agent has limited life by default
+- child agent inherits only allowed context
+- approval may be required to create child agent depending on policy
+
+18. DOCUMENTS DOMAIN
+Document types:
+- NOTE
+- EMAIL_DRAFT
+- SUMMARY
+- PLAN
+- REPORT
+- CHECKLIST
+- PROPOSAL
+- CONTENT_DRAFT
+- STRUCTURED_EXPORT
+
+Document fields:
+- id
+- user_id
+- task_id nullable
+- run_id nullable
+- agent_id nullable
+- title
+- type
+- content
+- format
+- version
+- created_at
+- updated_at
+
+19. BILLING AND USAGE
+19.1 Plan models
+- FREE
+- LOCAL_PRO
+- CLOUD_PRO
+
+19.2 Free plan rule
+Five agent uses total.
+A use must be clearly defined in code. Recommended definition: one completed or initiated run consuming agent execution credit. Final rule must be consistent across UI and backend.
+
+19.3 Usage records
+Must capture:
+- user_id
+- plan
+- run_id nullable
+- provider_type
+- tokens or compute estimate if available
+- billable units
+- created_at
+
+19.4 Entitlement checks
+Must exist at service layer for:
+- feature access
+- max active agents
+- max runs
+- cloud provider access
+- connection limits
+- saved memory capacity
+
+20. NOTIFICATIONS DOMAIN
+Must support:
+- in app notifications stored in DB
+- email notifications via provider
+
+Events:
+- approval needed
+- task completed
+- task failed
+- connection issue
+- billing event
+- export ready
+- deletion completed
+
+21. AUDIT AND COMPLIANCE
+21.1 Audit log fields
+- id
+- user_id
+- actor_type
+- actor_id nullable
+- action
+- entity_type
+- entity_id
+- summary
+- metadata_json
+- created_at
+
+21.2 Consent records
+Must store:
+- terms acceptance
+- privacy acceptance
+- connection scope consent
+- remembered approval consent
+- memory policy consent
+
+22. PRIVACY OPERATIONS
+Must support:
+- export request creation
+- export assembly
+- export status tracking
+- memory deletion by item
+- memory deletion by scope
+- account deletion workflow
+
+23. API LAYER
+Required controller groups:
+- AuthController
+- MeController
+- OnboardingController
+- TemplateController
+- AgentController
+- TaskController
+- RunController
+- MessageController
+- ApprovalController
+- ConnectionController
+- DocumentController
+- BillingController
+- PrivacyController
+- NotificationController
+- StreamController
+
+24. DTO REQUIREMENTS
+Every endpoint must have explicit request and response DTOs.
+Do not expose entities directly.
+Response DTOs must never include secrets.
+
+25. STREAMING REQUIREMENTS
+Use SSE or WebSocket to stream:
+- run events
+- approval creation notices
+- notification changes
+
+26. SECURITY REQUIREMENTS
+- password hashing
+- JWT access tokens
+- refresh token rotation
+- encrypted secrets
+- CSRF strategy if cookie based flows are used
+- endpoint authorization checks
+- ownership checks for every user bound record
+
+27. OBSERVABILITY
+Must include:
+- structured logs
+- health endpoint
+- readiness endpoint
+- error logging
+- runtime event metrics if possible
+
+28. TESTING REQUIREMENTS
+Unit tests:
+- services
+- policy evaluation
+- approval rule matching
+- spawn policy
+- usage calculations
+
+Integration tests:
+- auth
+- agent CRUD
+- run lifecycle
+- approval pause and resume
+- connector flows
+- export and deletion
+
+29. ACCEPTANCE CRITERIA
+Backend is accepted only if:
+- auth flows work
+- runtime agents persist correctly
+- runs can execute with one or more agents
+- peer messaging persists and streams
+- external actions create approvals by default
+- approval rules can be remembered and enforced
+- spawn flow works with policy checks
+- memory and privacy actions function
+- usage and entitlement checks function
+- audit records are created for important actions
+
+30. RECOMMENDED PACKAGE STRUCTURE
+com.app.auth
+com.app.user
+com.app.onboarding
+com.app.templates
+com.app.agents
+com.app.tasks
+com.app.runs
+com.app.messaging
+com.app.approvals
+com.app.memory
+com.app.connections
+com.app.tools
+com.app.model
+com.app.documents
+com.app.billing
+com.app.usage
+com.app.notifications
+com.app.audit
+com.app.privacy
+com.app.common

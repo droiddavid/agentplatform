@@ -1,0 +1,612 @@
+FRONTEND SPECIFICATION PACK
+Project: Consumer Runtime AI Agent Platform
+Version: V1
+Frontend Stack: Angular, TypeScript, Signals, Tailwind, PWA
+Purpose: This document defines the complete frontend implementation specification for a consumer facing runtime AI agent platform. It is written so an implementation agent can build the frontend without further clarification.
+
+1. FRONTEND MISSION
+The frontend must allow a non technical user to understand, create, supervise, approve, and benefit from AI agents that can do work, communicate with one another, and take approved actions. The interface must remove technical complexity and expose only consumer understandable concepts.
+
+2. FRONTEND PRINCIPLES
+2.1 Agents are runtime entities. The frontend must never assume compile time agent classes.
+2.2 The UI must explain what is happening in plain language.
+2.3 Every important state transition must be visible.
+2.4 Approval is central. External actions are blocked by default and surfaced clearly.
+2.5 Desktop and mobile responsive usability are both required.
+2.6 Version 1 supports a web application with mobile responsive PWA behavior.
+2.7 The architecture must allow native mobile later.
+
+3. APPLICATION SHELL
+3.1 Layout regions
+The app shell must support:
+- top navigation
+- side navigation on desktop
+- bottom or drawer navigation on mobile
+- content region
+- optional secondary panel region
+- notification tray
+- global status and sync banner
+
+3.2 Signed out navigation
+Must include:
+- product logo/name
+- features
+- pricing
+- help
+- sign in
+- sign up
+
+3.3 Signed in navigation
+Must include:
+- dashboard
+- agents
+- tasks
+- runs
+- connections
+- documents
+- billing
+- privacy
+- settings
+- help
+
+4. ROUTE ARCHITECTURE
+Required top level routes:
+/
+/auth/sign-in
+/auth/sign-up
+/auth/forgot-password
+/auth/reset-password
+/onboarding
+/dashboard
+/agents
+/agents/new
+/agents/:id
+/agents/:id/edit
+/tasks
+/tasks/:id
+/runs
+/runs/:id
+/workspace/:taskId
+/connections
+/documents
+/billing
+/privacy
+/settings
+/help
+
+4.1 Route guards
+- AuthGuard for signed in routes
+- GuestGuard for auth routes
+- OnboardingGuard to route new users to onboarding until completion
+- EntitlementGuard for premium features
+
+5. FEATURE AREAS
+5.1 Core
+Responsibilities:
+- environment configuration
+- API client
+- auth token handling
+- websocket or SSE connectivity
+- global error handling
+- feature flags
+- PWA registration
+- app level signals and stores
+
+5.2 Auth
+Screens:
+- sign in
+- sign up
+- forgot password
+- reset password
+- verify email status
+
+Forms:
+- email
+- password
+- confirm password where applicable
+- remember me optional
+
+UX requirements:
+- plain language
+- loading states
+- clear validation
+- session persistence
+
+5.3 Onboarding
+Screens:
+- welcome
+- choose use case
+- choose goals
+- connect tools
+- select privacy and memory preference
+- choose one agent or team of agents
+- generate recommended setup
+- confirm first agent or first team
+- launch first task
+
+5.4 Templates
+- searchable template grid
+- categories for household, business, creator, planning, research, commerce
+- template detail drawer or page
+- use template action
+- template preview of capabilities, approvals, and tools
+
+5.5 Agent Creation Wizard
+Steps:
+- task or goal selection
+- agent role description
+- skill and capability selection
+- tool permission selection
+- collaboration settings
+- approval settings
+- memory settings
+- model preference
+- review and create
+
+5.6 Agent Creation From Natural Language
+Inputs:
+- free text request
+Outputs:
+- parsed proposal summary
+- one or more proposed agents
+- inferred tools
+- inferred approval policy
+- inferred collaboration structure
+- editable before save
+
+5.7 Agent List
+Each agent card shows:
+- name
+- role
+- short description
+- current status
+- usage summary
+- number of tasks/runs
+- permissions badge
+- memory badge
+- collaboration badge
+
+5.8 Agent Detail
+Must contain tabs or sections:
+- overview
+- capabilities
+- permissions
+- memory
+- related runs
+- related tasks
+- peers and graph relationships
+- edit
+
+5.9 Agent Edit
+Editable fields:
+- display name
+- role description
+- persona style
+- goals
+- capabilities
+- allowed tools
+- approval settings
+- memory settings
+- collaboration settings
+- spawn settings
+- model preference
+
+5.10 Tasks
+Task list must show:
+- title
+- status
+- priority
+- assigned agents
+- next action
+- approval pending indicator
+- created date
+- updated date
+
+Task detail must show:
+- description
+- linked agents
+- linked runs
+- outputs
+- approvals
+- documents
+- activity feed
+
+5.11 Runs
+Run list must show:
+- task title
+- run state
+- involved agents
+- start time
+- last updated
+- approval pending indicator
+
+Run detail must show:
+- timeline of events
+- messages
+- tool actions
+- approvals
+- outputs
+- errors
+- usage consumed
+- graph snapshot
+
+5.12 Multi Agent Workspace
+This is the primary collaboration screen.
+Desktop layout:
+- left panel: agents list and shared task board
+- center panel: conversation, timeline, or run stream
+- right panel: approvals, context, documents
+- toolbar: graph toggle, task status, run controls
+
+Mobile layout:
+- segmented tabs for activity, agents, approvals, documents
+- graph in full screen mode
+- sticky action bar for pending approvals and key controls
+
+5.13 Graph View
+Must visually show:
+- agent nodes
+- user node optional if useful
+- task node optional
+- message edges
+- delegation edges
+- critique edges
+- spawn relationships
+
+Interactions:
+- click node to inspect agent
+- click edge to inspect relationship or recent activity
+- filter by run, message type, and time window
+
+5.14 Shared Task Board
+Columns:
+- queued
+- active
+- blocked
+- waiting approval
+- completed
+
+Cards must show:
+- work item title
+- assigned agent
+- status
+- dependency if any
+- last update
+
+5.15 Approval Center
+Approval inbox must list:
+- action summary
+- agent requesting action
+- destination tool/service
+- reason summary
+- data summary
+- risk level
+- time requested
+
+Approval detail must support:
+- approve once
+- approve for this task
+- approve for this agent on similar actions
+- approve for this user on similar actions
+- deny
+- always ask
+- revise instructions
+
+5.16 Connections
+Connection list must show:
+- connection type
+- status
+- granted scopes
+- last success or failure
+- test action
+- revoke action
+
+Connection setup flows must exist for:
+- email
+- calendar
+- web search and browse
+- document generation
+- e commerce provider placeholder or actual provider when available
+- custom API connector
+
+5.17 Documents
+Document list must support:
+- filter by type
+- filter by task
+- filter by agent
+- filter by date
+
+Document detail must show:
+- title
+- type
+- version history
+- source task/run
+- preview
+- export actions
+
+5.18 Billing
+Billing screens must include:
+- current plan
+- usage summary
+- free limit progress
+- upgrade options
+- invoices
+- payment method management
+- entitlement summary
+
+5.19 Privacy and Memory
+Privacy dashboard must include:
+- memory by scope
+- remembered approvals
+- connected tools
+- export data request
+- delete memory item
+- delete memory by scope
+- delete account entry point
+
+5.20 Settings
+Settings sections:
+- profile
+- notifications
+- model preference
+- approval defaults
+- memory defaults
+- security and sessions
+
+5.21 Help
+Help must include:
+- onboarding help
+- what agents are
+- how approvals work
+- how privacy works
+- troubleshooting
+- plan help
+
+6. COMPONENT INVENTORY
+Shared components:
+- app-shell
+- top-nav
+- side-nav
+- mobile-nav
+- page-header
+- loading-state
+- empty-state
+- error-state
+- toast-container
+- modal-shell
+- confirm-dialog
+- badge
+- pill
+- stats-panel
+- timeline
+- chat-bubble
+- approval-card
+- agent-card
+- task-card
+- document-card
+- graph-canvas
+- memory-item-card
+- usage-meter
+- connection-status-chip
+
+Feature components:
+- onboarding-flow
+- template-grid
+- template-detail
+- agent-wizard
+- agent-text-builder
+- agent-overview-panel
+- agent-permissions-panel
+- agent-memory-panel
+- task-board
+- run-stream-panel
+- run-event-list
+- approval-inbox
+- approval-detail
+- connection-form
+- document-preview
+- billing-plan-card
+- privacy-dashboard
+- export-request-panel
+- delete-account-panel
+
+7. STATE MANAGEMENT
+7.1 Global state
+Must be limited to:
+- auth session
+- current user summary
+- notification list
+- PWA status
+- active usage summary
+- feature entitlement summary
+
+7.2 Feature local stores
+Each major route domain must have its own local signal based store:
+- AgentsStore
+- TasksStore
+- RunsStore
+- WorkspaceStore
+- ApprovalsStore
+- ConnectionsStore
+- DocumentsStore
+- BillingStore
+- PrivacyStore
+
+7.3 Realtime state
+Realtime updates must merge streamed run events into local state without requiring full page reload.
+
+8. ANGULAR SERVICES
+Required core services:
+- AuthService
+- SessionService
+- ApiClientService
+- RealtimeService
+- NotificationService
+- ErrorHandlingService
+- FeatureFlagService
+- PwaStatusService
+- UsageService
+- EntitlementService
+
+Feature services:
+- AgentService
+- AgentTemplateService
+- AgentCreationService
+- TaskService
+- RunService
+- WorkspaceService
+- ApprovalService
+- ConnectionService
+- DocumentService
+- BillingService
+- PrivacyService
+- SettingsService
+
+9. UX COPY RULES
+All copy must be plain language.
+Do not expose internal terms like context injection, orchestration, or event ledger unless hidden behind advanced details.
+Preferred user facing terms:
+- agent
+- task
+- action
+- approval
+- connection
+- memory
+- history
+- work team
+- explanation
+
+10. ACCESSIBILITY
+Required:
+- semantic HTML
+- keyboard navigation
+- focus management in dialogs
+- proper labels and helper text
+- sufficient contrast
+- non color only status indicators
+
+11. RESPONSIVE SPECIFICATION
+Desktop:
+- persistent sidebar
+- multiple panels
+- graph inline
+Tablet:
+- collapsible side panels
+- graph may open in overlay
+Mobile:
+- stacked sections
+- tabbed workspace sections
+- drawer navigation
+- larger tap targets
+
+12. PWA SPECIFICATION
+Must include:
+- manifest
+- installability
+- service worker
+- offline shell
+- cached static assets
+- offline warning when live run features unavailable
+- retry after reconnect
+
+13. FRONTEND DATA CONTRACT EXPECTATIONS
+Each feature must have DTO models matching backend contracts for:
+- auth
+- user summary
+- template summary and detail
+- agent summary and detail
+- task summary and detail
+- run summary and detail
+- run event
+- message
+- approval request and decision
+- connection summary and detail
+- document summary and detail
+- billing summary
+- memory item
+- export request status
+
+14. ERROR HANDLING
+Errors must be displayed with:
+- what happened
+- what user can do next
+- retry where safe
+- support link if needed
+
+15. ANALYTICS AND UX SIGNALS
+Frontend should emit basic product telemetry events for:
+- onboarding started/completed
+- agent created
+- run started
+- approval requested
+- approval completed
+- connection linked
+- upgrade clicked
+Telemetry must respect privacy preferences.
+
+16. FRONTEND TEST REQUIREMENTS
+Unit tests:
+- components
+- validation logic
+- stores
+- route guards
+
+Integration tests:
+- auth flow
+- onboarding flow
+- agent creation flow
+- approval flow
+- connection setup flow
+
+End to end tests:
+- sign up to first completed task
+- natural language agent creation
+- multi agent workspace with approval
+- privacy export and deletion path
+
+17. ACCEPTANCE CRITERIA
+Frontend is accepted only if:
+- a non technical user can sign up and onboard
+- a user can create an agent using wizard, text, or template
+- two agents can be seen collaborating in the workspace
+- approvals are understandable and actionable
+- graph view and task board function on desktop and mobile
+- memory and privacy screens are usable
+- billing and free limit information are clear
+- the app is installable as a PWA
+
+18. RECOMMENDED FILE STRUCTURE
+src/app/core
+src/app/shared
+src/app/features/auth
+src/app/features/onboarding
+src/app/features/dashboard
+src/app/features/agents
+src/app/features/tasks
+src/app/features/runs
+src/app/features/workspace
+src/app/features/approvals
+src/app/features/connections
+src/app/features/documents
+src/app/features/billing
+src/app/features/privacy
+src/app/features/settings
+src/app/features/help
+
+19. BUILD ORDER
+1. shell and routing
+2. auth
+3. onboarding
+4. templates
+5. agents
+6. tasks
+7. runs
+8. workspace
+9. approvals
+10. connections
+11. documents
+12. billing
+13. privacy
+14. settings
+15. help
+16. PWA polish

@@ -1,0 +1,436 @@
+ACCEPTANCE TEST PACK
+Runtime AI Agent Platform
+Version 1
+
+==================================================
+1. PURPOSE
+==================================================
+
+This pack defines the product-level and module-level acceptance tests for the
+consumer-ready runtime AI agent platform. It is designed for:
+- implementation validation
+- QA planning
+- automated E2E planning
+- release readiness
+
+Tests are written in plain language first so a coding agent can convert them
+into automated test suites later.
+
+==================================================
+2. GLOBAL ACCEPTANCE CRITERIA
+==================================================
+
+The application is release-ready only if all of the following are true:
+
+1. A non-technical user can create an account and complete onboarding.
+2. A user can create an agent through wizard, natural language, and templates.
+3. A user can start a task and see a run begin.
+4. Two or more agents can communicate within a run.
+5. External actions are blocked for approval by default.
+6. Remembered approval rules work correctly when enabled.
+7. Documents can be created and viewed.
+8. Connections can be added, tested, and revoked.
+9. Free tier limits are enforced correctly.
+10. Privacy controls for export and deletion work.
+11. Run logs and event streams remain consistent with persisted data.
+12. The UI works on desktop and mobile-responsive layouts.
+
+==================================================
+3. TEST DATA PRECONDITIONS
+==================================================
+
+Create or seed:
+- one FREE user
+- one LOCAL_PRO user
+- one CLOUD_PRO user
+- seeded plans and entitlements
+- seeded templates
+- seeded tool definitions
+- at least one simulated/test connector for each connection type
+
+==================================================
+4. AUTH ACCEPTANCE TESTS
+==================================================
+
+AT-AUTH-001
+Title: User can sign up
+Steps:
+1. Open sign-up page
+2. Enter valid email and password
+3. Submit
+Expected:
+- account created
+- verification flow initiated
+- user sees next-step guidance
+
+AT-AUTH-002
+Title: User can sign in
+Steps:
+1. Open sign-in page
+2. Enter valid credentials
+3. Submit
+Expected:
+- session established
+- protected routes accessible
+
+AT-AUTH-003
+Title: Forgot password works
+Steps:
+1. Open forgot-password page
+2. Submit valid email
+3. Use reset flow
+Expected:
+- reset token process works
+- password can be updated
+- old password no longer works
+
+AT-AUTH-004
+Title: Protected routes are blocked for unauthenticated users
+Expected:
+- redirect to sign-in page
+
+==================================================
+5. ONBOARDING ACCEPTANCE TESTS
+==================================================
+
+AT-ONB-001
+Title: New user completes onboarding
+Steps:
+1. Sign in as new user
+2. Walk through onboarding questions
+3. Select a first-use goal
+4. Complete onboarding
+Expected:
+- onboarding state saved
+- user lands in dashboard or first agent flow
+
+AT-ONB-002
+Title: Onboarding completion guard works
+Expected:
+- incomplete users are redirected to onboarding
+- completed users can access app routes
+
+==================================================
+6. AGENT CREATION ACCEPTANCE TESTS
+==================================================
+
+AT-AGT-001
+Title: Create agent from wizard
+Steps:
+1. Open agent wizard
+2. Provide role, goals, tools, approvals, memory, collaboration settings
+3. Submit
+Expected:
+- new agent created
+- agent appears in agent list
+- stored spec matches selected inputs
+
+AT-AGT-002
+Title: Create agent from natural language
+Steps:
+1. Open natural language builder
+2. Enter request such as:
+   "Create an agent that helps me run my Etsy store and asks before contacting customers."
+3. Review parsed result
+4. Confirm creation
+Expected:
+- structured proposal generated
+- user can edit proposal
+- final agent created successfully
+
+AT-AGT-003
+Title: Create agent from template
+Steps:
+1. Open template browser
+2. Select template
+3. Review defaults
+4. Confirm
+Expected:
+- new agent created from template
+- policy and capability defaults applied
+
+AT-AGT-004
+Title: Edit agent
+Expected:
+- editable fields persist
+- version snapshot created if versioning is enabled
+
+==================================================
+7. TASK AND RUN ACCEPTANCE TESTS
+==================================================
+
+AT-TASK-001
+Title: User creates task
+Expected:
+- task appears in task list
+- task detail accessible
+
+AT-RUN-001
+Title: User starts run from task
+Steps:
+1. Open task detail
+2. Start run
+Expected:
+- run record created
+- initial run events created
+- run detail page accessible
+
+AT-RUN-002
+Title: Run state transitions are valid
+Expected:
+- no invalid transitions occur
+- transition history persisted
+
+AT-RUN-003
+Title: Cancel run is idempotent
+Expected:
+- repeated cancel calls do not corrupt state
+
+==================================================
+8. COLLABORATION ACCEPTANCE TESTS
+==================================================
+
+AT-COL-001
+Title: Two agents can exchange direct messages
+Steps:
+1. Start task with two assigned agents
+2. Trigger collaboration
+Expected:
+- agent_messages records created
+- messages visible in workspace
+
+AT-COL-002
+Title: Shared task board works
+Expected:
+- agent can create board item
+- agent can assign or claim board item
+- board item completion is visible
+
+AT-COL-003
+Title: Graph view reflects collaboration
+Expected:
+- graph shows task node
+- graph shows agent nodes
+- edges show delegation or messaging
+
+AT-COL-004
+Title: Critique loop works
+Expected:
+- one agent can request review
+- reviewer returns critique result
+- events and messages recorded
+
+==================================================
+9. APPROVAL ACCEPTANCE TESTS
+==================================================
+
+AT-APR-001
+Title: External action requires approval by default
+Steps:
+1. Agent attempts email send
+Expected:
+- approval created
+- run pauses or waits
+- no send occurs before approval
+
+AT-APR-002
+Title: User can approve once
+Expected:
+- approval status becomes APPROVED
+- tool invocation proceeds
+- run resumes
+
+AT-APR-003
+Title: User can deny action
+Expected:
+- approval status becomes DENIED
+- run either recovers or fails with explanation
+
+AT-APR-004
+Title: User can create remembered approval rule at TASK scope
+Expected:
+- approval rule stored
+- same action pattern during same task uses rule correctly
+
+AT-APR-005
+Title: User can create remembered approval rule at AGENT scope
+Expected:
+- later similar action by same agent uses stored rule
+
+AT-APR-006
+Title: User can force ask every time
+Expected:
+- remembered rule not applied where ask-every-time is chosen
+
+==================================================
+10. SPAWN ACCEPTANCE TESTS
+==================================================
+
+AT-SPN-001
+Title: Agent can propose helper spawn
+Expected:
+- spawn event created
+- user sees why helper is needed
+
+AT-SPN-002
+Title: Approved spawn creates run agent
+Expected:
+- new agent or run_agent record created
+- graph shows spawned relationship
+- new agent can participate in run
+
+AT-SPN-003
+Title: Rejected spawn does not silently disappear
+Expected:
+- rejection event logged
+- run continues or explains failure
+
+==================================================
+11. CONNECTIONS ACCEPTANCE TESTS
+==================================================
+
+AT-CON-001
+Title: User can add email connection
+AT-CON-002
+Title: User can add calendar connection
+AT-CON-003
+Title: User can add web/search connection
+AT-CON-004
+Title: User can add ecommerce connection
+AT-CON-005
+Title: User can add custom API connector
+
+For each:
+Expected:
+- connection stored
+- scopes visible
+- test action possible
+
+AT-CON-006
+Title: User can revoke connection
+Expected:
+- connection disabled or disconnected
+- tool access blocked after revoke
+
+==================================================
+12. DOCUMENT ACCEPTANCE TESTS
+==================================================
+
+AT-DOC-001
+Title: Agent can create document
+Expected:
+- document stored
+- document visible in library
+
+AT-DOC-002
+Title: Document versioning works
+Expected:
+- document_versions created on update flow
+
+AT-DOC-003
+Title: Document export works
+Expected:
+- export request recorded
+- exported artifact linked when ready
+
+==================================================
+13. BILLING AND USAGE ACCEPTANCE TESTS
+==================================================
+
+AT-BIL-001
+Title: Free plan enforces five total agent uses
+Expected:
+- sixth usage attempt blocked with clear upgrade guidance
+
+AT-BIL-002
+Title: Local Pro unlocks local model access
+Expected:
+- entitlement check passes for local provider
+
+AT-BIL-003
+Title: Cloud Pro unlocks cloud model access
+Expected:
+- entitlement check passes for cloud provider
+
+AT-BIL-004
+Title: Usage records are created
+Expected:
+- each run records usage data
+- usage dashboard reflects totals
+
+==================================================
+14. PRIVACY AND COMPLIANCE ACCEPTANCE TESTS
+==================================================
+
+AT-PRV-001
+Title: User can view memory items
+Expected:
+- memory dashboard loads scoped memory
+
+AT-PRV-002
+Title: User can delete one memory item
+Expected:
+- deletion request processed
+- item no longer visible
+
+AT-PRV-003
+Title: User can export data
+Expected:
+- export request created
+- downloadable file becomes available
+
+AT-PRV-004
+Title: User can delete account
+Expected:
+- deletion job created
+- user loses access after completion
+
+AT-PRV-005
+Title: Consent records are stored
+Expected:
+- consent records exist for approvals, privacy, and terms where relevant
+
+==================================================
+15. REALTIME AND EVENT CONSISTENCY TESTS
+==================================================
+
+AT-RT-001
+Title: Streamed run events match persisted run events
+Expected:
+- no missing sequence gaps
+- no duplicate out-of-order state in UI
+
+AT-RT-002
+Title: Notification stream delivers approval-needed event
+Expected:
+- notification record created
+- stream payload matches stored notification
+
+==================================================
+16. RESPONSIVE AND ACCESSIBILITY ACCEPTANCE TESTS
+==================================================
+
+AT-UI-001
+Title: Dashboard usable on desktop
+AT-UI-002
+Title: Workspace usable on tablet
+AT-UI-003
+Title: Key flows usable on mobile width
+AT-A11Y-001
+Title: Forms are keyboard accessible
+AT-A11Y-002
+Title: Approval actions are screen-reader understandable
+
+==================================================
+17. RELEASE READINESS CHECKLIST
+==================================================
+
+Release candidate is accepted only if:
+1. All critical path tests pass.
+2. No Sev-1 defects remain.
+3. Billing gates are correct.
+4. Approval system cannot be bypassed accidentally.
+5. User-facing errors are understandable.
+6. PWA shell loads correctly.
+7. Core seeded templates render properly.
+8. Database migrations run from empty schema without failure.

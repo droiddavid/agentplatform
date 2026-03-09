@@ -1,0 +1,753 @@
+API ENDPOINT REQUEST AND RESPONSE EXAMPLE PACK
+Runtime AI Agent Platform v1
+
+1. PURPOSE
+This pack provides canonical request and response examples for the API surface defined in the master specification. These examples are implementation targets. Final field names may expand, but the semantics must remain aligned.
+
+2. CONVENTIONS
+- Base path: /api
+- JSON request and response bodies unless stated otherwise.
+- Auth via Bearer token for protected routes.
+- Timestamps use ISO-8601 UTC strings.
+- Errors return a standard envelope.
+
+3. STANDARD SUCCESS ENVELOPE
+{
+  "success": true,
+  "data": {}
+}
+
+4. STANDARD ERROR ENVELOPE
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "One or more fields are invalid.",
+    "details": [
+      { "field": "email", "message": "Email is required." }
+    ]
+  }
+}
+
+5. AUTH ENDPOINTS
+
+5.1 POST /api/auth/sign-up
+Request:
+{
+  "email": "user@example.com",
+  "password": "StrongPass123!",
+  "acceptTerms": true,
+  "acceptPrivacy": true
+}
+Response:
+{
+  "success": true,
+  "data": {
+    "userId": "usr_123",
+    "email": "user@example.com",
+    "emailVerificationRequired": true
+  }
+}
+
+5.2 POST /api/auth/sign-in
+Request:
+{
+  "email": "user@example.com",
+  "password": "StrongPass123!"
+}
+Response:
+{
+  "success": true,
+  "data": {
+    "accessToken": "jwt-access",
+    "refreshToken": "jwt-refresh",
+    "expiresAt": "2026-03-09T18:30:00Z",
+    "user": {
+      "id": "usr_123",
+      "email": "user@example.com",
+      "displayName": "David"
+    },
+    "onboardingComplete": false
+  }
+}
+
+5.3 POST /api/auth/refresh
+Request:
+{
+  "refreshToken": "jwt-refresh"
+}
+Response:
+{
+  "success": true,
+  "data": {
+    "accessToken": "new-jwt-access",
+    "refreshToken": "new-jwt-refresh",
+    "expiresAt": "2026-03-09T20:30:00Z"
+  }
+}
+
+6. USER PROFILE AND PREFERENCES
+
+6.1 GET /api/me
+Response:
+{
+  "success": true,
+  "data": {
+    "id": "usr_123",
+    "email": "user@example.com",
+    "displayName": "David",
+    "timeZone": "America/New_York",
+    "plan": "FREE",
+    "usage": {
+      "agentUsesRemaining": 3,
+      "monthlyRunsUsed": 2
+    }
+  }
+}
+
+6.2 PATCH /api/me/preferences
+Request:
+{
+  "defaultApprovalMode": "ASK_EVERY_TIME",
+  "allowRememberedApprovals": true,
+  "memoryDefaults": {
+    "allowAgentMemory": true,
+    "allowSharedMemory": true,
+    "allowUserProfileMemory": true
+  },
+  "modelPreference": "AUTO"
+}
+Response:
+{
+  "success": true,
+  "data": {
+    "updated": true
+  }
+}
+
+7. ONBOARDING
+
+7.1 POST /api/onboarding/start
+Request:
+{
+  "primaryGoal": "RUN_MY_BUSINESS",
+  "wantsTeamOfAgents": true
+}
+Response:
+{
+  "success": true,
+  "data": {
+    "onboardingId": "onb_001",
+    "nextStep": "CONNECT_TOOLS"
+  }
+}
+
+7.2 POST /api/onboarding/complete
+Request:
+{
+  "primaryGoal": "RUN_MY_BUSINESS",
+  "connectedTools": ["EMAIL", "CALENDAR"],
+  "privacyMode": "BALANCED",
+  "createdFirstAgentId": "agt_001"
+}
+Response:
+{
+  "success": true,
+  "data": {
+    "completed": true,
+    "redirectTo": "/dashboard"
+  }
+}
+
+8. TEMPLATES
+
+8.1 GET /api/templates
+Response:
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": "tpl_001",
+        "name": "Small Business Assistant",
+        "category": "BUSINESS",
+        "description": "Helps organize operations, draft responses, and coordinate tasks.",
+        "suggestedTools": ["EMAIL", "CALENDAR", "WEB_SEARCH"]
+      }
+    ]
+  }
+}
+
+9. AGENTS
+
+9.1 POST /api/agents
+Request:
+{
+  "name": "Store Helper",
+  "role": "Small business operations assistant",
+  "description": "Helps manage store tasks, customer responses, and planning.",
+  "goals": [
+    "Track tasks",
+    "Draft customer replies",
+    "Help plan weekly work"
+  ],
+  "capabilities": ["PLAN", "DRAFT", "COMMUNICATE", "RESEARCH"],
+  "toolPermissions": [
+    {
+      "toolId": "EMAIL_SEND",
+      "approvalMode": "REQUIRES_APPROVAL"
+    },
+    {
+      "toolId": "WEB_SEARCH",
+      "approvalMode": "REQUIRES_APPROVAL"
+    }
+  ],
+  "approvalPolicy": {
+    "defaultExternalAction": "REQUIRE_APPROVAL",
+    "allowRememberedRules": true
+  },
+  "memoryPolicy": {
+    "allowAgentMemory": true,
+    "allowSharedMemory": false,
+    "allowUserProfileMemory": true
+  },
+  "collaborationPolicy": {
+    "allowPeerMessaging": true,
+    "allowBroadcast": true,
+    "allowSpawnRequests": true
+  },
+  "modelPreference": "AUTO"
+}
+Response:
+{
+  "success": true,
+  "data": {
+    "id": "agt_001",
+    "status": "ACTIVE",
+    "createdAt": "2026-03-09T17:00:00Z"
+  }
+}
+
+9.2 POST /api/agents/from-text
+Request:
+{
+  "prompt": "Create an agent that helps me manage my online store, draft customer replies, and ask before sending anything."
+}
+Response:
+{
+  "success": true,
+  "data": {
+    "proposedAgents": [
+      {
+        "name": "Store Helper",
+        "role": "Store support assistant",
+        "capabilities": ["DRAFT", "PLAN", "COMMUNICATE"],
+        "toolPermissions": ["EMAIL_SEND", "WEB_SEARCH"],
+        "approvalSummary": "Will ask before all external actions."
+      }
+    ],
+    "requiresReview": true
+  }
+}
+
+9.3 GET /api/agents/:id
+Response:
+{
+  "success": true,
+  "data": {
+    "id": "agt_001",
+    "name": "Store Helper",
+    "role": "Store support assistant",
+    "status": "ACTIVE",
+    "goals": ["Draft replies", "Plan tasks"],
+    "capabilities": ["DRAFT", "PLAN", "COMMUNICATE"],
+    "linkedPeers": [
+      {
+        "id": "agt_002",
+        "name": "Research Helper",
+        "role": "Research assistant"
+      }
+    ]
+  }
+}
+
+10. TASKS
+
+10.1 POST /api/tasks
+Request:
+{
+  "title": "Prepare weekly store operations plan",
+  "description": "Research ideas, draft plan, and prepare customer updates.",
+  "goalCategory": "BUSINESS",
+  "assignedAgentIds": ["agt_001", "agt_002"],
+  "requiresApproval": true
+}
+Response:
+{
+  "success": true,
+  "data": {
+    "id": "tsk_001",
+    "status": "READY"
+  }
+}
+
+10.2 GET /api/tasks/:id
+Response:
+{
+  "success": true,
+  "data": {
+    "id": "tsk_001",
+    "title": "Prepare weekly store operations plan",
+    "status": "IN_PROGRESS",
+    "assignedAgents": [
+      { "id": "agt_001", "name": "Store Helper" },
+      { "id": "agt_002", "name": "Research Helper" }
+    ],
+    "latestRunId": "run_001"
+  }
+}
+
+10.3 POST /api/tasks/:id/start-run
+Request:
+{
+  "runMode": "STANDARD"
+}
+Response:
+{
+  "success": true,
+  "data": {
+    "runId": "run_001",
+    "state": "RUNNING"
+  }
+}
+
+11. RUNS
+
+11.1 GET /api/runs/:id
+Response:
+{
+  "success": true,
+  "data": {
+    "id": "run_001",
+    "taskId": "tsk_001",
+    "state": "WAITING_FOR_APPROVAL",
+    "startedAt": "2026-03-09T17:05:00Z",
+    "activeAgents": ["agt_001", "agt_002"],
+    "pendingApprovalCount": 1
+  }
+}
+
+11.2 GET /api/runs/:id/events
+Response:
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": "evt_001",
+        "type": "RUN_STARTED",
+        "timestamp": "2026-03-09T17:05:00Z",
+        "summary": "Run started."
+      },
+      {
+        "id": "evt_002",
+        "type": "AGENT_MESSAGE_SENT",
+        "timestamp": "2026-03-09T17:05:10Z",
+        "summary": "Store Helper asked Research Helper to gather competitor ideas."
+      },
+      {
+        "id": "evt_003",
+        "type": "APPROVAL_REQUESTED",
+        "timestamp": "2026-03-09T17:06:00Z",
+        "summary": "Approval requested to send a customer update email draft."
+      }
+    ]
+  }
+}
+
+11.3 GET /api/runs/:id/messages
+Response:
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": "msg_001",
+        "type": "DELEGATION_REQUEST",
+        "fromAgentId": "agt_001",
+        "toAgentId": "agt_002",
+        "content": "Research 5 ideas for improving listing clarity.",
+        "timestamp": "2026-03-09T17:05:10Z"
+      }
+    ]
+  }
+}
+
+11.4 POST /api/runs/:id/spawn
+Request:
+{
+  "reason": "Need a specialist to summarize competitor research.",
+  "proposedAgent": {
+    "name": "Summary Helper",
+    "role": "Research summarizer",
+    "capabilities": ["SUMMARIZE", "CRITIQUE"],
+    "collaborationPolicy": {
+      "allowPeerMessaging": true,
+      "allowSpawnRequests": false
+    }
+  }
+}
+Response:
+{
+  "success": true,
+  "data": {
+    "approvalRequired": true,
+    "approvalId": "apr_200"
+  }
+}
+
+12. APPROVALS
+
+12.1 GET /api/approvals
+Response:
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": "apr_001",
+        "type": "EMAIL_SEND",
+        "status": "PENDING",
+        "summary": "Send draft customer update email",
+        "scopeOptions": ["ONCE", "TASK", "AGENT", "USER", "ASK_EVERY_TIME"]
+      }
+    ]
+  }
+}
+
+12.2 GET /api/approvals/:id
+Response:
+{
+  "success": true,
+  "data": {
+    "id": "apr_001",
+    "status": "PENDING",
+    "actionType": "EMAIL_SEND",
+    "why": "The task includes preparing a customer update. The agent drafted a message and wants permission to send it.",
+    "dataPreview": {
+      "recipient": "customer@example.com",
+      "subject": "Update on your order",
+      "bodyPreview": "Hello, here is your update..."
+    },
+    "riskLevel": "EXTERNAL_SEND"
+  }
+}
+
+12.3 POST /api/approvals/:id/approve
+Request:
+{
+  "scope": "AGENT",
+  "rememberRule": true,
+  "ruleConditions": {
+    "actionType": "EMAIL_SEND",
+    "sameAgentOnly": true
+  }
+}
+Response:
+{
+  "success": true,
+  "data": {
+    "approved": true,
+    "runResumed": true,
+    "createdRuleId": "ar_001"
+  }
+}
+
+12.4 POST /api/approvals/:id/deny
+Request:
+{
+  "reason": "Do not send anything to customers automatically."
+}
+Response:
+{
+  "success": true,
+  "data": {
+    "denied": true,
+    "runState": "WAITING_FOR_INPUT"
+  }
+}
+
+13. CONNECTIONS
+
+13.1 GET /api/connections
+Response:
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": "con_001",
+        "type": "EMAIL",
+        "status": "CONNECTED",
+        "lastTestedAt": "2026-03-09T16:00:00Z",
+        "scopeSummary": ["read metadata", "send with approval"]
+      }
+    ]
+  }
+}
+
+13.2 POST /api/connections/:type/connect
+Request:
+{
+  "type": "CUSTOM_API",
+  "name": "My Store API",
+  "baseUrl": "https://api.example.com",
+  "authType": "BEARER",
+  "credentials": {
+    "token": "secret-token"
+  },
+  "allowedActions": ["GET_ORDERS", "UPDATE_ORDER_NOTE"]
+}
+Response:
+{
+  "success": true,
+  "data": {
+    "id": "con_002",
+    "status": "CONNECTED"
+  }
+}
+
+13.3 POST /api/connections/:id/test
+Response:
+{
+  "success": true,
+  "data": {
+    "ok": true,
+    "message": "Connection test succeeded."
+  }
+}
+
+14. DOCUMENTS
+
+14.1 GET /api/documents
+Response:
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": "doc_001",
+        "title": "Weekly Store Plan",
+        "type": "PLAN",
+        "taskId": "tsk_001",
+        "updatedAt": "2026-03-09T17:10:00Z"
+      }
+    ]
+  }
+}
+
+14.2 GET /api/documents/:id
+Response:
+{
+  "success": true,
+  "data": {
+    "id": "doc_001",
+    "title": "Weekly Store Plan",
+    "type": "PLAN",
+    "content": "1. Review orders...",
+    "versions": [
+      { "version": 1, "createdAt": "2026-03-09T17:10:00Z" }
+    ]
+  }
+}
+
+14.3 POST /api/documents/:id/export
+Request:
+{
+  "format": "PDF"
+}
+Response:
+{
+  "success": true,
+  "data": {
+    "exportId": "exp_001",
+    "status": "PROCESSING"
+  }
+}
+
+15. BILLING AND USAGE
+
+15.1 GET /api/usage
+Response:
+{
+  "success": true,
+  "data": {
+    "plan": "FREE",
+    "agentUsesRemaining": 3,
+    "monthlyRunCount": 2,
+    "cloudUsage": null
+  }
+}
+
+15.2 GET /api/billing/plans
+Response:
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "code": "FREE",
+        "name": "Free",
+        "priceMonthly": 0,
+        "features": ["5 agent uses"]
+      },
+      {
+        "code": "LOCAL_PRO",
+        "name": "Local Pro",
+        "priceMonthly": 19,
+        "features": ["more runs", "local model support"]
+      },
+      {
+        "code": "CLOUD_PRO",
+        "name": "Cloud Pro",
+        "priceMonthly": 49,
+        "features": ["cloud model access", "higher limits"]
+      }
+    ]
+  }
+}
+
+15.3 POST /api/billing/subscribe
+Request:
+{
+  "planCode": "CLOUD_PRO",
+  "paymentMethodId": "pm_001"
+}
+Response:
+{
+  "success": true,
+  "data": {
+    "subscriptionId": "sub_001",
+    "status": "ACTIVE"
+  }
+}
+
+16. PRIVACY
+
+16.1 GET /api/privacy/memory
+Response:
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": "mem_001",
+        "scope": "AGENT",
+        "label": "Preferred response style",
+        "summary": "User prefers concise customer replies.",
+        "createdAt": "2026-03-09T17:15:00Z"
+      }
+    ]
+  }
+}
+
+16.2 DELETE /api/privacy/memory/:id
+Response:
+{
+  "success": true,
+  "data": {
+    "deleted": true,
+    "id": "mem_001"
+  }
+}
+
+16.3 POST /api/privacy/export
+Response:
+{
+  "success": true,
+  "data": {
+    "exportRequestId": "exp_200",
+    "status": "PROCESSING"
+  }
+}
+
+16.4 POST /api/privacy/delete-account
+Request:
+{
+  "confirm": true,
+  "password": "StrongPass123!"
+}
+Response:
+{
+  "success": true,
+  "data": {
+    "deletionJobId": "del_001",
+    "status": "QUEUED"
+  }
+}
+
+17. STREAMING EXAMPLES
+
+17.1 GET /api/stream/runs/:id
+Event example:
+{
+  "eventType": "RUN_EVENT",
+  "data": {
+    "runId": "run_001",
+    "eventId": "evt_004",
+    "type": "TOOL_INVOCATION_COMPLETED",
+    "summary": "Research Helper completed web search for competitor ideas.",
+    "timestamp": "2026-03-09T17:07:00Z"
+  }
+}
+
+17.2 GET /api/stream/notifications
+Event example:
+{
+  "eventType": "NOTIFICATION",
+  "data": {
+    "id": "ntf_001",
+    "kind": "APPROVAL_NEEDED",
+    "title": "Approval needed",
+    "message": "Store Helper is waiting for your approval to send an email."
+  }
+}
+
+18. ERROR EXAMPLES
+
+18.1 Usage limit exceeded
+{
+  "success": false,
+  "error": {
+    "code": "USAGE_LIMIT_EXCEEDED",
+    "message": "You have used all 5 free agent uses. Upgrade to continue."
+  }
+}
+
+18.2 Approval required
+{
+  "success": false,
+  "error": {
+    "code": "APPROVAL_REQUIRED",
+    "message": "This action requires approval before it can continue.",
+    "details": {
+      "approvalId": "apr_001"
+    }
+  }
+}
+
+18.3 Connection revoked
+{
+  "success": false,
+  "error": {
+    "code": "CONNECTION_REVOKED",
+    "message": "This connected tool is no longer available. Reconnect it to continue."
+  }
+}
+
+19. API ACCEPTANCE SUMMARY
+This pack is accepted only if:
+- Every core frontend screen has enough API support.
+- All approval workflows are represented.
+- Run, task, agent, billing, privacy, and connection examples are sufficient to scaffold DTOs and controllers.
+- The examples remain aligned with the master specification and UX pack.

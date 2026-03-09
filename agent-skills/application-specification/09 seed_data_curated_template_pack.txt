@@ -1,0 +1,439 @@
+SEED DATA AND CURATED TEMPLATE PACK
+Runtime AI Agent Platform
+Version 1
+
+==================================================
+1. PURPOSE
+==================================================
+
+This pack defines the initial seed data required for a usable product on first boot.
+It includes:
+- subscription plans
+- feature entitlements
+- template categories
+- curated agent templates
+- tool definitions
+- retention policies
+
+The objective is to ensure the product is consumer-ready with meaningful defaults.
+
+==================================================
+2. PLAN SEED DATA
+==================================================
+
+2.1 Plans
+
+Plan 1
+- code: FREE
+- display_name: Free
+- description: Explore the platform with limited usage.
+- price_cents: 0
+- billing_interval: MONTHLY
+- features_json:
+  - max_agent_uses_total: 5
+  - max_active_agents: 2
+  - cloud_access: false
+  - local_access: false
+  - max_saved_documents: 20
+  - max_connections: 2
+
+Plan 2
+- code: LOCAL_PRO
+- display_name: Local Pro
+- description: Use more agents and connect local model providers.
+- price_cents: 1900
+- billing_interval: MONTHLY
+- features_json:
+  - max_agent_uses_total: 1000
+  - max_active_agents: 10
+  - cloud_access: false
+  - local_access: true
+  - max_saved_documents: 1000
+  - max_connections: 10
+
+Plan 3
+- code: CLOUD_PRO
+- display_name: Cloud Pro
+- description: Full cloud routing with higher usage and premium features.
+- price_cents: 4900
+- billing_interval: MONTHLY
+- features_json:
+  - max_agent_uses_total: 5000
+  - max_active_agents: 25
+  - cloud_access: true
+  - local_access: true
+  - max_saved_documents: 5000
+  - max_connections: 25
+
+==================================================
+3. FEATURE ENTITLEMENT SEED DATA
+==================================================
+
+3.1 FREE entitlements
+- MAX_ACTIVE_AGENTS = 2
+- MAX_TOTAL_AGENT_USES = 5
+- CLOUD_PROVIDER_ACCESS = false
+- LOCAL_PROVIDER_ACCESS = false
+- MAX_CONNECTIONS = 2
+- MAX_DOCUMENT_EXPORTS_PER_MONTH = 10
+- MAX_SAVED_MEMORY_ITEMS = 250
+- ADVANCED_TEMPLATES = false
+- CUSTOM_API_CONNECTORS = false
+
+3.2 LOCAL_PRO entitlements
+- MAX_ACTIVE_AGENTS = 10
+- MAX_TOTAL_AGENT_USES = 1000
+- CLOUD_PROVIDER_ACCESS = false
+- LOCAL_PROVIDER_ACCESS = true
+- MAX_CONNECTIONS = 10
+- MAX_DOCUMENT_EXPORTS_PER_MONTH = 500
+- MAX_SAVED_MEMORY_ITEMS = 5000
+- ADVANCED_TEMPLATES = true
+- CUSTOM_API_CONNECTORS = true
+
+3.3 CLOUD_PRO entitlements
+- MAX_ACTIVE_AGENTS = 25
+- MAX_TOTAL_AGENT_USES = 5000
+- CLOUD_PROVIDER_ACCESS = true
+- LOCAL_PROVIDER_ACCESS = true
+- MAX_CONNECTIONS = 25
+- MAX_DOCUMENT_EXPORTS_PER_MONTH = 2000
+- MAX_SAVED_MEMORY_ITEMS = 20000
+- ADVANCED_TEMPLATES = true
+- CUSTOM_API_CONNECTORS = true
+
+==================================================
+4. TEMPLATE CATEGORY SEED DATA
+==================================================
+
+Create these categories:
+
+1. LIFE_ORGANIZATION
+- display_name: Life Organization
+- description: Agents for personal planning and everyday coordination.
+
+2. BUSINESS_OPERATIONS
+- display_name: Business Operations
+- description: Agents that help run and organize a business.
+
+3. CREATOR_WORKFLOW
+- display_name: Creator Workflow
+- description: Agents for research, writing, publishing, and creative support.
+
+4. FAMILY_HOUSEHOLD
+- display_name: Family and Household
+- description: Agents for calendars, checklists, reminders, and family tasks.
+
+5. MULTI_AGENT_TEAMS
+- display_name: Multi-Agent Teams
+- description: Coordinated sets of agents that plan, review, and act together.
+
+==================================================
+5. CURATED AGENT TEMPLATE SEED DATA
+==================================================
+
+Each template should include:
+- code
+- display_name
+- description
+- default_role_title
+- default_agent_spec_json
+- recommended_use_case
+- category
+
+--------------------------------------------------
+Template 1
+--------------------------------------------------
+code: household_organizer
+display_name: Household Organizer
+category: FAMILY_HOUSEHOLD
+default_role_title: Household Organizer
+description:
+Helps manage recurring chores, calendars, reminders, shopping plans, and household coordination.
+
+recommended_use_case:
+Families and households that want one place to organize recurring life tasks.
+
+default_agent_spec_json should include:
+- roleTitle: Household Organizer
+- persona: calm, practical, clear
+- goals:
+  - keep family tasks organized
+  - coordinate reminders and plans
+- capabilities:
+  - plan
+  - summarize
+  - schedule
+  - checklist
+- tools:
+  - CALENDAR_READ
+  - CALENDAR_CREATE
+  - DOCUMENT_CREATE
+- approvalPolicy:
+  - defaultExternalAction: APPROVAL_REQUIRED
+- collaboration:
+  - peerMessagingEnabled: true
+  - spawnEnabled: false
+
+--------------------------------------------------
+Template 2
+--------------------------------------------------
+code: small_business_assistant
+display_name: Small Business Assistant
+category: BUSINESS_OPERATIONS
+default_role_title: Business Assistant
+description:
+Helps with planning, customer follow-ups, operations notes, draft communications, and task organization.
+
+recommended_use_case:
+Solo entrepreneurs and small businesses who want practical day-to-day support.
+
+default_agent_spec_json:
+- capabilities:
+  - plan
+  - summarize
+  - draft
+  - communicate
+  - analyze
+- tools:
+  - EMAIL_DRAFT
+  - EMAIL_SEND
+  - DOCUMENT_CREATE
+  - WEB_SEARCH
+- approvalPolicy:
+  - defaultExternalAction: APPROVAL_REQUIRED
+- collaboration:
+  - peerMessagingEnabled: true
+  - spawnEnabled: true
+
+--------------------------------------------------
+Template 3
+--------------------------------------------------
+code: creator_research_assistant
+display_name: Creator Research Assistant
+category: CREATOR_WORKFLOW
+default_role_title: Research Assistant
+description:
+Researches topics, gathers source notes, drafts content outlines, and organizes creative findings.
+
+recommended_use_case:
+Creators who need help turning ideas into structured content plans.
+
+default_agent_spec_json:
+- capabilities:
+  - research
+  - summarize
+  - outline
+  - draft
+- tools:
+  - WEB_SEARCH
+  - WEB_BROWSE
+  - DOCUMENT_CREATE
+
+--------------------------------------------------
+Template 4
+--------------------------------------------------
+code: document_email_agent
+display_name: Document and Email Agent
+category: BUSINESS_OPERATIONS
+default_role_title: Communication Agent
+description:
+Creates summaries, documents, proposals, and email drafts, and prepares approved outbound communication.
+
+--------------------------------------------------
+Template 5
+--------------------------------------------------
+code: calendar_planning_assistant
+display_name: Calendar and Planning Assistant
+category: LIFE_ORGANIZATION
+default_role_title: Planning Assistant
+description:
+Helps review availability, suggest scheduling plans, and prepare events for approval.
+
+--------------------------------------------------
+Template 6
+--------------------------------------------------
+code: ecommerce_operations_helper
+display_name: E-Commerce Operations Helper
+category: BUSINESS_OPERATIONS
+default_role_title: Commerce Assistant
+description:
+Reviews listings, drafts customer messages, suggests updates, and organizes commerce tasks.
+
+--------------------------------------------------
+Template 7
+--------------------------------------------------
+code: multi_agent_research_team
+display_name: Multi-Agent Research Team
+category: MULTI_AGENT_TEAMS
+default_role_title: Research Team
+description:
+Creates a planner, researcher, writer, and reviewer set that collaborate on a shared task.
+
+default_agent_spec_json for this template should define a team blueprint:
+- teamMode: true
+- agents:
+  - Planner Agent
+  - Research Agent
+  - Writer Agent
+  - Reviewer Agent
+- collaborationDefaults:
+  - peerMessagingEnabled: true
+  - critiqueLoopEnabled: true
+  - sharedMemoryEnabled: true
+  - spawnEnabled: true
+
+==================================================
+6. TOOL DEFINITION SEED DATA
+==================================================
+
+Each tool definition should include:
+- code
+- type
+- display_name
+- connection_type
+- approval_class
+- risk_level
+- timeout_seconds
+- input_schema_json
+- output_schema_json
+
+Seed the following tools:
+
+1. WEB_SEARCH
+- type: SEARCH
+- display_name: Web Search
+- connection_type: WEB_SEARCH
+- approval_class: READ_ONLY
+- risk_level: LOW
+
+2. WEB_BROWSE
+- type: FETCH
+- display_name: Web Browse
+- connection_type: WEB_BROWSE
+- approval_class: READ_ONLY
+- risk_level: LOW
+
+3. EMAIL_DRAFT
+- type: EMAIL
+- display_name: Create Email Draft
+- connection_type: EMAIL
+- approval_class: DRAFT_ONLY
+- risk_level: MEDIUM
+
+4. EMAIL_SEND
+- type: EMAIL
+- display_name: Send Email
+- connection_type: EMAIL
+- approval_class: EXTERNAL_SEND
+- risk_level: HIGH
+
+5. CALENDAR_READ
+- type: CALENDAR
+- display_name: Read Calendar Availability
+- connection_type: CALENDAR
+- approval_class: READ_ONLY
+- risk_level: LOW
+
+6. CALENDAR_CREATE
+- type: CALENDAR
+- display_name: Create Calendar Event
+- connection_type: CALENDAR
+- approval_class: EXTERNAL_WRITE
+- risk_level: HIGH
+
+7. DOCUMENT_CREATE
+- type: DOCUMENT
+- display_name: Create Document
+- connection_type: DOCUMENT
+- approval_class: DRAFT_ONLY
+- risk_level: LOW
+
+8. DOCUMENT_EXPORT
+- type: DOCUMENT
+- display_name: Export Document
+- connection_type: DOCUMENT
+- approval_class: EXTERNAL_WRITE
+- risk_level: MEDIUM
+
+9. ECOMMERCE_LISTING_READ
+- type: ECOMMERCE
+- display_name: Read Listing Data
+- connection_type: ECOMMERCE
+- approval_class: READ_ONLY
+- risk_level: LOW
+
+10. ECOMMERCE_LISTING_UPDATE
+- type: ECOMMERCE
+- display_name: Update Listing
+- connection_type: ECOMMERCE
+- approval_class: EXTERNAL_WRITE
+- risk_level: HIGH
+
+11. ECOMMERCE_CUSTOMER_MESSAGE_DRAFT
+- type: ECOMMERCE
+- display_name: Draft Customer Message
+- connection_type: ECOMMERCE
+- approval_class: DRAFT_ONLY
+- risk_level: MEDIUM
+
+12. CUSTOM_API_INVOKE
+- type: CUSTOM_API
+- display_name: Invoke Custom API
+- connection_type: CUSTOM_API
+- approval_class: EXTERNAL_WRITE
+- risk_level: HIGH
+
+==================================================
+7. RETENTION POLICY SEED DATA
+==================================================
+
+Create default retention policies:
+
+1. AUDIT_LOG_STANDARD
+- applies_to_entity_type: AUDIT_LOG
+- retention_days: 2555
+- purge_behavior: ARCHIVE_OR_PURGE
+
+2. RUN_EVENT_STANDARD
+- applies_to_entity_type: RUN_EVENT
+- retention_days: 1095
+- purge_behavior: ARCHIVE_OR_PURGE
+
+3. NOTIFICATION_STANDARD
+- applies_to_entity_type: NOTIFICATION
+- retention_days: 365
+- purge_behavior: PURGE
+
+4. EXPORT_REQUEST_STANDARD
+- applies_to_entity_type: EXPORT_REQUEST
+- retention_days: 30
+- purge_behavior: PURGE_FILE_AND_RECORD
+
+5. DELETION_JOB_STANDARD
+- applies_to_entity_type: DELETION_JOB
+- retention_days: 365
+- purge_behavior: PURGE
+
+==================================================
+8. RECOMMENDED FIRST-BOOT EXPERIENCE DATA
+==================================================
+
+The product should feel ready immediately after startup.
+Therefore, the seed data must allow:
+
+1. Template browser to render meaningful cards
+2. Plan page to show actual plans
+3. Agent creation wizard to suggest curated defaults
+4. Tool permission UI to display human-readable tool labels
+5. Privacy settings to reference real retention policy concepts
+
+==================================================
+9. IMPLEMENTATION NOTES
+==================================================
+
+1. Seed data should be inserted by Flyway migrations after all schema creation migrations.
+2. Template spec JSON should be valid and machine-consumable.
+3. Tool definitions should be stable and code-driven.
+4. Seed content should use clear plain-language descriptions for non-technical users.
+5. Future marketplace data should not be mixed into v1 seed data.

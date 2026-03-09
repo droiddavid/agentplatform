@@ -1,0 +1,326 @@
+DATABASE MIGRATION PACK
+Runtime AI Agent Platform
+Version 1
+Stack: Spring Boot, Java, MySQL, Flyway
+
+==================================================
+1. PURPOSE
+==================================================
+
+This pack defines the migration strategy, migration ordering, naming conventions,
+and initial migration file plan for the production database. It is written so an
+implementation agent can generate Flyway SQL migrations in a deterministic order.
+
+Recommendation:
+- Use Flyway
+- Use versioned SQL migrations
+- Keep one major concern per migration where practical
+- Never modify old migrations after release
+- Use repair only when absolutely necessary during development
+
+==================================================
+2. MIGRATION CONVENTIONS
+==================================================
+
+Recommended file naming:
+- V1__create_users.sql
+- V2__create_user_profile_and_preferences.sql
+- V3__create_auth_support_tables.sql
+
+Rules:
+1. Use explicit primary keys.
+2. Use explicit foreign keys.
+3. Add indexes intentionally, not later by accident.
+4. Prefer VARCHAR(26) ULID-style IDs for external entities.
+5. Use DATETIME for timestamps.
+6. Use JSON columns only where flexible structure is needed.
+7. Add seed migrations separately from schema migrations.
+8. Add repeatable migrations only for stable reference views or helper SQL if truly needed.
+
+==================================================
+3. MIGRATION ORDER
+==================================================
+
+Phase A. Identity and user foundations
+Phase B. Onboarding and preferences
+Phase C. Templates
+Phase D. Agents and policies
+Phase E. Tasks and runs
+Phase F. Messaging and collaboration
+Phase G. Approvals and consent
+Phase H. Memory
+Phase I. Connections and tools
+Phase J. Documents
+Phase K. Billing and usage
+Phase L. Notifications
+Phase M. Audit and compliance
+Phase N. Seed data
+
+==================================================
+4. INITIAL FLYWAY FILE PLAN
+==================================================
+
+V1__create_users.sql
+Creates:
+- users
+
+Key notes:
+- unique index on email
+- fields for plan_code and free_agent_uses_consumed included from day one
+
+V2__create_user_profile_and_preferences.sql
+Creates:
+- user_profiles
+- user_preferences
+- user_model_preferences
+- user_notification_preferences
+
+V3__create_auth_support_tables.sql
+Creates:
+- user_sessions
+- email_verifications
+- password_reset_tokens
+- terms_acceptance_records
+- privacy_acceptance_records
+
+V4__create_onboarding_tables.sql
+Creates:
+- onboarding_profiles
+
+V5__create_template_tables.sql
+Creates:
+- template_categories
+- agent_templates
+- template_versions
+
+V6__create_agents_core.sql
+Creates:
+- agents
+- agent_versions
+
+V7__create_agent_capabilities_and_policies.sql
+Creates:
+- agent_capabilities
+- agent_tool_permissions
+- agent_policies
+- agent_relationships
+- agent_spawn_rules
+
+V8__create_tasks.sql
+Creates:
+- tasks
+- task_artifacts
+
+V9__create_runs.sql
+Creates:
+- runs
+- run_agents
+- run_events
+- run_state_transitions
+- run_errors
+
+V10__create_messaging_tables.sql
+Creates:
+- agent_messages
+- shared_task_board_items
+- shared_context_entries
+
+V11__create_approval_tables.sql
+Creates:
+- approvals
+- approval_rules
+- approval_history
+- consent_records
+
+V12__create_memory_tables.sql
+Creates:
+- memory_items
+- memory_summaries
+- memory_links
+- memory_deletion_requests
+
+V13__create_connections_tables.sql
+Creates:
+- connections
+- connection_credentials
+- connection_scopes
+- custom_connectors
+- connector_field_definitions
+
+V14__create_tool_tables.sql
+Creates:
+- tool_definitions
+- tool_invocations
+
+V15__create_document_tables.sql
+Creates:
+- documents
+- document_versions
+- document_exports
+
+V16__create_billing_tables.sql
+Creates:
+- plans
+- subscriptions
+- invoices
+- payment_methods
+- feature_entitlements
+
+V17__create_usage_tables.sql
+Creates:
+- usage_records
+
+V18__create_notification_tables.sql
+Creates:
+- notifications
+- notification_deliveries
+
+V19__create_audit_and_compliance_tables.sql
+Creates:
+- audit_logs
+- export_requests
+- deletion_jobs
+- retention_policies
+
+V20__seed_plans_and_entitlements.sql
+Seeds:
+- plans
+- feature_entitlements
+
+V21__seed_template_categories.sql
+Seeds:
+- template_categories
+
+V22__seed_agent_templates.sql
+Seeds:
+- agent_templates
+- template_versions
+
+V23__seed_tool_definitions.sql
+Seeds:
+- tool_definitions
+
+V24__seed_retention_policies.sql
+Seeds:
+- retention_policies
+
+==================================================
+5. MIGRATION CONTENT GUIDANCE
+==================================================
+
+5.1 users migration guidance
+
+Required columns:
+- id VARCHAR(26) PRIMARY KEY
+- email VARCHAR(255) NOT NULL UNIQUE
+- password_hash VARCHAR(255) NOT NULL
+- status VARCHAR(32) NOT NULL
+- email_verified_at DATETIME NULL
+- last_login_at DATETIME NULL
+- plan_code VARCHAR(32) NOT NULL DEFAULT 'FREE'
+- free_agent_uses_consumed INT NOT NULL DEFAULT 0
+- is_active BOOLEAN NOT NULL DEFAULT TRUE
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+- deleted_at DATETIME NULL
+
+Add:
+- INDEX idx_users_status(status)
+- INDEX idx_users_plan_code(plan_code)
+
+5.2 agent tables guidance
+
+Use JSON columns for:
+- goals_json
+- capabilities_json if duplicated at row level for faster assembly
+- safety_constraints_json
+- output_style_rules_json
+
+Also keep normalized capability and permission tables for filtering and policy enforcement.
+
+5.3 run events guidance
+
+run_events must support strict ordering per run:
+- sequence_number BIGINT NOT NULL
+- UNIQUE(run_id, sequence_number)
+
+This table is critical. Index carefully:
+- INDEX idx_run_events_run_created(run_id, created_at)
+
+5.4 approval tables guidance
+
+Approvals must support:
+- pending inbox queries by user
+- status-based filtering
+- lookup by task and run
+
+5.5 connection credentials guidance
+
+encrypted_secret is required.
+Never store raw secrets.
+Store secret fingerprint when useful for troubleshooting.
+
+==================================================
+6. FOREIGN KEY RULES
+==================================================
+
+1. Use ON DELETE RESTRICT for core records unless cascading is explicitly safe.
+2. For child tables like document_versions, ON DELETE CASCADE may be appropriate.
+3. For user account deletion, rely on deletion job orchestration rather than broad FK cascade.
+4. Keep deletion logic application-managed for auditability.
+
+==================================================
+7. INDEXING PLAN
+==================================================
+
+Add indexes for:
+- users.email unique
+- agents.user_id
+- agents.status
+- tasks.user_id
+- tasks.status
+- runs.user_id
+- runs.task_id
+- runs.status
+- run_events.run_id + created_at
+- approvals.user_id + status
+- memory_items.user_id + scope
+- connections.user_id + type
+- usage_records.user_id + created_at
+- notifications.user_id + is_read
+- audit_logs.user_id + created_at
+
+Do not over-index JSON fields unless a real query path requires generated columns later.
+
+==================================================
+8. SEED MIGRATION RULES
+==================================================
+
+1. Seed only stable curated data.
+2. Use explicit IDs or deterministic IDs if desired for templates and tools.
+3. Keep plan codes, template codes, and tool codes unique.
+4. Make seed migrations idempotent only if you consciously design them that way for development.
+5. For production Flyway, prefer immutable inserts in ordered migrations.
+
+==================================================
+9. DEVELOPMENT VS PRODUCTION NOTES
+==================================================
+
+Development:
+- It is acceptable to reset the schema while iterating early.
+
+Production:
+- Never rewrite existing migrations.
+- Add forward-only corrective migrations.
+- Keep changelog discipline.
+
+==================================================
+10. IMPLEMENTATION CHECKLIST
+==================================================
+
+The migration pack is complete only if:
+1. Every table from the schema pack has a migration home.
+2. All FKs are defined.
+3. All required indexes are defined.
+4. Seed data is separated from schema creation.
+5. The migration order allows the application to start cleanly on a blank database.

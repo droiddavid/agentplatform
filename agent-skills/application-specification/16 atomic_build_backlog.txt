@@ -1,0 +1,264 @@
+ATOMIC BUILD BACKLOG
+Project: Consumer Runtime AI Agent Platform
+Version: V1
+Purpose: This backlog breaks the entire implementation into atomic tasks that an implementation agent can execute one by one. Each task should be completed and validated before moving to the next.
+
+EPIC 1. REPOSITORY AND ENVIRONMENT FOUNDATION
+1. Create frontend Angular workspace with routing, Tailwind, and PWA support scaffold.
+2. Create backend Spring Boot project with modular package structure.
+3. Add MySQL configuration and profile based environment settings.
+4. Add migration tool and first baseline migration.
+5. Create shared environment variable templates for frontend and backend.
+6. Add README and local startup instructions.
+Acceptance: frontend and backend both boot locally, database migration runs successfully.
+
+EPIC 2. AUTHENTICATION FOUNDATION
+7. Implement users table and user profile table.
+8. Implement password hashing and user registration service.
+9. Implement email verification token flow.
+10. Implement sign in and JWT issuance.
+11. Implement refresh token storage and rotation.
+12. Implement logout and session revocation.
+13. Implement forgot password and reset password.
+14. Build frontend auth pages and forms.
+15. Add auth route guards and session persistence.
+Acceptance: a user can register, verify, sign in, refresh session, reset password, and sign out.
+
+EPIC 3. USER PROFILE, PREFERENCES, AND ONBOARDING
+16. Implement onboarding profile schema and service.
+17. Implement user preferences schema and service.
+18. Build onboarding API endpoints.
+19. Build frontend onboarding flow screens.
+20. Add use case selection and initial preferences capture.
+21. Persist onboarding completion state.
+Acceptance: a new user can complete onboarding and land in dashboard with stored preferences.
+
+EPIC 4. APPLICATION SHELL AND NAVIGATION
+22. Build signed out marketing shell.
+23. Build signed in application shell.
+24. Add top nav, side nav, mobile nav, and layout containers.
+25. Add global loading, empty, and error state components.
+26. Add notification tray and toast system.
+Acceptance: primary navigation works on desktop and mobile.
+
+EPIC 5. TEMPLATE CATALOG
+27. Create template category tables and seed data.
+28. Create template entity and API endpoints.
+29. Seed starter templates for business, household, creator, planning, and research.
+30. Build frontend template list and detail screens.
+Acceptance: a user can browse and inspect templates.
+
+EPIC 6. AGENT CORE DATA MODEL
+31. Create agents, agent_capabilities, agent_tool_permissions, agent_policies, and agent_relationships tables.
+32. Implement agent entities, repositories, DTOs, and service layer.
+33. Implement agent CRUD endpoints.
+34. Build frontend agent list, detail, and edit screens.
+Acceptance: agents can be created, stored, edited, listed, and viewed.
+
+EPIC 7. AGENT CREATION WIZARD
+35. Build frontend wizard step components.
+36. Implement backend validation for wizard payload.
+37. Connect wizard flow to create agent endpoint.
+38. Add review and confirmation step.
+Acceptance: a non technical user can create an agent using the wizard.
+
+EPIC 8. AGENT CREATION FROM NATURAL LANGUAGE
+39. Implement backend parse endpoint for natural language to proposed agent specs.
+40. Define normalized response DTO for proposed agents.
+41. Build frontend text builder page with editable proposals.
+42. Allow saving one or more proposed agents.
+Acceptance: a user can describe an agent in plain language and save the proposed result.
+
+EPIC 9. TASK DOMAIN
+43. Create tasks and task_agents tables.
+44. Implement task CRUD backend.
+45. Build task list and task detail frontend.
+46. Allow linking agents to tasks.
+Acceptance: tasks can be created and assigned to agents.
+
+EPIC 10. RUN DOMAIN FOUNDATION
+47. Create runs, run_agents, run_events, and run_state_transitions tables.
+48. Implement run entity, repositories, service, and DTOs.
+49. Implement start run endpoint.
+50. Build run list and run detail frontend.
+51. Add event timeline UI.
+Acceptance: a task can start a run and display run state and event history.
+
+EPIC 11. AGENT MESSAGING FOUNDATION
+52. Create agent_messages table.
+53. Implement message service and persistence.
+54. Implement message endpoints.
+55. Build frontend message thread rendering.
+Acceptance: run messages can be persisted and displayed.
+
+EPIC 12. SHARED TASK BOARD AND CONTEXT
+56. Create shared_task_board_items and shared_context_entries tables.
+57. Implement board service and API.
+58. Build frontend shared task board UI.
+59. Add shared context display panel.
+Acceptance: board items and shared context can be created and viewed in a run.
+
+EPIC 13. GRAPH VIEW
+60. Create graph view DTO builder on backend based on agent relationships, messages, delegations, and spawns.
+61. Build frontend graph visualization component.
+62. Add node and edge inspection interactions.
+Acceptance: a run graph can be visualized and explored.
+
+EPIC 14. MODEL PROVIDER ABSTRACTION
+63. Create normalized provider request and response interfaces.
+64. Implement local provider adapter.
+65. Implement cloud provider adapter.
+66. Implement model gateway service.
+67. Add model preference handling from agent and user settings.
+Acceptance: backend can send normalized prompts to at least one local and one cloud provider.
+
+EPIC 15. EXECUTION ENGINE SKELETON
+68. Implement execution engine service.
+69. Implement run state transitions and validation.
+70. Implement single agent turn cycle.
+71. Persist run events for each step.
+72. Stream run events via SSE or WebSocket.
+73. Connect frontend run detail to live stream.
+Acceptance: a single agent run can execute and stream status.
+
+EPIC 16. MULTI AGENT ORCHESTRATION
+74. Extend execution engine to select among multiple agents.
+75. Implement direct peer messaging in runtime engine.
+76. Implement delegation behavior.
+77. Implement critique request and critique result behavior.
+78. Update workspace UI to show multiple active agents.
+Acceptance: at least two agents can collaborate in one run.
+
+EPIC 17. APPROVAL DOMAIN
+79. Create approvals, approval_rules, and approval_history tables.
+80. Implement approval creation in execution engine whenever external action is intended.
+81. Implement approval endpoints for approve, deny, and revise.
+82. Build approval inbox and approval detail frontend.
+83. Implement run pause and resume around approval state.
+Acceptance: external actions are blocked by default and approval decisions resume or stop the run.
+
+EPIC 18. REMEMBERED APPROVALS
+84. Implement rule matching engine for remembered approvals.
+85. Support decision scopes for once, task, agent pattern, user pattern, always ask, and deny pattern.
+86. Add remembered approval rule management UI.
+Acceptance: remembered approval rules are stored and enforced correctly.
+
+EPIC 19. TOOL FRAMEWORK
+87. Create tool_definitions and tool_invocations tables.
+88. Implement tool interface and registry.
+89. Implement risk class and approval class handling.
+90. Connect execution engine to tool invocation flow.
+Acceptance: tools can be defined, invoked, logged, and approval gated.
+
+EPIC 20. CONNECTION FRAMEWORK
+91. Create connections and connection_credentials tables.
+92. Implement connection service and secure credential storage.
+93. Implement connection test endpoint.
+94. Build frontend connections list and setup screens.
+Acceptance: users can connect, test, and revoke supported connections.
+
+EPIC 21. EMAIL CONNECTOR
+95. Implement email connector adapter.
+96. Support reading allowed metadata or content as designed.
+97. Support drafting and sending only through approval flow.
+98. Add email connection UI details.
+Acceptance: an agent can prepare an email action and send only after approval.
+
+EPIC 22. CALENDAR CONNECTOR
+99. Implement calendar connector adapter.
+100. Support reading availability.
+101. Support event creation through approval flow.
+102. Add calendar connection UI details.
+Acceptance: an agent can propose and create a calendar event only after approval or remembered rule.
+
+EPIC 23. WEB SEARCH AND BROWSE TOOLS
+103. Implement search tool adapter.
+104. Implement browse or fetch tool adapter.
+105. Persist source metadata and tool invocation logs.
+Acceptance: agents can search and browse through the tool framework.
+
+EPIC 24. DOCUMENT DOMAIN
+106. Create documents, document_versions, and document_exports tables.
+107. Implement document service and versioning.
+108. Build documents list and detail pages.
+109. Add export endpoint and frontend export action.
+Acceptance: generated documents can be stored, versioned, viewed, and exported.
+
+EPIC 25. E COMMERCE AND CUSTOM API FRAMEWORK
+110. Implement generalized commerce connector contract.
+111. Implement custom API connector model and storage.
+112. Build guided custom API connector form.
+113. Wire custom connector invocation through tool framework.
+Acceptance: framework exists for commerce actions and custom API calls, both approval gated.
+
+EPIC 26. MEMORY DOMAIN
+114. Create memory_items and memory_summaries tables.
+115. Implement memory service with scopes RUN, AGENT, USER, SHARED.
+116. Integrate memory writes into execution engine.
+117. Build frontend memory dashboard and agent memory view.
+Acceptance: memory can be stored and viewed by scope.
+
+EPIC 27. SPAWNING
+118. Implement spawn policy evaluation.
+119. Implement spawn proposal event and approval path if needed.
+120. Implement child agent creation during run.
+121. Visualize spawn relationships in graph view.
+Acceptance: a run can create a helper agent under policy control.
+
+EPIC 28. BILLING AND USAGE
+122. Create plans, subscriptions, invoices, payment_methods, usage_records, and feature_entitlements tables.
+123. Seed FREE, LOCAL_PRO, and CLOUD_PRO plans.
+124. Implement usage metering in execution engine and provider gateway.
+125. Implement entitlement checks.
+126. Build billing and usage frontend pages.
+Acceptance: free tier is enforced and plan state is visible.
+
+EPIC 29. PAYMENT INTEGRATION
+127. Integrate billing provider abstraction.
+128. Implement subscribe, cancel, invoice retrieval, and payment method flows.
+129. Add upgrade and downgrade UI.
+Acceptance: users can manage paid plans.
+
+EPIC 30. NOTIFICATIONS
+130. Create notifications and notification_deliveries tables.
+131. Implement notification service.
+132. Add in app notification tray.
+133. Add email notification triggers for approval and completion events.
+Acceptance: users receive in app notices and key email notifications.
+
+EPIC 31. PRIVACY, CONSENT, EXPORT, AND DELETION
+134. Create consent_records, export_requests, and deletion_jobs tables.
+135. Implement consent recording for terms, privacy, memory, approvals, and connection scopes.
+136. Implement export creation workflow.
+137. Implement memory deletion by item and by scope.
+138. Implement account deletion workflow.
+139. Build privacy dashboard UI.
+Acceptance: users can inspect privacy settings, export data, delete memory, and request account deletion.
+
+EPIC 32. AUDIT
+140. Create audit_logs table.
+141. Implement audit logging for significant actions.
+142. Surface selected audit or explanation data in UI where useful.
+Acceptance: important actions are traceable.
+
+EPIC 33. HELP, EMPTY STATES, AND NON TECHNICAL POLISH
+143. Build help center pages.
+144. Add all empty states.
+145. Add all error states.
+146. Simplify user facing copy to plain language.
+Acceptance: app is understandable for non technical users.
+
+EPIC 34. PWA AND RESPONSIVE HARDENING
+147. Finalize manifest and service worker.
+148. Add offline shell and degraded mode handling.
+149. Validate mobile responsive layouts across key flows.
+Acceptance: app is installable and mobile usable.
+
+EPIC 35. TESTING AND RELEASE READINESS
+150. Add backend unit and integration tests for all critical domains.
+151. Add frontend unit and integration tests.
+152. Add end to end tests for core user journeys.
+153. Perform security and permission review.
+154. Perform performance review for major screens and run streaming.
+155. Produce release checklist and seed demo content.
+Acceptance: system is ready for controlled consumer release.

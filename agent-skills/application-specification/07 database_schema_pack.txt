@@ -1,0 +1,1258 @@
+DATABASE SCHEMA PACK
+Runtime AI Agent Platform
+Version 1
+Stack: Spring Boot, Java, MySQL, Angular
+Purpose: Table by table field specification for a production ready consumer AI agent platform
+
+==================================================
+1. SCHEMA PRINCIPLES
+==================================================
+
+1. The database is the primary system of record.
+2. Every user-owned record must include a user_id unless the table is global configuration.
+3. Every important state transition must be traceable.
+4. Secrets must never be stored in plaintext.
+5. Every external action approval must be auditable.
+6. Memory must be scoped and queryable.
+7. Future support for teams and workspaces must be possible without destructive redesign.
+
+Recommended conventions:
+- Primary keys: BIGINT or CHAR(26) ULID. Prefer ULID string IDs for externally visible entities.
+- Timestamps: created_at, updated_at.
+- Soft delete where useful: deleted_at nullable.
+- Boolean flags: is_active, is_archived, is_deleted, etc.
+- JSON columns allowed for flexible metadata, but critical queryable fields should remain first class columns.
+- Foreign keys must be explicit.
+- Unique constraints must enforce ownership and identity rules.
+
+==================================================
+2. GLOBAL ENUMS
+==================================================
+
+Common enums to standardize across tables and code:
+
+USER_STATUS
+- PENDING_VERIFICATION
+- ACTIVE
+- SUSPENDED
+- DELETED
+
+PLAN_CODE
+- FREE
+- LOCAL_PRO
+- CLOUD_PRO
+
+AGENT_STATUS
+- DRAFT
+- ACTIVE
+- PAUSED
+- ARCHIVED
+
+RUN_STATUS
+- DRAFT
+- READY
+- RUNNING
+- WAITING_FOR_APPROVAL
+- WAITING_FOR_INPUT
+- BLOCKED
+- COMPLETED
+- FAILED
+- CANCELLED
+- ARCHIVED
+
+AGENT_RUN_STATE
+- IDLE
+- ACTIVE
+- WAITING
+- NEEDS_APPROVAL
+- ERROR
+- COMPLETED
+- SUSPENDED
+
+MESSAGE_TYPE
+- TASK_REQUEST
+- TASK_RESPONSE
+- CLARIFICATION_REQUEST
+- CLARIFICATION_RESPONSE
+- DELEGATION_REQUEST
+- DELEGATION_RESULT
+- CRITIQUE_REQUEST
+- CRITIQUE_RESULT
+- SPAWN_PROPOSAL
+- SPAWN_RESULT
+- BROADCAST
+- HEARTBEAT
+- TOOL_INTENT
+- TOOL_RESULT
+- FINAL_SUMMARY
+
+APPROVAL_STATUS
+- PENDING
+- APPROVED
+- DENIED
+- EXPIRED
+- REVISED
+
+APPROVAL_SCOPE
+- ONCE
+- TASK
+- AGENT
+- USER
+
+MEMORY_SCOPE
+- RUN
+- AGENT
+- USER
+- SHARED
+
+CONNECTION_TYPE
+- EMAIL
+- CALENDAR
+- WEB_SEARCH
+- WEB_BROWSE
+- DOCUMENT
+- ECOMMERCE
+- CUSTOM_API
+
+DOCUMENT_TYPE
+- NOTE
+- EMAIL_DRAFT
+- SUMMARY
+- PLAN
+- REPORT
+- CHECKLIST
+- PROPOSAL
+- CONTENT_DRAFT
+- STRUCTURED_EXPORT
+- PDF_SOURCE
+
+NOTIFICATION_TYPE
+- APPROVAL_NEEDED
+- TASK_COMPLETED
+- TASK_FAILED
+- CONNECTION_ERROR
+- BILLING_EVENT
+- MEMORY_DELETION_COMPLETE
+- EXPORT_READY
+- SUBSCRIPTION_EXPIRING
+
+AUDIT_EVENT_TYPE
+- CREATE
+- UPDATE
+- DELETE
+- APPROVAL
+- DENIAL
+- CONNECTION
+- DISCONNECTION
+- EXPORT
+- MEMORY_DELETE
+- RUN_START
+- RUN_END
+- LOGIN
+- LOGOUT
+- BILLING_CHANGE
+- CONSENT_UPDATE
+
+==================================================
+3. TABLE SPECIFICATIONS
+==================================================
+
+------------------------------------------
+3.1 users
+------------------------------------------
+Purpose:
+Core identity record for a single end user.
+
+Fields:
+- id VARCHAR(26) PK
+- email VARCHAR(255) NOT NULL UNIQUE
+- password_hash VARCHAR(255) NOT NULL
+- status VARCHAR(32) NOT NULL
+- email_verified_at DATETIME NULL
+- last_login_at DATETIME NULL
+- plan_code VARCHAR(32) NOT NULL DEFAULT 'FREE'
+- free_agent_uses_consumed INT NOT NULL DEFAULT 0
+- is_active BOOLEAN NOT NULL DEFAULT TRUE
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+- deleted_at DATETIME NULL
+
+Indexes:
+- UNIQUE(email)
+- INDEX(status)
+- INDEX(plan_code)
+
+------------------------------------------
+3.2 user_profiles
+------------------------------------------
+Purpose:
+Stores display and onboarding related profile data.
+
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- display_name VARCHAR(120) NULL
+- preferred_goal_category VARCHAR(64) NULL
+- audience_type VARCHAR(64) NULL
+- timezone VARCHAR(64) NULL
+- locale VARCHAR(32) NULL
+- onboarding_completed BOOLEAN NOT NULL DEFAULT FALSE
+- avatar_url VARCHAR(500) NULL
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+Constraints:
+- UNIQUE(user_id)
+
+------------------------------------------
+3.3 user_sessions
+------------------------------------------
+Purpose:
+Tracks active and historical login sessions.
+
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- refresh_token_hash VARCHAR(255) NOT NULL
+- device_label VARCHAR(120) NULL
+- user_agent TEXT NULL
+- ip_address VARCHAR(64) NULL
+- expires_at DATETIME NOT NULL
+- revoked_at DATETIME NULL
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+Indexes:
+- INDEX(user_id)
+- INDEX(expires_at)
+
+------------------------------------------
+3.4 email_verifications
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- token_hash VARCHAR(255) NOT NULL
+- expires_at DATETIME NOT NULL
+- used_at DATETIME NULL
+- created_at DATETIME NOT NULL
+
+------------------------------------------
+3.5 password_reset_tokens
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- token_hash VARCHAR(255) NOT NULL
+- expires_at DATETIME NOT NULL
+- used_at DATETIME NULL
+- created_at DATETIME NOT NULL
+
+------------------------------------------
+3.6 terms_acceptance_records
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- terms_version VARCHAR(40) NOT NULL
+- accepted_at DATETIME NOT NULL
+- ip_address VARCHAR(64) NULL
+- user_agent TEXT NULL
+- created_at DATETIME NOT NULL
+
+------------------------------------------
+3.7 privacy_acceptance_records
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- privacy_version VARCHAR(40) NOT NULL
+- accepted_at DATETIME NOT NULL
+- ip_address VARCHAR(64) NULL
+- user_agent TEXT NULL
+- created_at DATETIME NOT NULL
+
+------------------------------------------
+3.8 onboarding_profiles
+------------------------------------------
+Purpose:
+Captures onboarding choices for product personalization and defaults.
+
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- primary_goal_category VARCHAR(64) NULL
+- wants_agent_team BOOLEAN NOT NULL DEFAULT FALSE
+- selected_creation_path VARCHAR(32) NULL
+- privacy_preference VARCHAR(64) NULL
+- memory_preference VARCHAR(64) NULL
+- selected_template_id VARCHAR(26) NULL FK agent_templates(id)
+- completed_at DATETIME NULL
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+------------------------------------------
+3.9 user_preferences
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- default_approval_mode VARCHAR(32) NOT NULL DEFAULT 'ONCE'
+- allow_remembered_approvals BOOLEAN NOT NULL DEFAULT FALSE
+- default_memory_enabled BOOLEAN NOT NULL DEFAULT TRUE
+- allow_shared_memory BOOLEAN NOT NULL DEFAULT TRUE
+- default_graph_view BOOLEAN NOT NULL DEFAULT FALSE
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+Constraints:
+- UNIQUE(user_id)
+
+------------------------------------------
+3.10 user_model_preferences
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- preferred_provider_code VARCHAR(64) NULL
+- preferred_model_code VARCHAR(128) NULL
+- allow_local_provider BOOLEAN NOT NULL DEFAULT TRUE
+- allow_cloud_provider BOOLEAN NOT NULL DEFAULT TRUE
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+------------------------------------------
+3.11 user_notification_preferences
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- notify_in_app BOOLEAN NOT NULL DEFAULT TRUE
+- notify_email BOOLEAN NOT NULL DEFAULT TRUE
+- approval_email_enabled BOOLEAN NOT NULL DEFAULT TRUE
+- billing_email_enabled BOOLEAN NOT NULL DEFAULT TRUE
+- task_completion_email_enabled BOOLEAN NOT NULL DEFAULT TRUE
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+------------------------------------------
+3.12 template_categories
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- code VARCHAR(64) NOT NULL UNIQUE
+- display_name VARCHAR(120) NOT NULL
+- description TEXT NULL
+- sort_order INT NOT NULL DEFAULT 0
+- is_active BOOLEAN NOT NULL DEFAULT TRUE
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+------------------------------------------
+3.13 agent_templates
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- category_id VARCHAR(26) NULL FK template_categories(id)
+- code VARCHAR(64) NOT NULL UNIQUE
+- display_name VARCHAR(120) NOT NULL
+- description TEXT NOT NULL
+- default_role_title VARCHAR(120) NOT NULL
+- default_agent_spec_json JSON NOT NULL
+- recommended_use_case VARCHAR(255) NULL
+- is_featured BOOLEAN NOT NULL DEFAULT FALSE
+- is_active BOOLEAN NOT NULL DEFAULT TRUE
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+------------------------------------------
+3.14 template_versions
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- template_id VARCHAR(26) NOT NULL FK agent_templates(id)
+- version_number INT NOT NULL
+- spec_json JSON NOT NULL
+- changelog TEXT NULL
+- created_at DATETIME NOT NULL
+
+Constraints:
+- UNIQUE(template_id, version_number)
+
+------------------------------------------
+3.15 agents
+------------------------------------------
+Purpose:
+Primary runtime-defined agent record.
+
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- template_id VARCHAR(26) NULL FK agent_templates(id)
+- display_name VARCHAR(120) NOT NULL
+- role_title VARCHAR(120) NOT NULL
+- description TEXT NOT NULL
+- persona_text TEXT NULL
+- goals_json JSON NOT NULL
+- capabilities_json JSON NOT NULL
+- prompt_scaffold TEXT NOT NULL
+- safety_constraints_json JSON NOT NULL
+- output_style_rules_json JSON NULL
+- model_provider_code VARCHAR(64) NULL
+- model_code VARCHAR(128) NULL
+- status VARCHAR(32) NOT NULL DEFAULT 'DRAFT'
+- is_collaborative BOOLEAN NOT NULL DEFAULT TRUE
+- can_spawn_helpers BOOLEAN NOT NULL DEFAULT FALSE
+- is_archived BOOLEAN NOT NULL DEFAULT FALSE
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+- deleted_at DATETIME NULL
+
+Indexes:
+- INDEX(user_id)
+- INDEX(status)
+- INDEX(is_archived)
+
+------------------------------------------
+3.16 agent_capabilities
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- agent_id VARCHAR(26) NOT NULL FK agents(id)
+- capability_code VARCHAR(64) NOT NULL
+- capability_label VARCHAR(120) NOT NULL
+- capability_config_json JSON NULL
+- created_at DATETIME NOT NULL
+
+Constraints:
+- UNIQUE(agent_id, capability_code)
+
+------------------------------------------
+3.17 agent_tool_permissions
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- agent_id VARCHAR(26) NOT NULL FK agents(id)
+- tool_definition_id VARCHAR(26) NOT NULL FK tool_definitions(id)
+- access_mode VARCHAR(32) NOT NULL
+- approval_required BOOLEAN NOT NULL DEFAULT TRUE
+- allowed_data_categories_json JSON NULL
+- usage_limit_per_run INT NULL
+- usage_limit_per_day INT NULL
+- is_enabled BOOLEAN NOT NULL DEFAULT TRUE
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+------------------------------------------
+3.18 agent_policies
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- agent_id VARCHAR(26) NOT NULL FK agents(id)
+- approval_scope_default VARCHAR(32) NOT NULL DEFAULT 'ONCE'
+- memory_scope_default VARCHAR(32) NOT NULL DEFAULT 'AGENT'
+- shared_memory_enabled BOOLEAN NOT NULL DEFAULT TRUE
+- peer_messaging_enabled BOOLEAN NOT NULL DEFAULT TRUE
+- critique_loop_enabled BOOLEAN NOT NULL DEFAULT TRUE
+- spawn_enabled BOOLEAN NOT NULL DEFAULT FALSE
+- human_override_required BOOLEAN NOT NULL DEFAULT TRUE
+- policy_json JSON NULL
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+Constraints:
+- UNIQUE(agent_id)
+
+------------------------------------------
+3.19 agent_relationships
+------------------------------------------
+Purpose:
+Defines known peer links between agents.
+
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- source_agent_id VARCHAR(26) NOT NULL FK agents(id)
+- target_agent_id VARCHAR(26) NOT NULL FK agents(id)
+- relationship_type VARCHAR(64) NOT NULL
+- can_message BOOLEAN NOT NULL DEFAULT TRUE
+- can_delegate BOOLEAN NOT NULL DEFAULT TRUE
+- can_share_memory BOOLEAN NOT NULL DEFAULT TRUE
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+Constraints:
+- UNIQUE(source_agent_id, target_agent_id, relationship_type)
+
+------------------------------------------
+3.20 agent_spawn_rules
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- agent_id VARCHAR(26) NOT NULL FK agents(id)
+- requires_user_approval BOOLEAN NOT NULL DEFAULT TRUE
+- max_children_per_run INT NOT NULL DEFAULT 3
+- max_total_children INT NOT NULL DEFAULT 20
+- allowed_capabilities_json JSON NULL
+- inherit_memory_policy BOOLEAN NOT NULL DEFAULT FALSE
+- inherit_tool_permissions BOOLEAN NOT NULL DEFAULT FALSE
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+------------------------------------------
+3.21 agent_versions
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- agent_id VARCHAR(26) NOT NULL FK agents(id)
+- version_number INT NOT NULL
+- snapshot_json JSON NOT NULL
+- created_at DATETIME NOT NULL
+- created_by VARCHAR(32) NOT NULL
+
+Constraints:
+- UNIQUE(agent_id, version_number)
+
+------------------------------------------
+3.22 tasks
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- title VARCHAR(255) NOT NULL
+- description TEXT NOT NULL
+- goal_category VARCHAR(64) NULL
+- status VARCHAR(32) NOT NULL
+- priority VARCHAR(32) NOT NULL DEFAULT 'MEDIUM'
+- due_at DATETIME NULL
+- approval_required BOOLEAN NOT NULL DEFAULT TRUE
+- linked_connections_json JSON NULL
+- estimated_cost_cents INT NULL
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+- deleted_at DATETIME NULL
+
+Indexes:
+- INDEX(user_id)
+- INDEX(status)
+- INDEX(due_at)
+
+------------------------------------------
+3.23 task_artifacts
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- task_id VARCHAR(26) NOT NULL FK tasks(id)
+- document_id VARCHAR(26) NULL FK documents(id)
+- artifact_type VARCHAR(64) NOT NULL
+- artifact_url VARCHAR(500) NULL
+- metadata_json JSON NULL
+- created_at DATETIME NOT NULL
+
+------------------------------------------
+3.24 runs
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- task_id VARCHAR(26) NOT NULL FK tasks(id)
+- status VARCHAR(32) NOT NULL
+- started_at DATETIME NULL
+- ended_at DATETIME NULL
+- initiated_by VARCHAR(32) NOT NULL DEFAULT 'USER'
+- final_summary_document_id VARCHAR(26) NULL FK documents(id)
+- total_input_tokens BIGINT NOT NULL DEFAULT 0
+- total_output_tokens BIGINT NOT NULL DEFAULT 0
+- total_cost_cents INT NOT NULL DEFAULT 0
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+Indexes:
+- INDEX(user_id)
+- INDEX(task_id)
+- INDEX(status)
+
+------------------------------------------
+3.25 run_agents
+------------------------------------------
+Purpose:
+Associates agents to a specific run.
+
+Fields:
+- id VARCHAR(26) PK
+- run_id VARCHAR(26) NOT NULL FK runs(id)
+- agent_id VARCHAR(26) NOT NULL FK agents(id)
+- parent_run_agent_id VARCHAR(26) NULL FK run_agents(id)
+- state VARCHAR(32) NOT NULL
+- entry_reason TEXT NULL
+- joined_at DATETIME NOT NULL
+- completed_at DATETIME NULL
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+Constraints:
+- UNIQUE(run_id, agent_id)
+
+------------------------------------------
+3.26 run_events
+------------------------------------------
+Purpose:
+Canonical event ledger for all run activity.
+
+Fields:
+- id VARCHAR(26) PK
+- run_id VARCHAR(26) NOT NULL FK runs(id)
+- run_agent_id VARCHAR(26) NULL FK run_agents(id)
+- sequence_number BIGINT NOT NULL
+- event_type VARCHAR(64) NOT NULL
+- event_payload_json JSON NOT NULL
+- reason_summary TEXT NULL
+- created_at DATETIME NOT NULL
+
+Constraints:
+- UNIQUE(run_id, sequence_number)
+
+Indexes:
+- INDEX(run_id, created_at)
+
+------------------------------------------
+3.27 run_state_transitions
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- run_id VARCHAR(26) NOT NULL FK runs(id)
+- from_status VARCHAR(32) NOT NULL
+- to_status VARCHAR(32) NOT NULL
+- transition_reason TEXT NULL
+- created_at DATETIME NOT NULL
+- created_by VARCHAR(32) NOT NULL
+
+------------------------------------------
+3.28 run_errors
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- run_id VARCHAR(26) NOT NULL FK runs(id)
+- run_agent_id VARCHAR(26) NULL FK run_agents(id)
+- error_code VARCHAR(64) NOT NULL
+- error_message TEXT NOT NULL
+- retryable BOOLEAN NOT NULL DEFAULT FALSE
+- metadata_json JSON NULL
+- created_at DATETIME NOT NULL
+
+------------------------------------------
+3.29 agent_messages
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- run_id VARCHAR(26) NOT NULL FK runs(id)
+- from_run_agent_id VARCHAR(26) NULL FK run_agents(id)
+- to_run_agent_id VARCHAR(26) NULL FK run_agents(id)
+- message_type VARCHAR(64) NOT NULL
+- content_text LONGTEXT NOT NULL
+- structured_payload_json JSON NULL
+- is_broadcast BOOLEAN NOT NULL DEFAULT FALSE
+- created_at DATETIME NOT NULL
+
+Indexes:
+- INDEX(run_id, created_at)
+- INDEX(from_run_agent_id)
+- INDEX(to_run_agent_id)
+
+------------------------------------------
+3.30 shared_task_board_items
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- run_id VARCHAR(26) NOT NULL FK runs(id)
+- created_by_run_agent_id VARCHAR(26) NULL FK run_agents(id)
+- assigned_to_run_agent_id VARCHAR(26) NULL FK run_agents(id)
+- title VARCHAR(255) NOT NULL
+- description TEXT NULL
+- status VARCHAR(32) NOT NULL
+- priority VARCHAR(32) NOT NULL DEFAULT 'MEDIUM'
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+- completed_at DATETIME NULL
+
+------------------------------------------
+3.31 shared_context_entries
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- run_id VARCHAR(26) NOT NULL FK runs(id)
+- created_by_run_agent_id VARCHAR(26) NULL FK run_agents(id)
+- context_key VARCHAR(120) NOT NULL
+- context_value_json JSON NOT NULL
+- visibility_scope VARCHAR(32) NOT NULL DEFAULT 'SHARED'
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+------------------------------------------
+3.32 approvals
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- run_id VARCHAR(26) NOT NULL FK runs(id)
+- run_agent_id VARCHAR(26) NULL FK run_agents(id)
+- task_id VARCHAR(26) NULL FK tasks(id)
+- approval_type VARCHAR(64) NOT NULL
+- risk_class VARCHAR(64) NOT NULL
+- status VARCHAR(32) NOT NULL DEFAULT 'PENDING'
+- action_summary TEXT NOT NULL
+- reason_summary TEXT NOT NULL
+- proposed_payload_json JSON NOT NULL
+- expires_at DATETIME NULL
+- responded_at DATETIME NULL
+- response_note TEXT NULL
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+Indexes:
+- INDEX(user_id, status)
+- INDEX(run_id)
+- INDEX(task_id)
+
+------------------------------------------
+3.33 approval_rules
+------------------------------------------
+Purpose:
+Remembered approval preferences.
+
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- agent_id VARCHAR(26) NULL FK agents(id)
+- task_id VARCHAR(26) NULL FK tasks(id)
+- scope VARCHAR(32) NOT NULL
+- rule_pattern_json JSON NOT NULL
+- action VARCHAR(32) NOT NULL
+- is_active BOOLEAN NOT NULL DEFAULT TRUE
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+Indexes:
+- INDEX(user_id, is_active)
+
+------------------------------------------
+3.34 approval_history
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- approval_id VARCHAR(26) NOT NULL FK approvals(id)
+- status_before VARCHAR(32) NOT NULL
+- status_after VARCHAR(32) NOT NULL
+- acted_by VARCHAR(32) NOT NULL
+- note TEXT NULL
+- created_at DATETIME NOT NULL
+
+------------------------------------------
+3.35 consent_records
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- consent_type VARCHAR(64) NOT NULL
+- scope VARCHAR(64) NULL
+- subject_reference_id VARCHAR(26) NULL
+- version_label VARCHAR(64) NULL
+- consent_value BOOLEAN NOT NULL
+- evidence_json JSON NULL
+- created_at DATETIME NOT NULL
+- withdrawn_at DATETIME NULL
+
+------------------------------------------
+3.36 memory_items
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- agent_id VARCHAR(26) NULL FK agents(id)
+- run_id VARCHAR(26) NULL FK runs(id)
+- scope VARCHAR(32) NOT NULL
+- key_text VARCHAR(255) NOT NULL
+- value_text LONGTEXT NOT NULL
+- source_type VARCHAR(64) NOT NULL
+- importance_score DECIMAL(5,2) NOT NULL DEFAULT 0.00
+- is_sensitive BOOLEAN NOT NULL DEFAULT FALSE
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+- deleted_at DATETIME NULL
+
+Indexes:
+- INDEX(user_id, scope)
+- INDEX(agent_id)
+- INDEX(run_id)
+
+------------------------------------------
+3.37 memory_summaries
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- agent_id VARCHAR(26) NULL FK agents(id)
+- run_id VARCHAR(26) NULL FK runs(id)
+- scope VARCHAR(32) NOT NULL
+- summary_text LONGTEXT NOT NULL
+- summary_window_label VARCHAR(120) NULL
+- generated_at DATETIME NOT NULL
+- created_at DATETIME NOT NULL
+
+------------------------------------------
+3.38 memory_links
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- memory_item_id VARCHAR(26) NOT NULL FK memory_items(id)
+- linked_entity_type VARCHAR(64) NOT NULL
+- linked_entity_id VARCHAR(26) NOT NULL
+- link_reason VARCHAR(255) NULL
+- created_at DATETIME NOT NULL
+
+------------------------------------------
+3.39 memory_deletion_requests
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- scope VARCHAR(32) NULL
+- agent_id VARCHAR(26) NULL FK agents(id)
+- run_id VARCHAR(26) NULL FK runs(id)
+- status VARCHAR(32) NOT NULL
+- requested_at DATETIME NOT NULL
+- completed_at DATETIME NULL
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+------------------------------------------
+3.40 connections
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- type VARCHAR(32) NOT NULL
+- display_name VARCHAR(120) NOT NULL
+- status VARCHAR(32) NOT NULL
+- external_account_label VARCHAR(255) NULL
+- scopes_json JSON NULL
+- last_tested_at DATETIME NULL
+- last_error_text TEXT NULL
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+- disconnected_at DATETIME NULL
+
+Indexes:
+- INDEX(user_id, type)
+- INDEX(status)
+
+------------------------------------------
+3.41 connection_credentials
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- connection_id VARCHAR(26) NOT NULL FK connections(id)
+- credential_type VARCHAR(64) NOT NULL
+- encrypted_secret TEXT NOT NULL
+- secret_fingerprint VARCHAR(128) NULL
+- expires_at DATETIME NULL
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+------------------------------------------
+3.42 connection_scopes
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- connection_id VARCHAR(26) NOT NULL FK connections(id)
+- scope_code VARCHAR(120) NOT NULL
+- scope_label VARCHAR(255) NOT NULL
+- granted BOOLEAN NOT NULL DEFAULT TRUE
+- created_at DATETIME NOT NULL
+
+Constraints:
+- UNIQUE(connection_id, scope_code)
+
+------------------------------------------
+3.43 tool_definitions
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- code VARCHAR(64) NOT NULL UNIQUE
+- type VARCHAR(64) NOT NULL
+- display_name VARCHAR(120) NOT NULL
+- connection_type VARCHAR(32) NULL
+- input_schema_json JSON NOT NULL
+- output_schema_json JSON NOT NULL
+- approval_class VARCHAR(64) NOT NULL
+- risk_level VARCHAR(32) NOT NULL
+- timeout_seconds INT NOT NULL DEFAULT 30
+- retry_policy_json JSON NULL
+- is_active BOOLEAN NOT NULL DEFAULT TRUE
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+------------------------------------------
+3.44 tool_invocations
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- run_id VARCHAR(26) NOT NULL FK runs(id)
+- run_agent_id VARCHAR(26) NULL FK run_agents(id)
+- tool_definition_id VARCHAR(26) NOT NULL FK tool_definitions(id)
+- approval_id VARCHAR(26) NULL FK approvals(id)
+- status VARCHAR(32) NOT NULL
+- input_payload_json JSON NOT NULL
+- output_payload_json JSON NULL
+- error_text TEXT NULL
+- duration_ms INT NULL
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+------------------------------------------
+3.45 custom_connectors
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- connection_id VARCHAR(26) NULL FK connections(id)
+- name VARCHAR(120) NOT NULL
+- base_url VARCHAR(500) NOT NULL
+- auth_type VARCHAR(64) NOT NULL
+- default_headers_json JSON NULL
+- allowed_actions_json JSON NOT NULL
+- input_mapping_json JSON NULL
+- output_mapping_json JSON NULL
+- approval_risk_class VARCHAR(64) NOT NULL
+- is_active BOOLEAN NOT NULL DEFAULT TRUE
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+------------------------------------------
+3.46 connector_field_definitions
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- custom_connector_id VARCHAR(26) NOT NULL FK custom_connectors(id)
+- field_key VARCHAR(120) NOT NULL
+- field_label VARCHAR(255) NOT NULL
+- field_type VARCHAR(64) NOT NULL
+- is_required BOOLEAN NOT NULL DEFAULT FALSE
+- default_value_json JSON NULL
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+------------------------------------------
+3.47 documents
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- task_id VARCHAR(26) NULL FK tasks(id)
+- run_id VARCHAR(26) NULL FK runs(id)
+- document_type VARCHAR(64) NOT NULL
+- title VARCHAR(255) NOT NULL
+- content_text LONGTEXT NULL
+- content_json JSON NULL
+- storage_url VARCHAR(500) NULL
+- is_generated BOOLEAN NOT NULL DEFAULT TRUE
+- created_by_agent_id VARCHAR(26) NULL FK agents(id)
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+- deleted_at DATETIME NULL
+
+------------------------------------------
+3.48 document_versions
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- document_id VARCHAR(26) NOT NULL FK documents(id)
+- version_number INT NOT NULL
+- content_text LONGTEXT NULL
+- content_json JSON NULL
+- change_summary TEXT NULL
+- created_at DATETIME NOT NULL
+- created_by VARCHAR(32) NOT NULL
+
+Constraints:
+- UNIQUE(document_id, version_number)
+
+------------------------------------------
+3.49 document_exports
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- document_id VARCHAR(26) NOT NULL FK documents(id)
+- export_format VARCHAR(32) NOT NULL
+- export_status VARCHAR(32) NOT NULL
+- file_url VARCHAR(500) NULL
+- created_at DATETIME NOT NULL
+- completed_at DATETIME NULL
+
+------------------------------------------
+3.50 plans
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- code VARCHAR(32) NOT NULL UNIQUE
+- display_name VARCHAR(120) NOT NULL
+- description TEXT NULL
+- price_cents INT NOT NULL
+- billing_interval VARCHAR(32) NOT NULL
+- features_json JSON NOT NULL
+- is_active BOOLEAN NOT NULL DEFAULT TRUE
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+------------------------------------------
+3.51 subscriptions
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- plan_id VARCHAR(26) NOT NULL FK plans(id)
+- provider_subscription_id VARCHAR(128) NULL
+- status VARCHAR(32) NOT NULL
+- current_period_start DATETIME NOT NULL
+- current_period_end DATETIME NOT NULL
+- cancel_at_period_end BOOLEAN NOT NULL DEFAULT FALSE
+- cancelled_at DATETIME NULL
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+------------------------------------------
+3.52 invoices
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- subscription_id VARCHAR(26) NULL FK subscriptions(id)
+- provider_invoice_id VARCHAR(128) NULL
+- amount_cents INT NOT NULL
+- currency_code VARCHAR(8) NOT NULL DEFAULT 'USD'
+- status VARCHAR(32) NOT NULL
+- hosted_invoice_url VARCHAR(500) NULL
+- invoice_pdf_url VARCHAR(500) NULL
+- billed_at DATETIME NULL
+- due_at DATETIME NULL
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+------------------------------------------
+3.53 payment_methods
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- provider_payment_method_id VARCHAR(128) NOT NULL
+- brand VARCHAR(32) NULL
+- last4 VARCHAR(8) NULL
+- exp_month INT NULL
+- exp_year INT NULL
+- is_default BOOLEAN NOT NULL DEFAULT FALSE
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+------------------------------------------
+3.54 usage_records
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- run_id VARCHAR(26) NULL FK runs(id)
+- usage_type VARCHAR(64) NOT NULL
+- quantity BIGINT NOT NULL
+- unit VARCHAR(32) NOT NULL
+- cost_cents INT NOT NULL DEFAULT 0
+- provider_code VARCHAR(64) NULL
+- model_code VARCHAR(128) NULL
+- created_at DATETIME NOT NULL
+
+Indexes:
+- INDEX(user_id, created_at)
+- INDEX(run_id)
+
+------------------------------------------
+3.55 feature_entitlements
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- plan_id VARCHAR(26) NOT NULL FK plans(id)
+- entitlement_code VARCHAR(64) NOT NULL
+- entitlement_value VARCHAR(255) NOT NULL
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+Constraints:
+- UNIQUE(plan_id, entitlement_code)
+
+------------------------------------------
+3.56 notifications
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- type VARCHAR(64) NOT NULL
+- title VARCHAR(255) NOT NULL
+- body_text TEXT NOT NULL
+- related_entity_type VARCHAR(64) NULL
+- related_entity_id VARCHAR(26) NULL
+- is_read BOOLEAN NOT NULL DEFAULT FALSE
+- created_at DATETIME NOT NULL
+- read_at DATETIME NULL
+
+Indexes:
+- INDEX(user_id, is_read)
+- INDEX(type)
+
+------------------------------------------
+3.57 notification_deliveries
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- notification_id VARCHAR(26) NOT NULL FK notifications(id)
+- channel VARCHAR(32) NOT NULL
+- delivery_status VARCHAR(32) NOT NULL
+- provider_message_id VARCHAR(128) NULL
+- attempted_at DATETIME NOT NULL
+- delivered_at DATETIME NULL
+- error_text TEXT NULL
+
+------------------------------------------
+3.58 audit_logs
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NULL FK users(id)
+- event_type VARCHAR(64) NOT NULL
+- entity_type VARCHAR(64) NOT NULL
+- entity_id VARCHAR(26) NULL
+- action_summary TEXT NOT NULL
+- before_json JSON NULL
+- after_json JSON NULL
+- metadata_json JSON NULL
+- created_at DATETIME NOT NULL
+- actor_type VARCHAR(32) NOT NULL
+- actor_id VARCHAR(26) NULL
+
+Indexes:
+- INDEX(user_id, created_at)
+- INDEX(entity_type, entity_id)
+
+------------------------------------------
+3.59 export_requests
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- status VARCHAR(32) NOT NULL
+- export_scope_json JSON NOT NULL
+- file_url VARCHAR(500) NULL
+- requested_at DATETIME NOT NULL
+- completed_at DATETIME NULL
+- expires_at DATETIME NULL
+
+------------------------------------------
+3.60 deletion_jobs
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- user_id VARCHAR(26) NOT NULL FK users(id)
+- deletion_type VARCHAR(64) NOT NULL
+- deletion_scope_json JSON NOT NULL
+- status VARCHAR(32) NOT NULL
+- requested_at DATETIME NOT NULL
+- started_at DATETIME NULL
+- completed_at DATETIME NULL
+- error_text TEXT NULL
+
+------------------------------------------
+3.61 retention_policies
+------------------------------------------
+Fields:
+- id VARCHAR(26) PK
+- policy_code VARCHAR(64) NOT NULL UNIQUE
+- display_name VARCHAR(120) NOT NULL
+- applies_to_entity_type VARCHAR(64) NOT NULL
+- retention_days INT NOT NULL
+- purge_behavior VARCHAR(64) NOT NULL
+- is_active BOOLEAN NOT NULL DEFAULT TRUE
+- created_at DATETIME NOT NULL
+- updated_at DATETIME NOT NULL
+
+==================================================
+4. KEY RELATIONSHIPS
+==================================================
+
+1. users -> user_profiles one to one
+2. users -> agents one to many
+3. users -> tasks one to many
+4. tasks -> runs one to many
+5. runs -> run_agents one to many
+6. run_agents -> agent_messages one to many as sender and receiver
+7. runs -> approvals one to many
+8. agents -> agent_tool_permissions one to many
+9. users -> connections one to many
+10. documents can belong to tasks and runs
+11. usage_records can belong to runs
+12. audit_logs can reference any entity type
+13. memory_items can reference user, agent, and run depending on scope
+
+==================================================
+5. FUTURE-PROOFING FOR MULTI-TENANCY
+==================================================
+
+For v1 keep personal accounts only, but design with future expansion in mind.
+
+Recommended future extension:
+- Introduce workspaces table
+- Add workspace_id to most user-owned entities
+- Add memberships table
+- Add roles and permissions table
+- Preserve user ownership while enabling scoped collaboration
+
+Because v1 is single user only, do not add workspace complexity to the first implementation unless it materially simplifies later migration.
+
+==================================================
+6. MIGRATION ORDER
+==================================================
+
+Recommended Flyway or Liquibase migration order:
+
+1. users and identity tables
+2. preferences and onboarding tables
+3. templates tables
+4. agents and policy tables
+5. tasks and runs tables
+6. messaging and shared context tables
+7. approvals and consent tables
+8. memory tables
+9. connections and tools tables
+10. documents tables
+11. billing and usage tables
+12. notifications tables
+13. audit, export, deletion, retention tables
+
+==================================================
+7. MINIMUM SEED DATA
+==================================================
+
+Seed these records:
+1. plan rows for FREE, LOCAL_PRO, CLOUD_PRO
+2. feature_entitlements rows for each plan
+3. template_categories
+4. initial curated agent_templates
+5. tool_definitions for all built in tools
+6. retention_policies defaults
+
+==================================================
+8. FINAL IMPLEMENTATION NOTE
+==================================================
+
+This schema is optimized for:
+- runtime defined agents
+- traceable collaboration
+- approval first external action handling
+- privacy and memory controls
+- billing and usage tracking
+- future growth without rewriting the core model

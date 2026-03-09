@@ -1,0 +1,845 @@
+FRONTEND ROUTE, COMPONENT, AND FILE MAP PACK
+Runtime AI Agent Platform
+Version 1
+Frontend Stack: Angular, TypeScript, Signals, Tailwind, PWA
+
+==================================================
+1. PURPOSE
+==================================================
+
+This pack defines the frontend application structure in prescriptive detail:
+- route map
+- feature folder map
+- page components
+- shared components
+- core services
+- models
+- guards
+- state services
+- file naming rules
+
+The goal is to make implementation deterministic for a coding agent.
+
+==================================================
+2. TOP LEVEL FRONTEND STRUCTURE
+==================================================
+
+Recommended project layout:
+
+src/
+  app/
+    core/
+      auth/
+      api/
+      config/
+      realtime/
+      errors/
+      guards/
+      interceptors/
+      models/
+      services/
+      state/
+    shared/
+      components/
+      dialogs/
+      pipes/
+      directives/
+      utils/
+      layouts/
+    features/
+      landing/
+      auth/
+      onboarding/
+      dashboard/
+      agents/
+      tasks/
+      runs/
+      workspace/
+      approvals/
+      connections/
+      documents/
+      billing/
+      privacy/
+      settings/
+      help/
+    app.routes.ts
+    app.config.ts
+    app.component.ts
+    app.component.html
+    app.component.css
+
+==================================================
+3. ROUTE MAP
+==================================================
+
+3.1 Public Routes
+
+/ 
+- component: LandingPageComponent
+- purpose: marketing style entry, sign in and sign up CTA
+
+/auth/sign-in
+- component: SignInPageComponent
+
+/auth/sign-up
+- component: SignUpPageComponent
+
+/auth/forgot-password
+- component: ForgotPasswordPageComponent
+
+/auth/reset-password
+- component: ResetPasswordPageComponent
+
+/auth/verify-email
+- component: VerifyEmailPageComponent
+
+3.2 Protected Routes
+
+/onboarding
+- component: OnboardingShellPageComponent
+- guard: authGuard
+
+/dashboard
+- component: DashboardPageComponent
+- guard: authGuard, onboardingCompleteGuard
+
+/agents
+- component: AgentListPageComponent
+- guard: authGuard, onboardingCompleteGuard
+
+/agents/new
+- component: AgentCreateEntryPageComponent
+- guard: authGuard, onboardingCompleteGuard
+
+/agents/new/wizard
+- component: AgentWizardPageComponent
+
+/agents/new/text
+- component: AgentNaturalLanguageBuilderPageComponent
+
+/agents/new/template
+- component: TemplateBrowserPageComponent
+
+/agents/:id
+- component: AgentDetailPageComponent
+
+/agents/:id/edit
+- component: AgentEditPageComponent
+
+/agents/:id/memory
+- component: AgentMemoryPageComponent
+
+/agents/:id/permissions
+- component: AgentPermissionsPageComponent
+
+/tasks
+- component: TaskListPageComponent
+
+/tasks/new
+- component: TaskCreatePageComponent
+
+/tasks/:id
+- component: TaskDetailPageComponent
+
+/tasks/:id/edit
+- component: TaskEditPageComponent
+
+/runs
+- component: RunListPageComponent
+
+/runs/:id
+- component: RunDetailPageComponent
+
+/workspace/:taskId
+- component: WorkspacePageComponent
+
+/approvals
+- component: ApprovalInboxPageComponent
+
+/approvals/:id
+- component: ApprovalDetailPageComponent
+
+/connections
+- component: ConnectionListPageComponent
+
+/connections/:type/setup
+- component: ConnectionSetupPageComponent
+
+/connections/:id
+- component: ConnectionDetailPageComponent
+
+/documents
+- component: DocumentListPageComponent
+
+/documents/:id
+- component: DocumentDetailPageComponent
+
+/billing
+- component: BillingOverviewPageComponent
+
+/billing/plans
+- component: BillingPlansPageComponent
+
+/billing/invoices
+- component: BillingInvoicesPageComponent
+
+/privacy
+- component: PrivacyDashboardPageComponent
+
+/privacy/memory
+- component: MemoryDashboardPageComponent
+
+/privacy/export
+- component: ExportDataPageComponent
+
+/privacy/delete
+- component: DeleteDataPageComponent
+
+/settings
+- component: SettingsOverviewPageComponent
+
+/settings/notifications
+- component: NotificationSettingsPageComponent
+
+/settings/models
+- component: ModelSettingsPageComponent
+
+/settings/consent
+- component: ConsentSettingsPageComponent
+
+/help
+- component: HelpCenterPageComponent
+
+/help/getting-started
+- component: GettingStartedPageComponent
+
+/help/faq
+- component: FaqPageComponent
+
+==================================================
+4. APP SHELL AND LAYOUT COMPONENTS
+==================================================
+
+Required shared layout components:
+
+1. AppShellComponent
+- wraps authenticated experience
+- contains top nav, side nav, content outlet, notification surface
+
+2. PublicShellComponent
+- wraps landing and auth pages
+
+3. TopNavComponent
+- logo
+- global search optional
+- notifications
+- usage meter summary
+- user menu
+
+4. SideNavComponent
+- primary section links
+
+5. MobileNavComponent
+- bottom or drawer navigation
+
+6. PageHeaderComponent
+- title
+- subtitle
+- actions
+
+7. SplitPaneLayoutComponent
+- main multi-panel workspaces
+
+8. EmptyStateComponent
+9. LoadingStateComponent
+10. ErrorStateComponent
+
+==================================================
+5. CORE FILES
+==================================================
+
+Create the following core files:
+
+src/app/core/auth/auth.models.ts
+src/app/core/auth/auth.service.ts
+src/app/core/auth/session.service.ts
+
+src/app/core/api/api-client.service.ts
+src/app/core/api/api-endpoints.ts
+
+src/app/core/config/app-config.model.ts
+src/app/core/config/config.service.ts
+
+src/app/core/realtime/realtime.service.ts
+src/app/core/realtime/realtime.models.ts
+
+src/app/core/errors/error-handling.service.ts
+src/app/core/errors/app-error.model.ts
+
+src/app/core/guards/auth.guard.ts
+src/app/core/guards/onboarding-complete.guard.ts
+
+src/app/core/interceptors/auth.interceptor.ts
+src/app/core/interceptors/error.interceptor.ts
+
+src/app/core/models/common.models.ts
+src/app/core/state/app-session.store.ts
+src/app/core/state/app-notification.store.ts
+src/app/core/state/app-usage.store.ts
+
+==================================================
+6. FEATURE FILE MAP
+==================================================
+
+6.1 landing
+
+src/app/features/landing/landing-page.component.ts
+src/app/features/landing/landing-page.component.html
+src/app/features/landing/landing-page.component.css
+
+6.2 auth
+
+src/app/features/auth/pages/sign-in-page.component.ts
+src/app/features/auth/pages/sign-up-page.component.ts
+src/app/features/auth/pages/forgot-password-page.component.ts
+src/app/features/auth/pages/reset-password-page.component.ts
+src/app/features/auth/pages/verify-email-page.component.ts
+
+src/app/features/auth/components/auth-form-shell.component.ts
+src/app/features/auth/components/password-field.component.ts
+
+6.3 onboarding
+
+src/app/features/onboarding/pages/onboarding-shell-page.component.ts
+src/app/features/onboarding/components/onboarding-intro-step.component.ts
+src/app/features/onboarding/components/onboarding-goal-step.component.ts
+src/app/features/onboarding/components/onboarding-tools-step.component.ts
+src/app/features/onboarding/components/onboarding-privacy-step.component.ts
+src/app/features/onboarding/components/onboarding-first-agent-step.component.ts
+src/app/features/onboarding/onboarding.service.ts
+src/app/features/onboarding/onboarding.models.ts
+src/app/features/onboarding/onboarding.store.ts
+
+6.4 dashboard
+
+src/app/features/dashboard/dashboard-page.component.ts
+src/app/features/dashboard/components/dashboard-summary-cards.component.ts
+src/app/features/dashboard/components/recent-runs.component.ts
+src/app/features/dashboard/components/approval-alerts.component.ts
+src/app/features/dashboard/dashboard.store.ts
+
+6.5 agents
+
+src/app/features/agents/pages/agent-list-page.component.ts
+src/app/features/agents/pages/agent-create-entry-page.component.ts
+src/app/features/agents/pages/agent-wizard-page.component.ts
+src/app/features/agents/pages/agent-natural-language-builder-page.component.ts
+src/app/features/agents/pages/template-browser-page.component.ts
+src/app/features/agents/pages/agent-detail-page.component.ts
+src/app/features/agents/pages/agent-edit-page.component.ts
+src/app/features/agents/pages/agent-memory-page.component.ts
+src/app/features/agents/pages/agent-permissions-page.component.ts
+
+src/app/features/agents/components/agent-card.component.ts
+src/app/features/agents/components/agent-wizard-form.component.ts
+src/app/features/agents/components/agent-capabilities-list.component.ts
+src/app/features/agents/components/agent-relationship-list.component.ts
+src/app/features/agents/components/agent-policy-editor.component.ts
+src/app/features/agents/components/agent-memory-panel.component.ts
+src/app/features/agents/components/agent-permissions-panel.component.ts
+src/app/features/agents/components/template-card.component.ts
+
+src/app/features/agents/agents.api.ts
+src/app/features/agents/agents.models.ts
+src/app/features/agents/agents.store.ts
+
+6.6 tasks
+
+src/app/features/tasks/pages/task-list-page.component.ts
+src/app/features/tasks/pages/task-create-page.component.ts
+src/app/features/tasks/pages/task-detail-page.component.ts
+src/app/features/tasks/pages/task-edit-page.component.ts
+
+src/app/features/tasks/components/task-card.component.ts
+src/app/features/tasks/components/task-form.component.ts
+src/app/features/tasks/components/task-status-badge.component.ts
+
+src/app/features/tasks/tasks.api.ts
+src/app/features/tasks/tasks.models.ts
+src/app/features/tasks/tasks.store.ts
+
+6.7 runs
+
+src/app/features/runs/pages/run-list-page.component.ts
+src/app/features/runs/pages/run-detail-page.component.ts
+
+src/app/features/runs/components/run-timeline.component.ts
+src/app/features/runs/components/run-status-banner.component.ts
+src/app/features/runs/components/run-event-list.component.ts
+src/app/features/runs/components/run-summary-panel.component.ts
+
+src/app/features/runs/runs.api.ts
+src/app/features/runs/runs.models.ts
+src/app/features/runs/runs.store.ts
+
+6.8 workspace
+
+src/app/features/workspace/pages/workspace-page.component.ts
+
+src/app/features/workspace/components/workspace-shell.component.ts
+src/app/features/workspace/components/agent-roster-panel.component.ts
+src/app/features/workspace/components/chat-thread-panel.component.ts
+src/app/features/workspace/components/shared-task-board.component.ts
+src/app/features/workspace/components/graph-view.component.ts
+src/app/features/workspace/components/context-panel.component.ts
+src/app/features/workspace/components/action-review-drawer.component.ts
+src/app/features/workspace/components/spawn-request-card.component.ts
+
+src/app/features/workspace/workspace.api.ts
+src/app/features/workspace/workspace.models.ts
+src/app/features/workspace/workspace.store.ts
+
+6.9 approvals
+
+src/app/features/approvals/pages/approval-inbox-page.component.ts
+src/app/features/approvals/pages/approval-detail-page.component.ts
+
+src/app/features/approvals/components/approval-card.component.ts
+src/app/features/approvals/components/approval-action-form.component.ts
+src/app/features/approvals/components/approval-rule-editor.component.ts
+
+src/app/features/approvals/approvals.api.ts
+src/app/features/approvals/approvals.models.ts
+src/app/features/approvals/approvals.store.ts
+
+6.10 connections
+
+src/app/features/connections/pages/connection-list-page.component.ts
+src/app/features/connections/pages/connection-setup-page.component.ts
+src/app/features/connections/pages/connection-detail-page.component.ts
+
+src/app/features/connections/components/connection-card.component.ts
+src/app/features/connections/components/connection-status-badge.component.ts
+src/app/features/connections/components/email-connection-form.component.ts
+src/app/features/connections/components/calendar-connection-form.component.ts
+src/app/features/connections/components/web-connection-form.component.ts
+src/app/features/connections/components/ecommerce-connection-form.component.ts
+src/app/features/connections/components/custom-api-connection-form.component.ts
+
+src/app/features/connections/connections.api.ts
+src/app/features/connections/connections.models.ts
+src/app/features/connections/connections.store.ts
+
+6.11 documents
+
+src/app/features/documents/pages/document-list-page.component.ts
+src/app/features/documents/pages/document-detail-page.component.ts
+
+src/app/features/documents/components/document-card.component.ts
+src/app/features/documents/components/document-preview.component.ts
+src/app/features/documents/components/document-export-panel.component.ts
+src/app/features/documents/components/document-version-list.component.ts
+
+src/app/features/documents/documents.api.ts
+src/app/features/documents/documents.models.ts
+src/app/features/documents/documents.store.ts
+
+6.12 billing
+
+src/app/features/billing/pages/billing-overview-page.component.ts
+src/app/features/billing/pages/billing-plans-page.component.ts
+src/app/features/billing/pages/billing-invoices-page.component.ts
+
+src/app/features/billing/components/plan-card.component.ts
+src/app/features/billing/components/usage-meter.component.ts
+src/app/features/billing/components/invoice-list.component.ts
+src/app/features/billing/components/payment-method-panel.component.ts
+
+src/app/features/billing/billing.api.ts
+src/app/features/billing/billing.models.ts
+src/app/features/billing/billing.store.ts
+
+6.13 privacy
+
+src/app/features/privacy/pages/privacy-dashboard-page.component.ts
+src/app/features/privacy/pages/memory-dashboard-page.component.ts
+src/app/features/privacy/pages/export-data-page.component.ts
+src/app/features/privacy/pages/delete-data-page.component.ts
+
+src/app/features/privacy/components/memory-item-card.component.ts
+src/app/features/privacy/components/memory-filter-bar.component.ts
+src/app/features/privacy/components/export-request-panel.component.ts
+src/app/features/privacy/components/delete-confirmation-panel.component.ts
+src/app/features/privacy/components/consent-record-list.component.ts
+
+src/app/features/privacy/privacy.api.ts
+src/app/features/privacy/privacy.models.ts
+src/app/features/privacy/privacy.store.ts
+
+6.14 settings
+
+src/app/features/settings/pages/settings-overview-page.component.ts
+src/app/features/settings/pages/notification-settings-page.component.ts
+src/app/features/settings/pages/model-settings-page.component.ts
+src/app/features/settings/pages/consent-settings-page.component.ts
+
+src/app/features/settings/components/settings-section-card.component.ts
+src/app/features/settings/components/model-preference-form.component.ts
+src/app/features/settings/components/notification-preference-form.component.ts
+src/app/features/settings/components/remembered-approval-settings.component.ts
+
+src/app/features/settings/settings.api.ts
+src/app/features/settings/settings.models.ts
+src/app/features/settings/settings.store.ts
+
+6.15 help
+
+src/app/features/help/pages/help-center-page.component.ts
+src/app/features/help/pages/getting-started-page.component.ts
+src/app/features/help/pages/faq-page.component.ts
+
+src/app/features/help/components/help-topic-list.component.ts
+src/app/features/help/components/faq-accordion.component.ts
+
+==================================================
+7. SHARED COMPONENTS
+==================================================
+
+Create these reusable shared components:
+
+src/app/shared/components/page-header/page-header.component.ts
+src/app/shared/components/empty-state/empty-state.component.ts
+src/app/shared/components/loading-state/loading-state.component.ts
+src/app/shared/components/error-state/error-state.component.ts
+src/app/shared/components/status-badge/status-badge.component.ts
+src/app/shared/components/confirm-dialog/confirm-dialog.component.ts
+src/app/shared/components/search-input/search-input.component.ts
+src/app/shared/components/filter-bar/filter-bar.component.ts
+src/app/shared/components/data-table/data-table.component.ts
+src/app/shared/components/card-shell/card-shell.component.ts
+
+src/app/shared/layouts/app-shell/app-shell.component.ts
+src/app/shared/layouts/public-shell/public-shell.component.ts
+src/app/shared/layouts/top-nav/top-nav.component.ts
+src/app/shared/layouts/side-nav/side-nav.component.ts
+src/app/shared/layouts/mobile-nav/mobile-nav.component.ts
+src/app/shared/layouts/split-pane-layout/split-pane-layout.component.ts
+
+==================================================
+8. MODELS BY FEATURE
+==================================================
+
+8.1 agents.models.ts should include:
+- AgentSummary
+- AgentDetail
+- AgentCapability
+- AgentPolicy
+- AgentRelationship
+- AgentCreateRequest
+- AgentUpdateRequest
+- AgentFromTextRequest
+- TemplateSummary
+
+8.2 tasks.models.ts
+- TaskSummary
+- TaskDetail
+- TaskCreateRequest
+- TaskUpdateRequest
+
+8.3 runs.models.ts
+- RunSummary
+- RunDetail
+- RunEvent
+- RunAgentState
+- RunGraphNode
+- RunGraphEdge
+
+8.4 approvals.models.ts
+- ApprovalSummary
+- ApprovalDetail
+- ApprovalActionRequest
+- ApprovalRule
+
+8.5 connections.models.ts
+- ConnectionSummary
+- ConnectionDetail
+- ConnectionScope
+- ConnectionSetupRequest
+
+8.6 documents.models.ts
+- DocumentSummary
+- DocumentDetail
+- DocumentVersion
+- DocumentExportRequest
+
+8.7 privacy.models.ts
+- MemoryItem
+- MemorySummary
+- ExportRequestSummary
+- DeletionRequestSummary
+- ConsentRecord
+
+8.8 billing.models.ts
+- PlanSummary
+- SubscriptionDetail
+- InvoiceSummary
+- UsageSummary
+- EntitlementSummary
+
+==================================================
+9. CORE SERVICES AND RESPONSIBILITIES
+==================================================
+
+9.1 ApiClientService
+- wrap HttpClient
+- standard headers
+- error normalization
+- typed methods
+
+9.2 RealtimeService
+- subscribe to run streams
+- subscribe to notification streams
+- reconnect logic
+- expose signal-friendly stream adapters
+
+9.3 AuthService
+- sign in
+- sign up
+- sign out
+- refresh token
+- password reset flows
+
+9.4 SessionService
+- hold current user
+- token lifecycle
+- route auth checks
+
+9.5 ErrorHandlingService
+- global error mapping
+- toast or banner generation
+- log to console or monitoring hook
+
+==================================================
+10. FEATURE STORES
+==================================================
+
+Each feature gets a local store service using Angular signals.
+
+Required store responsibilities:
+
+AgentsStore
+- list loading
+- detail loading
+- create and update flows
+- selected agent state
+
+TasksStore
+- list and detail
+- start run action
+
+RunsStore
+- run list
+- detail
+- event stream merge
+- live state update
+
+WorkspaceStore
+- agent roster
+- chat thread
+- shared task board
+- graph data
+- context panel
+- action review state
+
+ApprovalsStore
+- inbox
+- detail
+- approve and deny
+- remembered rule creation
+
+ConnectionsStore
+- list
+- connect
+- test
+- revoke
+
+BillingStore
+- plan list
+- subscription
+- usage
+- invoices
+
+PrivacyStore
+- memory list
+- delete memory
+- export requests
+- delete account request
+
+==================================================
+11. GUARDS
+==================================================
+
+authGuard
+- blocks protected routes unless session valid
+
+onboardingCompleteGuard
+- redirects new users from app routes to onboarding until onboarding complete
+
+Optional later guards:
+- planEntitlementGuard
+- featureFlagGuard
+
+==================================================
+12. ROUTING IMPLEMENTATION RULES
+==================================================
+
+1. Use lazy loading for every feature area.
+2. Group public and authenticated shells clearly.
+3. Do not place heavy workspace modules in the initial bundle.
+4. Use route resolvers only where truly useful, otherwise load in component store.
+5. Route params must be strongly typed in helper utilities when possible.
+
+==================================================
+13. WORKSPACE PAGE DETAILED COMPOSITION
+==================================================
+
+WorkspacePageComponent should compose:
+
+- PageHeaderComponent
+- RunStatusBannerComponent
+- AgentRosterPanelComponent
+- SharedTaskBoardComponent
+- ChatThreadPanelComponent
+- GraphViewComponent
+- ContextPanelComponent
+- ActionReviewDrawerComponent
+
+Desktop layout:
+- left: roster + task board
+- center: chat and activity
+- right: approvals + context + outputs
+
+Mobile layout:
+- tabbed or drawer based panels
+
+==================================================
+14. APPROVAL FLOW COMPONENT TREE
+==================================================
+
+ApprovalInboxPageComponent
+- list of ApprovalCardComponent
+
+ApprovalCardComponent
+- action summary
+- reason summary
+- risk class
+- pending indicator
+- open detail CTA
+
+ApprovalDetailPageComponent
+- approval metadata
+- payload preview
+- remember options
+- approve, deny, revise controls
+
+ApprovalActionFormComponent
+- response note
+- remember scope selector
+- ask every time toggle
+
+==================================================
+15. GRAPH VIEW FILES
+==================================================
+
+src/app/features/workspace/components/graph-view.component.ts
+src/app/features/workspace/components/graph-node-card.component.ts
+src/app/features/workspace/components/graph-edge-legend.component.ts
+
+Graph data should show:
+- user task node
+- agent nodes
+- message links
+- delegation links
+- spawn links
+- approval blocked state badges
+
+==================================================
+16. PWA FILES
+==================================================
+
+Required additional files:
+- manifest.webmanifest
+- ngsw-config.json or Angular PWA equivalent
+- offline-page component or inline offline states
+
+PwaStatusService should expose:
+- isInstallable
+- isOffline
+- updateAvailable
+
+==================================================
+17. NAMING RULES
+==================================================
+
+1. Page components end with PageComponent.
+2. Presentational reusable pieces end with Component.
+3. Service wrappers for API calls end with .api.ts or Service when cross-cutting.
+4. Feature state files end with .store.ts.
+5. Models grouped by feature in .models.ts.
+6. Avoid one giant shared models file.
+
+==================================================
+18. TEST FILE MAP
+==================================================
+
+Each component and store should have a matching spec file.
+
+Examples:
+- agent-list-page.component.spec.ts
+- agents.store.spec.ts
+- auth.service.spec.ts
+- workspace.store.spec.ts
+
+Add E2E folders:
+e2e/
+  auth/
+  onboarding/
+  agents/
+  workspace/
+  approvals/
+  billing/
+  privacy/
+
+==================================================
+19. IMPLEMENTATION ORDER FOR FRONTEND
+==================================================
+
+1. app shell and routing skeleton
+2. auth feature
+3. onboarding feature
+4. dashboard
+5. agents
+6. tasks
+7. runs
+8. workspace
+9. approvals
+10. connections
+11. documents
+12. billing
+13. privacy
+14. settings
+15. help
+16. PWA polish
+17. responsive refinements
+18. accessibility pass
+
+==================================================
+20. FINAL IMPLEMENTATION NOTE
+==================================================
+
+The frontend must make the system understandable to non-technical users.
+Every screen should answer:
+- what is happening
+- what needs approval
+- what happened before
+- what the agent can do next

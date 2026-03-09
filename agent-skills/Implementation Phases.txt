@@ -1,0 +1,170 @@
+23 specification files that together form a complete AI-consumable architecture and build system for your runtime AI-agent platform.
+
+The files are numbered 01–23, but the correct order for an implementation agent is NOT simply 1→23.
+Some files define architecture, some define build instructions, and some define validation.
+
+An implementation agent should read them in four phases:
+
+System Understanding
+
+Architecture & Contracts
+
+Implementation Instructions
+
+Validation & Release
+
+Below is the exact reading order the implementation agent should follow.
+
+AI IMPLEMENTATION AGENT FILE READING ORDER
+PHASE 1 — SYSTEM ORIENTATION
+
+Purpose: Understand the product, architecture philosophy, and constraints.
+
+Read in this order:
+
+1️⃣ 18 developer_handoff_master_index_pack.txt
+This file explains the entire pack system and acts as the global index.
+
+2️⃣ 05 master_implementation_prompt_pack.txt
+Defines the behavior rules and operating mindset for the coding agent.
+
+3️⃣ 19 autonomous_implementation_agent_prompt.txt
+Defines the full autonomous system build directive.
+
+4️⃣ 01 frontend_spec_pack.txt
+Defines frontend design philosophy.
+
+5️⃣ 02 backend_spec_pack.txt
+Defines backend system responsibilities.
+
+At this point the AI agent understands:
+
+what the system is
+
+who the user is
+
+runtime agent philosophy
+
+stack decisions
+
+system scope
+
+PHASE 2 — SYSTEM ARCHITECTURE
+
+Purpose: Understand how the system is structured.
+
+Read next:
+
+6️⃣ 03 database_api_contract_pack.txt
+Defines API structures and contract philosophy.
+
+7️⃣ 09 database_schema_pack.txt
+Defines the entire database structure.
+
+8️⃣ 13 database_migration_pack.txt
+Defines how the schema will be created.
+
+9️⃣ 14 seed_data_curated_template_pack.txt
+Defines seed data needed for first run.
+
+🔟 12 state_machine_event_contract_pack.txt
+Defines system state machines and event flow.
+
+This phase defines:
+
+the data model
+
+the state model
+
+the API contract
+
+Without this the system cannot be built safely.
+
+PHASE 3 — CODE STRUCTURE
+
+Purpose: Understand how code must be organized.
+
+Read next:
+
+11️⃣ 06 module_dto_entity_interface_pack.txt
+Defines data structures and object models.
+
+12️⃣ 11 backend_package_class_file_map_pack.txt
+Defines backend folder structure and class map.
+
+13️⃣ 10 frontend_route_component_file_map_pack.txt
+Defines frontend routing and component layout.
+
+14️⃣ 07 screen_by_screen_ux_spec_pack.txt
+Defines UI pages and screen flows.
+
+15️⃣ 08 api_endpoint_request_response_examples_pack.txt
+Provides exact API request/response examples.
+
+At this stage the implementation agent understands:
+
+where code must live
+
+how data objects look
+
+how endpoints behave
+
+how UI pages behave
+
+PHASE 4 — IMPLEMENTATION PLAN
+
+Purpose: Tell the agent how to build the system step-by-step.
+
+Read next:
+
+16️⃣ 04 atomic_build_backlog.txt
+Defines atomic implementation tasks.
+
+17️⃣ 20 project_bootstrap_pack.txt
+Defines project startup structure.
+
+18️⃣ 21 starter_commands_initial_file_stub_order_pack.txt
+Defines first commands and initial file creation order.
+
+19️⃣ 15 environment_configuration_pack.txt
+Defines environment configuration.
+
+PHASE 5 — USER EXPERIENCE
+
+Purpose: Define user-facing behavior.
+
+Read:
+
+20️⃣ 17 ux_copy_onboarding_pack.txt
+
+This file defines:
+
+onboarding text
+
+approval explanations
+
+UX messaging
+
+PHASE 6 — TESTING AND VALIDATION
+
+Purpose: Ensure the system works.
+
+Read:
+
+21️⃣ 16 acceptance_test_pack.txt
+
+Defines the acceptance tests that must pass.
+
+PHASE 7 — RELEASE AND RISK MANAGEMENT
+
+Purpose: Final system readiness.
+
+Read last:
+
+22️⃣ 22 release_checklist_pack.txt
+
+Defines release readiness checklist.
+
+23️⃣ 23 risk_register_gap_tracker_pack.txt
+
+Defines risks and mitigation.

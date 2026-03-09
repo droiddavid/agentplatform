@@ -1,0 +1,1939 @@
+## 1) Direct Answer
+
+# Master Specification
+
+## Runtime AI Agent Platform for Consumers, Entrepreneurs, Creators, and Households
+
+### Version 1 Production Build Specification
+
+### Stack: Angular + Spring Boot + MySQL
+
+### Delivery Goal: Complete, implementable, consumer ready system
+
+This specification defines a full production grade web application with mobile responsive PWA behavior in version 1. The system enables non technical users to create, configure, approve, supervise, and benefit from one or more AI agents that can perform work, communicate with each other, use tools, request permission for external actions, remember prior approvals when allowed, and dynamically create additional agents at runtime.
+
+This specification is written for machine consumption and implementation execution. It is prescriptive. It defines what must exist, how it must behave, how modules fit together, how the user experiences the app, how safety and consent work, how persistence is managed, how agent collaboration works, and how the implementation must be sequenced.
+
+This specification assumes the design constraints established in this session and treats them as binding.
+
+---
+
+# Part A. Product Definition
+
+## A1. Product Name Placeholder
+
+Working product name: **AgentFlow Consumer**
+
+The final brand name may change, but all code, design, and architecture should treat the product as a consumer facing AI agent platform.
+
+## A2. Core Product Promise
+
+A non technical user can describe work they need done. The platform can create one or more AI agents at runtime. Those agents can plan, research, write, organize, browse, connect to tools, prepare actions, request approval, and carry out approved work while the user remains in control.
+
+## A3. Primary User Promise
+
+The system must support three flagship user journeys from day one:
+
+1. “I need an agent to help run my business.”
+2. “I need an agent to manage my life and tasks.”
+3. “I need a team of agents to research, plan, write, and act.”
+
+## A4. Primary User Types
+
+The interface, templates, and flows must support all of these audiences in version 1:
+
+1. General consumers
+2. Solo entrepreneurs
+3. Small businesses
+4. Creators
+5. Family and household users
+
+## A5. Core Principle
+
+Agents are **runtime defined entities**, not hard coded Angular service classes. Angular services provide infrastructure, not agent identity.
+
+## A6. Version 1 Scope
+
+Version 1 includes:
+
+1. Web application
+2. Mobile responsive layout
+3. PWA installability
+4. Single personal account model
+5. Wizard based agent creation
+6. Natural language based agent creation
+7. Template marketplace style browsing, without public user publishing
+8. Multi agent collaboration
+9. Peer to peer communication
+10. Shared task board and memory
+11. Dynamic agent spawning
+12. Provider agnostic model abstraction
+13. At least one local model backend and one cloud backend
+14. Email integration
+15. Calendar integration
+16. Web browsing and search
+17. Document generation
+18. E commerce action capability
+19. Custom API connector framework
+20. Approval and remembered consent controls
+21. Full audit, compliance, explainability, deletion, export, and privacy controls
+22. Billing, usage metering, and subscription controls
+23. Consumer ready onboarding and help flows
+
+## A7. Out of Scope for Version 1 but Architecturally Supported
+
+These are not implemented in version 1, but the architecture must support them later:
+
+1. Native mobile apps
+2. Team and workspace collaboration
+3. Enterprise tenancy
+4. White label deployment
+5. Public template marketplace publishing
+6. Avatar embodiment
+7. 3D or animated embodied agents
+8. Expanded connector ecosystem
+9. Multi organization billing
+10. Marketplace revenue sharing
+
+---
+
+# Part B. Product Outcomes and Success Criteria
+
+## B1. User Outcome
+
+A non technical user should be able to create an agent in under ten minutes and complete a real task in under fifteen minutes.
+
+## B2. Business Outcome
+
+The product should convert free users to paid users by demonstrating clear value within the first five agent uses.
+
+## B3. System Outcome
+
+Agents created from runtime input must be able to:
+
+1. Know their own role, tools, and boundaries
+2. Discover peer agents
+3. Exchange structured messages
+4. Break work into subtasks
+5. Ask for permission before external action
+6. Use remembered approvals if the user explicitly allowed that
+7. Produce logs, explainability, and traceability
+
+## B4. Acceptance Criteria at Product Level
+
+The product is acceptable only if all of the following are true:
+
+1. A user can sign up, sign in, and onboard without technical language.
+2. A user can create an agent from a wizard.
+3. A user can create an agent from natural language.
+4. A user can start from a template.
+5. A user can create two or more collaborating agents.
+6. Agents can exchange direct messages.
+7. Agents can post to a shared task board.
+8. Agents can dynamically create an additional helper agent when policy permits.
+9. Any external action is blocked pending approval by default.
+10. The user can opt into remembered approvals at user, agent, or task scope.
+11. The system logs all runs, actions, approvals, and messages.
+12. The user can see why an action was proposed.
+13. The user can revoke approvals and delete memory.
+14. The user can connect supported tools.
+15. The free tier limits use correctly.
+16. Paid plans unlock local or cloud usage according to subscription rules.
+17. The UI is usable on desktop and mobile browser sizes.
+18. The product can be deployed locally first and later configured for web hosting.
+
+---
+
+# Part C. Information Architecture
+
+## C1. Top Level Navigation
+
+The application must contain these primary sections:
+
+1. Home
+2. Agents
+3. Tasks
+4. Runs
+5. Connections
+6. Documents
+7. Usage and Billing
+8. Privacy and Memory
+9. Settings
+10. Help
+
+## C2. Core Screen Inventory
+
+The application must include these screens:
+
+1. Landing page for signed out users
+2. Sign up
+3. Sign in
+4. Forgot password
+5. Reset password
+6. Email verification
+7. Onboarding intro
+8. Choose user intent and goals
+9. Connect tools onboarding
+10. Create first agent wizard
+11. Create first agent from text
+12. Template browser
+13. Agent list
+14. Agent detail
+15. Agent editor
+16. Agent memory viewer
+17. Agent permissions viewer
+18. Multi agent workspace
+19. Graph view
+20. Chat thread view
+21. Shared task board
+22. Task detail
+23. Run list
+24. Run detail with timeline
+25. Approval center
+26. Action review modal
+27. Connection list
+28. Connection setup pages
+29. Document library
+30. Generated document detail
+31. Usage dashboard
+32. Plan and subscription
+33. Privacy dashboard
+34. Export data
+35. Delete data controls
+36. Settings general
+37. Settings notifications
+38. Settings model preferences
+39. Settings consent and memory
+40. Help center
+41. Empty states
+42. Error states
+43. Offline and degraded mode states for PWA
+
+---
+
+# Part D. User Experience Design
+
+## D1. UX Principle
+
+Every flow must assume the user is not technical. The UI must explain what is happening in plain language. The system must always answer these five questions:
+
+1. What can this agent do
+2. What is it doing now
+3. What does it need from me
+4. What happened already
+5. What will happen if I approve this
+
+## D2. Creation Paths
+
+The user must be able to create agents through three paths.
+
+### D2.1 Wizard Path
+
+The wizard asks simple questions:
+
+1. What do you want help with
+2. Is this for life, work, business, family, or creating content
+3. What do you want the agent to be responsible for
+4. What tools should it be allowed to use
+5. Should it work alone or with other agents
+6. Do you want to approve every external action
+7. Should the system remember some approvals
+8. What tone or style should it use
+9. How proactive should it be
+10. Which model preference should it use if multiple are available
+
+### D2.2 Natural Language Path
+
+The user can type something like:
+“Create an agent that helps me manage my Etsy store, drafts responses, tracks orders, researches ideas, and asks before contacting customers.”
+
+The system parses this, proposes one or more agents, and shows a structured review.
+
+### D2.3 Template Path
+
+The user can select from curated templates such as:
+
+1. Household organizer
+2. Small business assistant
+3. Creator research assistant
+4. Document and email agent
+5. Calendar and planning assistant
+6. E commerce operations helper
+7. Multi agent research team
+
+## D3. Review Before Creation
+
+Regardless of entry path, the user must review:
+
+1. Agent name
+2. Role
+3. Capabilities
+4. Allowed tools
+5. Approval behavior
+6. Memory behavior
+7. Whether it can communicate with peers
+8. Whether it can spawn helper agents
+9. Model preference
+10. Estimated type of tasks it can handle
+
+## D4. Main Workspace UX
+
+The main workspace for multi agent runs must contain:
+
+1. Left panel for agents and task board
+2. Center panel for chat or run activity
+3. Right panel for approvals, context, and documents
+4. Toggle for graph view
+5. Clear banner showing current run status
+6. Clear badge showing whether action is blocked awaiting approval
+
+## D5. Approval UX
+
+Approvals must be easy to understand. For every proposed external action, the user sees:
+
+1. What the action is
+2. Why the agent wants to do it
+3. What data will be sent
+4. What tool or service will be used
+5. Whether the action can be remembered next time
+6. Options to approve once, always approve in similar cases, deny, or revise instruction
+
+---
+
+# Part E. Functional Requirements
+
+## E1. Account and Identity
+
+Version 1 supports personal accounts only.
+
+### Required features
+
+1. Email and password registration
+2. Email verification
+3. Login and logout
+4. Refresh token session continuity
+5. Password reset
+6. Account deletion
+7. Session list with revoke action
+8. Device friendly sign in
+9. Optional local only mode toggle for later phases, but not required for version 1 release
+
+## E2. Onboarding
+
+The onboarding flow must gather:
+
+1. Primary goal category
+2. Use case examples
+3. Tool connection choices
+4. Privacy preference
+5. Memory preference
+6. Preferred plan awareness
+7. Whether user wants one agent or a team
+
+The onboarding flow must end with a working first task.
+
+## E3. Agents
+
+An agent is a runtime configured entity.
+
+### Required properties
+
+1. Unique id
+2. User id
+3. Display name
+4. Role title
+5. Plain language description
+6. Persona or behavior style
+7. Goal set
+8. Capability list
+9. Allowed tool permissions
+10. Approval policy
+11. Memory policy
+12. Collaboration policy
+13. Spawn policy
+14. Model preference
+15. Prompt scaffold
+16. Safety constraints
+17. Status
+18. Created date
+19. Updated date
+20. Archived flag
+
+## E4. Agent Types
+
+The system must not rely on hard coded classes per agent, but it may support template categories such as:
+
+1. Research
+2. Planning
+3. Writing
+4. Scheduling
+5. Operations
+6. Review and critique
+7. Customer communication
+8. Commerce management
+9. Household coordination
+
+These are categories for user understanding, not compile time classes.
+
+## E5. Multi Agent Collaboration
+
+Agents must support:
+
+1. Direct peer message
+2. Shared memory channel
+3. Shared task board participation
+4. Delegation
+5. Critique and review loop
+6. Request for help
+7. Broadcast message
+8. Dynamic spawn request
+9. Result handoff
+10. Status heartbeat
+
+## E6. Dynamic Spawning
+
+An agent may propose or create a helper agent if policy allows.
+
+### Spawn flow
+
+1. Agent identifies a missing specialty
+2. Agent submits spawn proposal
+3. System checks agent and user policy
+4. If spawn requires approval, user is asked
+5. If approved, system creates runtime child or sibling agent from structured spec
+6. New agent enters run with limited or inherited context
+7. Run log records spawn reason and inputs
+
+## E7. Tasks
+
+Tasks are user facing work units.
+
+### Task properties
+
+1. Task id
+2. Title
+3. Description
+4. User goal category
+5. Status
+6. Priority
+7. Due date optional
+8. Assigned agents
+9. Approval requirement
+10. Linked connections
+11. Linked documents
+12. Output artifacts
+13. Cost and usage estimate
+14. Created and updated dates
+
+## E8. Runs
+
+A run is an execution instance of one or more agents trying to complete a task.
+
+### Run properties
+
+1. Run id
+2. Task id
+3. User id
+4. Active agent list
+5. Run state
+6. Start time
+7. End time
+8. Timeline events
+9. Messages
+10. Tool calls
+11. Approvals requested
+12. Approvals granted
+13. Documents produced
+14. Errors
+15. Usage consumption
+
+## E9. Connections
+
+Version 1 must support:
+
+1. Email
+2. Calendar
+3. Web search and browsing
+4. Document generation
+5. E commerce
+6. Custom API connectors
+
+### Connection requirements
+
+1. Connect
+2. Disconnect
+3. Test
+4. Permission scope display
+5. Last sync or status
+6. Error handling
+7. Consent log
+8. Revoke access
+
+## E10. External Actions
+
+All external actions require approval by default.
+
+### Examples
+
+1. Send email
+2. Create calendar event
+3. Submit external API request
+4. Publish or send generated document
+5. Update e commerce listing or response
+6. Call a remote service
+
+### Approval memory options
+
+1. Approve once
+2. Approve for this task
+3. Approve for this agent on similar actions
+4. Approve for this user on similar actions
+5. Never allow this pattern
+6. Ask every time
+
+## E11. Memory
+
+Version 1 supports all of the following with privacy controls:
+
+1. Per run memory
+2. Per agent long term memory
+3. User profile memory
+4. Shared memory across cooperating agents
+
+### Storage decision
+
+Primary persistence must be stored in the database. Summaries and memory items should be structured and queryable. Large blobs or generated files may live in object or file storage, but records and references live in the database.
+
+## E12. Documents
+
+Agents must be able to produce and manage documents.
+
+### Required document types
+
+1. Plain text note
+2. Email draft
+3. Summary
+4. Plan
+5. Report
+6. Checklist
+7. Proposal
+8. Content draft
+9. Structured export
+10. Generated PDF ready source model for later rendering layer
+
+## E13. Billing and Usage
+
+Version 1 includes:
+
+1. Free tier with five agent uses
+2. Subscription plans
+3. Local model tier
+4. Higher price cloud tier
+5. Usage metering
+6. Plan aware feature gating
+7. Billing UI
+8. Payment method support
+9. Invoices
+10. Failed payment handling
+
+## E14. Notifications
+
+Required notification channels in version 1:
+
+1. In app
+2. Email
+
+Notification event types:
+
+1. Approval needed
+2. Task completed
+3. Task failed
+4. Connection error
+5. Billing event
+6. Memory deletion complete
+7. Export ready
+8. Subscription expiring
+
+---
+
+# Part F. Non Functional Requirements
+
+## F1. Performance
+
+1. Initial app shell should load fast on consumer broadband and modern phones.
+2. Major screens must use lazy loading.
+3. Agent activity views must update progressively.
+4. Long running actions must stream status to the UI.
+
+## F2. Reliability
+
+1. Failed tool calls must be retriable.
+2. Runs must resume gracefully after transient backend interruption where possible.
+3. All important events must be persisted before user facing completion status is shown.
+
+## F3. Security
+
+1. Passwords must be hashed.
+2. Tokens must be rotated.
+3. Sensitive connection tokens must be encrypted at rest.
+4. Audit logs must be immutable or append only in behavior.
+5. Approval events must be non repudiable in the product record.
+
+## F4. Privacy
+
+1. User controls memory
+2. User controls approval persistence
+3. User can export data
+4. User can delete data
+5. User can revoke tool connections
+6. System explains what is stored and why
+
+## F5. Accessibility
+
+1. Keyboard friendly
+2. Screen reader support
+3. Sufficient contrast
+4. Error messages in plain language
+5. Touch friendly on mobile
+
+## F6. Explainability
+
+Every meaningful agent action must be explainable in user readable form.
+
+## F7. Compliance Foundations
+
+Version 1 must include:
+
+1. Audit trail
+2. Consent records
+3. Data retention settings
+4. Data export
+5. Data deletion
+6. Terms acceptance record
+7. Privacy notice acceptance record
+
+---
+
+# Part G. Frontend Specification
+
+## G1. Frontend Stack
+
+1. Angular
+2. TypeScript
+3. Angular signals for state
+4. Tailwind for styling
+5. Angular router with lazy loaded feature routes
+6. PWA support
+7. Chart or graph library for agent relationship visualization
+8. WebSocket or SSE client for run streaming
+
+## G2. Frontend Feature Modules
+
+The frontend must be organized into feature modules or standalone routed feature areas:
+
+1. Auth
+2. Onboarding
+3. Dashboard
+4. Agents
+5. Tasks
+6. Runs
+7. Approvals
+8. Connections
+9. Documents
+10. Usage and Billing
+11. Privacy and Memory
+12. Settings
+13. Help
+14. Shared UI
+15. Core infrastructure
+
+## G3. Core Angular Services
+
+These are infrastructure services, not agent identities:
+
+1. AuthService
+2. SessionService
+3. ApiClientService
+4. RealtimeService
+5. AgentRegistryService
+6. AgentRuntimeStateService
+7. RunStoreService
+8. TaskStoreService
+9. ApprovalStoreService
+10. ConnectionStoreService
+11. MemoryStoreService
+12. BillingStoreService
+13. NotificationService
+14. ErrorHandlingService
+15. FeatureFlagService
+16. PwaStatusService
+
+## G4. Required Frontend Components
+
+Shared components:
+
+1. App shell
+2. Top navigation
+3. Side navigation
+4. Mobile navigation
+5. Loading state component
+6. Error state component
+7. Empty state component
+8. Confirmation dialog
+9. Approval card
+10. Agent card
+11. Task card
+12. Run timeline
+13. Connection badge
+14. Memory item card
+15. Graph node panel
+16. Chat message bubble
+17. Usage meter
+18. Plan badge
+
+Feature components:
+
+1. Agent wizard
+2. Agent natural language builder
+3. Template browser grid
+4. Agent detail panel
+5. Agent editor form
+6. Agent permissions panel
+7. Agent memory panel
+8. Graph canvas view
+9. Shared backlog board
+10. Run event stream panel
+11. Approval inbox
+12. Action review modal
+13. Connection configuration forms
+14. Document preview
+15. Billing plan page
+16. Privacy controls
+17. Export data panel
+18. Delete data panel
+
+## G5. Frontend State Strategy
+
+Use signals and feature local stores.
+
+Global state is limited to:
+
+1. Auth session
+2. Current user
+3. Notifications
+4. Active connections summary
+5. Usage summary
+6. App settings
+
+Feature state should remain local to route domains.
+
+## G6. Frontend Routes
+
+Required route map:
+
+1. `/`
+2. `/auth/sign-in`
+3. `/auth/sign-up`
+4. `/auth/forgot-password`
+5. `/auth/reset-password`
+6. `/onboarding`
+7. `/dashboard`
+8. `/agents`
+9. `/agents/new`
+10. `/agents/:id`
+11. `/agents/:id/edit`
+12. `/tasks`
+13. `/tasks/:id`
+14. `/runs`
+15. `/runs/:id`
+16. `/workspace/:taskId`
+17. `/connections`
+18. `/documents`
+19. `/billing`
+20. `/privacy`
+21. `/settings`
+22. `/help`
+
+## G7. Frontend Validation
+
+All forms must validate both inline and on submit. Errors must be human readable.
+
+## G8. Responsive Behavior
+
+1. Desktop uses multi panel layout
+2. Tablet collapses secondary panel
+3. Mobile uses stacked views, bottom actions, simplified graph navigation, and drawer panels
+
+## G9. PWA Requirements
+
+1. Install prompt support
+2. App manifest
+3. Service worker
+4. Offline shell
+5. Graceful offline messages
+6. Retry for failed background fetches
+7. Cached static assets
+
+---
+
+# Part H. Backend Specification
+
+## H1. Backend Stack
+
+1. Spring Boot
+2. Java
+3. REST APIs
+4. WebSocket or SSE for real time updates
+5. MySQL
+6. JPA or Spring Data
+7. Flyway or Liquibase for migrations
+8. JWT auth
+9. Background execution engine within backend
+10. Connector abstraction layer
+11. Model provider abstraction layer
+
+## H2. Backend Domain Modules
+
+1. Identity
+2. User Profile
+3. Onboarding
+4. Agents
+5. Tasks
+6. Runs
+7. Messaging
+8. Approvals
+9. Memory
+10. Connections
+11. Documents
+12. Billing
+13. Notifications
+14. Audit and Compliance
+15. Model Providers
+16. Tool Execution
+17. Usage Metering
+18. Templates
+19. Graph and relationship service
+20. Admin support foundations
+
+## H3. Backend Core Services
+
+1. AuthService
+2. UserService
+3. OnboardingService
+4. AgentService
+5. AgentFactoryService
+6. AgentRunService
+7. AgentMessagingService
+8. AgentSpawnService
+9. TaskService
+10. ApprovalService
+11. MemoryService
+12. ConnectionService
+13. ToolExecutionService
+14. ModelGatewayService
+15. TemplateService
+16. DocumentService
+17. UsageService
+18. BillingService
+19. NotificationService
+20. AuditService
+21. ConsentService
+22. ExportService
+23. DeletionService
+
+## H4. Execution Engine
+
+The backend must contain an execution engine capable of:
+
+1. Starting runs
+2. Coordinating agent turns
+3. Routing peer messages
+4. Invoking model providers
+5. Invoking tool adapters
+6. Requesting approval
+7. Pausing runs pending approval
+8. Resuming runs after approval
+9. Handling spawn events
+10. Finalizing outputs
+11. Logging all state changes
+
+## H5. Run State Machine
+
+Required run states:
+
+1. Draft
+2. Ready
+3. Running
+4. WaitingForApproval
+5. WaitingForInput
+6. Blocked
+7. Completed
+8. Failed
+9. Cancelled
+10. Archived
+
+Transitions must be explicit and validated.
+
+## H6. Agent State Model
+
+Agent state within a run:
+
+1. Idle
+2. Active
+3. Waiting
+4. NeedsApproval
+5. Error
+6. Completed
+7. Suspended
+
+## H7. Message Bus Model
+
+The backend must support structured agent messages.
+
+Message types:
+
+1. TaskRequest
+2. TaskResponse
+3. ClarificationRequest
+4. ClarificationResponse
+5. DelegationRequest
+6. DelegationResult
+7. CritiqueRequest
+8. CritiqueResult
+9. SpawnProposal
+10. SpawnResult
+11. Broadcast
+12. Heartbeat
+13. ToolIntent
+14. ToolResult
+15. FinalSummary
+
+The message bus may be implemented through database persisted events plus in memory dispatch per active run. The persisted event record is the source of truth.
+
+---
+
+# Part I. Data Model and Schema
+
+## I1. Database Choice
+
+Use MySQL as primary system of record.
+
+## I2. Schema Design Principles
+
+1. Every user owned record must carry user ownership
+2. Every approval must be auditable
+3. Every connection token must be encrypted
+4. Every run event must be ordered
+5. Memory records must be distinguishable by scope
+6. Data deletion must support selective and full account deletion
+
+## I3. Core Tables
+
+Minimum required tables:
+
+### Identity and User
+
+1. users
+2. user_profiles
+3. user_sessions
+4. email_verifications
+5. password_reset_tokens
+6. terms_acceptance_records
+7. privacy_acceptance_records
+
+### Onboarding and Preferences
+
+8. onboarding_profiles
+9. user_preferences
+10. user_model_preferences
+11. user_notification_preferences
+
+### Templates
+
+12. agent_templates
+13. template_categories
+14. template_versions
+
+### Agents
+
+15. agents
+16. agent_capabilities
+17. agent_tool_permissions
+18. agent_policies
+19. agent_relationships
+20. agent_spawn_rules
+21. agent_versions
+
+### Tasks and Runs
+
+22. tasks
+23. task_artifacts
+24. runs
+25. run_agents
+26. run_events
+27. run_state_transitions
+28. run_errors
+
+### Messaging and Collaboration
+
+29. agent_messages
+30. shared_task_board_items
+31. shared_context_entries
+
+### Approvals and Consent
+
+32. approvals
+33. approval_rules
+34. approval_history
+35. consent_records
+
+### Memory
+
+36. memory_items
+37. memory_summaries
+38. memory_links
+39. memory_deletion_requests
+
+### Connections and Tools
+
+40. connections
+41. connection_credentials
+42. connection_scopes
+43. tool_definitions
+44. tool_invocations
+45. custom_connectors
+46. connector_field_definitions
+
+### Documents
+
+47. documents
+48. document_versions
+49. document_exports
+
+### Billing and Usage
+
+50. plans
+51. subscriptions
+52. invoices
+53. payment_methods
+54. usage_records
+55. feature_entitlements
+
+### Notifications
+
+56. notifications
+57. notification_deliveries
+
+### Compliance and Audit
+
+58. audit_logs
+59. export_requests
+60. deletion_jobs
+61. retention_policies
+
+## I4. Important Table Notes
+
+### agents
+
+Stores runtime agent definitions as data. No hard coded agent type requirement.
+
+### run_events
+
+Append only event ledger for run timeline. This is the canonical trace.
+
+### approvals
+
+Stores every external action gate.
+
+### approval_rules
+
+Stores remembered approval behavior with scope at user, agent, or task level.
+
+### memory_items
+
+Stores granular memory entries with scope enum:
+
+1. RUN
+2. AGENT
+3. USER
+4. SHARED
+
+### connections and connection_credentials
+
+Credentials must be encrypted. Refresh tokens and secrets must never be returned in normal API responses.
+
+---
+
+# Part J. API Specification
+
+## J1. API Style
+
+REST for CRUD and control operations. WebSocket or SSE for live run updates.
+
+## J2. Authentication Endpoints
+
+1. `POST /api/auth/sign-up`
+2. `POST /api/auth/sign-in`
+3. `POST /api/auth/refresh`
+4. `POST /api/auth/sign-out`
+5. `POST /api/auth/forgot-password`
+6. `POST /api/auth/reset-password`
+7. `POST /api/auth/verify-email`
+
+## J3. User and Preferences
+
+1. `GET /api/me`
+2. `PATCH /api/me/profile`
+3. `GET /api/me/preferences`
+4. `PATCH /api/me/preferences`
+5. `GET /api/me/usage`
+6. `DELETE /api/me`
+
+## J4. Onboarding
+
+1. `GET /api/onboarding`
+2. `POST /api/onboarding/start`
+3. `POST /api/onboarding/complete`
+
+## J5. Templates
+
+1. `GET /api/templates`
+2. `GET /api/templates/:id`
+3. `GET /api/templates/categories`
+
+## J6. Agents
+
+1. `GET /api/agents`
+2. `POST /api/agents`
+3. `POST /api/agents/from-text`
+4. `GET /api/agents/:id`
+5. `PATCH /api/agents/:id`
+6. `DELETE /api/agents/:id`
+7. `GET /api/agents/:id/memory`
+8. `GET /api/agents/:id/permissions`
+9. `POST /api/agents/:id/test-run`
+
+## J7. Tasks
+
+1. `GET /api/tasks`
+2. `POST /api/tasks`
+3. `GET /api/tasks/:id`
+4. `PATCH /api/tasks/:id`
+5. `DELETE /api/tasks/:id`
+6. `POST /api/tasks/:id/start-run`
+
+## J8. Runs
+
+1. `GET /api/runs`
+2. `GET /api/runs/:id`
+3. `POST /api/runs/:id/cancel`
+4. `POST /api/runs/:id/resume`
+5. `GET /api/runs/:id/events`
+6. `GET /api/runs/:id/messages`
+7. `GET /api/runs/:id/graph`
+
+## J9. Messaging
+
+1. `POST /api/runs/:id/messages`
+2. `GET /api/runs/:id/messages`
+3. `POST /api/runs/:id/spawn`
+
+## J10. Approvals
+
+1. `GET /api/approvals`
+2. `GET /api/approvals/:id`
+3. `POST /api/approvals/:id/approve`
+4. `POST /api/approvals/:id/deny`
+5. `POST /api/approvals/:id/revise`
+6. `GET /api/approval-rules`
+7. `POST /api/approval-rules`
+8. `PATCH /api/approval-rules/:id`
+9. `DELETE /api/approval-rules/:id`
+
+## J11. Connections
+
+1. `GET /api/connections`
+2. `POST /api/connections/:type/connect`
+3. `POST /api/connections/:id/test`
+4. `DELETE /api/connections/:id`
+5. `GET /api/connections/:id/scopes`
+
+## J12. Documents
+
+1. `GET /api/documents`
+2. `GET /api/documents/:id`
+3. `POST /api/documents/:id/export`
+4. `DELETE /api/documents/:id`
+
+## J13. Billing and Usage
+
+1. `GET /api/billing/plans`
+2. `GET /api/billing/subscription`
+3. `POST /api/billing/subscribe`
+4. `POST /api/billing/cancel`
+5. `GET /api/billing/invoices`
+6. `GET /api/usage`
+
+## J14. Privacy
+
+1. `GET /api/privacy/memory`
+2. `DELETE /api/privacy/memory/:id`
+3. `POST /api/privacy/export`
+4. `GET /api/privacy/export/:id`
+5. `POST /api/privacy/delete-account`
+
+## J15. Realtime
+
+1. `GET /api/stream/runs/:id`
+2. `GET /api/stream/notifications`
+
+---
+
+# Part K. Agent Runtime Specification
+
+## K1. Agent Definition Object
+
+Each runtime agent must be represented by a structured spec containing:
+
+1. Identity fields
+2. Role definition
+3. Goals
+4. Capabilities
+5. Tool permissions
+6. Approval policy
+7. Memory policy
+8. Collaboration policy
+9. Spawn policy
+10. Model routing preference
+11. Prompt scaffold
+12. Safety constraints
+13. Output style rules
+
+## K2. Capability Model
+
+A capability is not a TypeScript class. It is a declared ability. Examples:
+
+1. research
+2. summarize
+3. plan
+4. draft
+5. critique
+6. schedule
+7. communicate
+8. analyze
+9. shop support
+10. commerce support
+11. api action
+
+Capabilities may map to tool rights, prompt strategy, or workflow permissions.
+
+## K3. Tool Permission Model
+
+Each tool permission must define:
+
+1. Tool id
+2. Access mode
+3. Approval requirement
+4. Allowed data categories
+5. Rate or usage limit
+6. Scope
+7. Notes
+
+## K4. Collaboration Policy
+
+Each agent must define:
+
+1. Whether peer messaging is allowed
+2. Whether shared memory is allowed
+3. Which peer types or specific peers may be contacted
+4. Whether broadcast is allowed
+5. Whether critique loops are allowed
+6. Whether spawn requests are allowed
+
+## K5. Runtime Turn Cycle
+
+Each active turn follows this sequence:
+
+1. Receive current context
+2. Load self identity and constraints
+3. Load relevant memory
+4. Load peer directory summary
+5. Decide next action
+6. If internal only, produce output or message
+7. If external action intended, create approval request
+8. If tool call allowed and approved, execute tool
+9. Record result
+10. Update memory summary
+11. Emit run event
+12. Determine next actor or finish
+
+## K6. Self Awareness and Peer Awareness
+
+Software level awareness means:
+
+1. Agent knows who it is
+2. Agent knows what it may do
+3. Agent knows its current task
+4. Agent knows what peers exist
+5. Agent knows what peers are advertised to do
+6. Agent knows how to ask peers for help
+
+This must be implemented through structured context injection, not anthropomorphic claims.
+
+## K7. Spawn Model
+
+When spawning occurs, the new agent must be created from a spec generated from current task need. Inherited properties must be explicitly controlled. By default, the new agent inherits:
+
+1. User ownership
+2. Current run id
+3. Parent run memory access only if allowed
+4. Limited lifespan unless saved by user
+5. Parent approval boundaries or stricter
+
+## K8. Run Completion Criteria
+
+A run completes only when:
+
+1. Task goal reached
+2. Final summary generated
+3. Pending approvals resolved or dismissed
+4. Outputs saved
+5. Usage recorded
+6. User notified
+
+---
+
+# Part L. Tool and Integration Specification
+
+## L1. Tool Framework
+
+All tools must use a common interface.
+
+Tool definition fields:
+
+1. id
+2. type
+3. display name
+4. required connection type
+5. input schema
+6. output schema
+7. approval class
+8. risk level
+9. timeout
+10. retry policy
+
+## L2. Built In Tool Categories
+
+1. Web search
+2. Web browse fetch
+3. Email read metadata and send draft or send action
+4. Calendar read and event create
+5. Document create
+6. Document export
+7. E commerce action
+8. Custom API invoke
+
+## L3. Approval Risk Classes
+
+1. ReadOnly
+2. DraftOnly
+3. ExternalWrite
+4. ExternalSend
+5. FinancialOrSensitive
+6. Destructive
+
+Version 1 default: anything beyond internal generation requires approval unless a remembered rule explicitly allows it.
+
+## L4. Email Integration
+
+Version 1 requirements:
+
+1. Connect account
+2. Read relevant messages or metadata as allowed
+3. Draft replies
+4. Send only with approval or remembered rule
+5. Log what was sent and why
+
+## L5. Calendar Integration
+
+1. Read availability
+2. Propose schedule
+3. Create event only with approval or remembered rule
+4. Store event creation log
+
+## L6. Web Search and Browse
+
+1. Search query
+2. Open result
+3. Extract content
+4. Store source metadata
+5. Use only within user approved or allowed use case
+
+## L7. Document Generation
+
+1. Create structured documents
+2. Save versions
+3. Export
+4. Link documents to tasks and runs
+
+## L8. E Commerce
+
+The version 1 connector layer must support at least one generalized commerce adapter pattern, even if concrete provider depth is limited initially.
+
+Supported actions:
+
+1. Read listing data
+2. Suggest listing improvements
+3. Draft customer response
+4. Update listing or message only with approval
+
+## L9. Custom API Connector Framework
+
+Users must eventually be able to define a connector. Version 1 must include the framework and a guided basic connector creation flow.
+
+Required properties:
+
+1. Name
+2. Base URL
+3. Auth type
+4. Headers
+5. Allowed actions
+6. Input fields
+7. Output mapping
+8. Approval risk class
+
+---
+
+# Part M. Billing and Subscription Specification
+
+## M1. Plans
+
+Minimum plans:
+
+1. Free
+2. Local Pro
+3. Cloud Pro
+
+## M2. Free Plan Rules
+
+1. Five agent uses total
+2. Basic templates
+3. Limited history retention if needed
+4. No premium cloud quota beyond free preview allowance
+
+## M3. Local Pro
+
+1. Designed for users with local model access
+2. More runs
+3. More memory
+4. More agents
+5. Advanced templates
+6. Connection usage
+
+## M4. Cloud Pro
+
+1. Includes cloud model routing
+2. Higher pricing tier
+3. Usage metering
+4. Better throughput
+5. Premium features
+
+## M5. Billing Flows
+
+1. View plan
+2. Upgrade
+3. Downgrade
+4. Cancel
+5. View invoice
+6. Update payment method
+7. Failed payment recovery
+
+## M6. Feature Entitlements
+
+Entitlements must be stored explicitly and evaluated on every relevant action.
+
+Examples:
+
+1. Max active agents
+2. Max monthly runs
+3. Cloud provider access
+4. Max document exports
+5. Max connection count
+6. Max saved memory capacity
+
+---
+
+# Part N. Privacy, Compliance, and Trust Specification
+
+## N1. Privacy Dashboard
+
+The user must be able to see:
+
+1. What memory exists
+2. Which tools are connected
+3. Which approvals are remembered
+4. Which data categories are stored
+5. When data was last used
+
+## N2. Data Export
+
+Export must include:
+
+1. Profile
+2. Agents
+3. Tasks
+4. Runs
+5. Messages
+6. Approvals
+7. Memory
+8. Documents
+9. Connection metadata excluding secrets where unsafe
+
+## N3. Deletion
+
+The user must be able to:
+
+1. Delete one memory item
+2. Delete memory by scope
+3. Disconnect integrations
+4. Delete account
+
+Deletion jobs should be asynchronous on the backend, but user visible status must be shown in app.
+
+## N4. Audit
+
+Audit records must capture:
+
+1. Who initiated
+2. What changed
+3. When
+4. Why if available
+5. Related task, run, or agent
+6. Result status
+
+## N5. Consent
+
+The product must store consent records for:
+
+1. Terms acceptance
+2. Privacy acceptance
+3. Tool connection scopes
+4. Remembered approval rules
+5. Memory behavior choices
+
+## N6. Explainability
+
+The UI must expose reason summaries for:
+
+1. Why an agent proposed an action
+2. Why a peer agent was contacted
+3. Why a new agent was spawned
+4. Why a document was generated
+5. Why approval was needed
+
+---
+
+# Part O. Deployment and Operations Specification
+
+## O1. Environment Stages
+
+1. Local development
+2. Test
+3. Production
+
+## O2. Local Development Requirements
+
+1. Angular frontend
+2. Spring Boot backend
+3. MySQL database
+4. Local file storage
+5. Local model integration option
+6. Environment variable driven secrets
+
+## O3. Production Hosting Direction
+
+Version 1 deploys locally first. Architecture must allow later web deployment on the planned hosting target. Container friendly packaging is recommended even if final host constraints require adjustments.
+
+## O4. Configuration
+
+Use environment variables for:
+
+1. Database
+2. JWT secrets
+3. Encryption keys
+4. Model provider keys
+5. Billing provider keys
+6. Connector client secrets
+7. Email settings
+8. Frontend origin
+
+## O5. Observability
+
+Minimum:
+
+1. Structured logs
+2. Error tracking
+3. Run execution logs
+4. Usage logs
+5. Health endpoints
+6. Metrics endpoint if possible
+
+## O6. Backup and Recovery
+
+1. Database backup strategy
+2. Document storage backup strategy
+3. Recovery procedure documentation
+
+---
+
+# Part P. Testing Specification
+
+## P1. Frontend Tests
+
+1. Unit tests for components and services
+2. Form validation tests
+3. Route guard tests
+4. Responsive behavior tests where feasible
+5. E2E critical flows
+
+## P2. Backend Tests
+
+1. Unit tests for services
+2. Integration tests for repositories
+3. API tests
+4. Execution engine tests
+5. Approval policy tests
+6. Usage metering tests
+7. Billing state tests
+
+## P3. End to End Acceptance Tests
+
+Critical end to end scenarios:
+
+1. New user signs up and completes onboarding
+2. User creates agent from wizard
+3. User creates agent from natural language
+4. User starts template based multi agent task
+5. Agents collaborate and request approval
+6. User approves action once
+7. User creates remembered approval rule
+8. Agent uses remembered approval rule later
+9. Agent proposes spawn and user approves
+10. Documents are generated and saved
+11. Billing gate blocks after free limit
+12. Paid upgrade unlocks access
+13. User exports data
+14. User deletes memory
+15. User disconnects a connector
+
+---
+
+# Part Q. Build Order and Implementation Plan
+
+## Q1. Implementation Principle
+
+The implementation agent must build from foundations upward. No feature should depend on undefined behavior.
+
+## Q2. Phase Order
+
+### Phase 1. Foundation
+
+1. Repository structure
+2. Angular shell
+3. Spring Boot skeleton
+4. MySQL setup
+5. Migration system
+6. Auth
+7. User profile
+8. Basic settings
+
+### Phase 2. Onboarding and Templates
+
+1. Onboarding flow
+2. Template catalog
+3. First agent creation wizard
+4. Natural language parsing endpoint
+
+### Phase 3. Agent Domain
+
+1. Agent data model
+2. Agent CRUD
+3. Agent policy model
+4. Agent memory model
+5. Agent permissions UI
+
+### Phase 4. Tasks and Runs
+
+1. Task CRUD
+2. Run entity
+3. Run event ledger
+4. Run state machine
+5. Run detail UI
+
+### Phase 5. Messaging and Collaboration
+
+1. Agent message model
+2. Peer messaging
+3. Shared task board
+4. Graph visualization
+5. Shared context entries
+
+### Phase 6. Execution Engine
+
+1. Model gateway abstraction
+2. Tool abstraction
+3. Turn cycle
+4. Run orchestration
+5. Approval pause and resume
+6. Spawn flow
+
+### Phase 7. Connections and Tools
+
+1. Connection framework
+2. Email
+3. Calendar
+4. Web search
+5. Document generation
+6. E commerce adapter
+7. Custom API framework
+
+### Phase 8. Approvals, Memory, and Privacy
+
+1. Approval center
+2. Remembered approval rules
+3. Memory dashboard
+4. Export
+5. Deletion
+6. Consent records
+7. Audit views
+
+### Phase 9. Billing and Usage
+
+1. Usage tracking
+2. Plan model
+3. Subscription UI
+4. Billing integration
+5. Entitlement enforcement
+
+### Phase 10. PWA, polish, and release
+
+1. PWA support
+2. Notifications
+3. Help system
+4. Empty states
+5. Error handling
+6. Performance tuning
+7. Security hardening
+8. Production readiness review
+
+---
+
+# Part R. Acceptance Criteria by Module
+
+## R1. Auth Module
+
+Accepted only if:
+
+1. User can register
+2. User can sign in
+3. JWT flow works
+4. Password reset works
+5. Protected routes work
+
+## R2. Agent Module
+
+Accepted only if:
+
+1. Agent can be created via wizard
+2. Agent can be created via text
+3. Agent spec is stored in DB
+4. Agent can be edited
+5. Agent policies are visible
+
+## R3. Collaboration Module
+
+Accepted only if:
+
+1. Two agents can exchange messages
+2. Shared task board works
+3. Graph view shows relationship edges
+4. Critique loop works
+5. Spawn path exists and is logged
+
+## R4. Approval Module
+
+Accepted only if:
+
+1. External action blocks by default
+2. User can approve or deny
+3. User can store remembered rule
+4. Rule is enforced later
+5. Audit log records event
+
+## R5. Connections Module
+
+Accepted only if:
+
+1. User can connect supported tool
+2. Connection can be tested
+3. Permission scopes are shown
+4. User can revoke
+5. Connector failures surface clearly
+
+## R6. Billing Module
+
+Accepted only if:
+
+1. Free usage is enforced
+2. Upgrade flow exists
+3. Entitlements change on subscription
+4. Usage records are visible
+
+## R7. Privacy Module
+
+Accepted only if:
+
+1. User can view memory
+2. User can delete memory
+3. User can export data
+4. User can delete account
+5. Consent records exist
+
+---
+
+# Part S. AI Consumable Implementation Prompt
+
+Use the following as the master prompt for a separate implementation agent:
+
+> Build a full production ready consumer AI agent platform using Angular for the frontend and Spring Boot with Java for the backend, with MySQL as the primary database. The product is a web app with mobile responsive PWA support in version 1. It serves non technical users who want one or more AI agents to do work, take action, communicate with each other, use tools, request approvals, remember approvals when allowed, and dynamically spawn new helper agents at runtime.
+>
+> Treat agents as runtime data driven entities, not hard coded Angular or Java service classes. Angular services and backend services are infrastructure only. Implement complete modules for auth, onboarding, templates, agent CRUD, task management, run orchestration, agent peer messaging, shared task board, graph visualization, approval center, memory management, privacy controls, connectors, document generation, usage metering, billing, notifications, audit, consent, export, deletion, and PWA support.
+>
+> All external actions must require approval by default. The user must be able to approve once, approve for task, approve for agent, approve for user, deny, or force ask every time. The system must store remembered approval rules when the user chooses this.
+>
+> Implement three agent creation paths: wizard, natural language parsing, and curated templates. Implement multi agent collaboration with direct peer messaging, shared context, shared backlog participation, critique loops, delegation, and dynamic agent spawning with policy checks and approval when required.
+>
+> Support provider agnostic model routing with at least one local provider path and one cloud provider path. Implement connector abstraction for email, calendar, web search and browse, document generation, e commerce, and custom API connectors.
+>
+> Use MySQL tables for users, sessions, templates, agents, policies, tasks, runs, run events, messages, approvals, approval rules, memory, connections, credentials, documents, subscriptions, usage, notifications, audit logs, export requests, deletion jobs, and consent records. Use database persisted event ledgers for run traceability.
+>
+> Frontend must include routes for auth, onboarding, dashboard, agents, tasks, runs, workspace, connections, documents, billing, privacy, settings, and help. Provide cards, chat threads, graph view, task board, approval inbox, memory dashboard, connection setup, billing pages, and privacy controls. Use Angular signals for state and lazy load feature routes.
+>
+> Backend must provide REST APIs and streaming updates for run activity. Implement run state machine, agent turn cycle, model gateway, tool execution service, approval pause and resume behavior, usage metering, and complete audit logging.
+>
+> Build in phases from foundations upward. Do not skip modules. Generate schema migrations, backend entities, repositories, services, controllers, DTOs, frontend feature areas, state services, route guards, UI components, tests, seed templates, and environment configuration. Ensure every module has acceptance criteria and is wired into the final app.
+>
+> The final app must be consumer ready, understandable to non technical users, and fully traceable and privacy controlled.
+
+---
+
+# Part T. Repository Structure Recommendation
+
+## T1. Frontend
+
+`frontend/`
+
+1. core
+2. shared
+3. features/auth
+4. features/onboarding
+5. features/dashboard
+6. features/agents
+7. features/tasks
+8. features/runs
+9. features/workspace
+10. features/approvals
+11. features/connections
+12. features/documents
+13. features/billing
+14. features/privacy
+15. features/settings
+16. features/help
+
+## T2. Backend
+
+`backend/`
+
+1. auth
+2. user
+3. onboarding
+4. templates
+5. agents
+6. tasks
+7. runs
+8. messaging
+9. approvals
+10. memory
+11. connections
+12. documents
+13. billing
+14. usage
+15. notifications
+16. audit
+17. compliance
+18. model
+19. tools
+20. common
+
+---
+
+# Part U. Final Product Readiness Checklist
+
+The app is ready for consumer release only if all are true:
+
+1. New users can onboard without outside help.
+2. At least one meaningful task can be completed end to end.
+3. Two or more agents can collaborate successfully.
+4. External actions are gated and understandable.
+5. Memory and privacy controls are visible and functional.
+6. Free tier limits are enforced.
+7. Paid access changes feature availability correctly.
+8. Core connectors work.
+9. Run logs and audit logs are traceable.
+10. The UI works on desktop and mobile browser.
+11. Errors are survivable and understandable.
+12. A separate implementation agent could build the system from this specification.
+
+---
+
+## 2) How I Got There
+
+I anchored this specification to the constraints you gave in this session and to the earlier architectural discussion:
+
+1. Agents must be runtime defined, not hard coded.
+2. Peer to peer communication is first class.
+3. The app is for non technical consumers.
+4. All external actions must default to approval.
+5. Wizard, natural language, and templates all belong in version 1.
+6. The app must be implementable end to end by another AI agent.
+7. The stack remains Angular, Spring Boot, and MySQL.
+8. The architecture must support future expansion without polluting version 1.
+
+I also made a deliberate persistence choice. Memory, approvals, run events, and consent belong primarily in the database because that gives you traceability, privacy controls, and later scalability.
+
+---
+
+## 3) Alternatives or Other Angles
+
+There are three places where you could tighten or expand this spec next.
+
+First, I can turn this into a **module by module engineering blueprint** with exact DTOs, entities, enums, interfaces, and route contracts.
+
+Second, I can turn it into a **frontend spec pack and backend spec pack** separately, each written as a build sequence with exact file responsibilities.
+
+Third, I can turn it into a **step by step implementation backlog**, where each task is atomic and ordered so an AI coding agent can build one piece at a time without confusion.
+
+The most useful next move is probably the second plus third together.
+
+---
+
+## 4) Practical Next Steps / Action Plan
+
+The strongest next step is for me to generate the following in order:
+
+1. the **Frontend Specification Pack**
+2. the **Backend Specification Pack**
+3. the **Database and API Contract Pack**
+4. the **Atomic Build Backlog** for the implementation agent
+
+Proceeding that way will make the system much easier to build piece by piece.

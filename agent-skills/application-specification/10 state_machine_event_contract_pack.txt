@@ -1,0 +1,546 @@
+STATE MACHINE AND EVENT CONTRACT PACK
+Runtime AI Agent Platform
+Version 1
+
+==================================================
+1. PURPOSE
+==================================================
+
+This pack defines the core execution state machines and event contracts
+for the runtime AI agent platform. It exists to remove ambiguity around:
+- task lifecycle
+- run lifecycle
+- per-agent run lifecycle
+- approvals
+- dynamic spawn flow
+- tool invocation flow
+- real-time event streaming payloads
+
+==================================================
+2. STATE MACHINE PRINCIPLES
+==================================================
+
+1. All major state changes must be persisted before they are broadcast.
+2. Run events are append-only and sequence-ordered.
+3. Frontend visual state should derive from persisted state and stream updates.
+4. Invalid transitions must be rejected.
+5. Approval gating is explicit, not implicit.
+6. External actions never skip the approval system unless a valid remembered rule allows it.
+
+==================================================
+3. TASK STATE MACHINE
+==================================================
+
+Task states:
+- DRAFT
+- READY
+- RUNNING
+- WAITING_FOR_APPROVAL
+- COMPLETED
+- FAILED
+- CANCELLED
+- ARCHIVED
+
+Allowed transitions:
+- DRAFT -> READY
+- READY -> RUNNING
+- RUNNING -> WAITING_FOR_APPROVAL
+- WAITING_FOR_APPROVAL -> RUNNING
+- RUNNING -> COMPLETED
+- RUNNING -> FAILED
+- WAITING_FOR_APPROVAL -> FAILED
+- RUNNING -> CANCELLED
+- READY -> CANCELLED
+- COMPLETED -> ARCHIVED
+- FAILED -> ARCHIVED
+- CANCELLED -> ARCHIVED
+
+Transition notes:
+- Task state is derived from run state for active execution tasks.
+- A task may return to READY after a failed run only through explicit user or system reset logic.
+
+==================================================
+4. RUN STATE MACHINE
+==================================================
+
+Run states:
+- DRAFT
+- READY
+- RUNNING
+- WAITING_FOR_APPROVAL
+- WAITING_FOR_INPUT
+- BLOCKED
+- COMPLETED
+- FAILED
+- CANCELLED
+- ARCHIVED
+
+Allowed transitions:
+- DRAFT -> READY
+- READY -> RUNNING
+- RUNNING -> WAITING_FOR_APPROVAL
+- RUNNING -> WAITING_FOR_INPUT
+- RUNNING -> BLOCKED
+- WAITING_FOR_APPROVAL -> RUNNING
+- WAITING_FOR_INPUT -> RUNNING
+- BLOCKED -> RUNNING
+- RUNNING -> COMPLETED
+- RUNNING -> FAILED
+- WAITING_FOR_APPROVAL -> FAILED
+- WAITING_FOR_INPUT -> FAILED
+- BLOCKED -> FAILED
+- RUNNING -> CANCELLED
+- WAITING_FOR_APPROVAL -> CANCELLED
+- WAITING_FOR_INPUT -> CANCELLED
+- FAILED -> ARCHIVED
+- COMPLETED -> ARCHIVED
+- CANCELLED -> ARCHIVED
+
+Invalid examples:
+- COMPLETED -> RUNNING
+- FAILED -> RUNNING
+- CANCELLED -> RUNNING
+- ARCHIVED -> any active state
+
+Required transition persistence:
+Every transition must create:
+1. run_state_transitions record
+2. run_events record
+3. stream event to subscribed clients
+
+==================================================
+5. RUN AGENT STATE MACHINE
+==================================================
+
+Per-agent states inside a run:
+- IDLE
+- ACTIVE
+- WAITING
+- NEEDS_APPROVAL
+- ERROR
+- COMPLETED
+- SUSPENDED
+
+Allowed transitions:
+- IDLE -> ACTIVE
+- ACTIVE -> WAITING
+- ACTIVE -> NEEDS_APPROVAL
+- ACTIVE -> ERROR
+- ACTIVE -> COMPLETED
+- WAITING -> ACTIVE
+- NEEDS_APPROVAL -> ACTIVE
+- NEEDS_APPROVAL -> ERROR
+- ERROR -> ACTIVE only if retry explicitly permitted
+- ERROR -> SUSPENDED
+- ACTIVE -> SUSPENDED
+- WAITING -> SUSPENDED
+
+Rules:
+- At least one agent is ACTIVE when run state is RUNNING unless execution is between turns.
+- Multiple agents may be WAITING simultaneously.
+- If all agents are COMPLETED and completion criteria are satisfied, run may transition to COMPLETED.
+
+==================================================
+6. APPROVAL STATE MACHINE
+==================================================
+
+Approval states:
+- PENDING
+- APPROVED
+- DENIED
+- EXPIRED
+- REVISED
+
+Allowed transitions:
+- PENDING -> APPROVED
+- PENDING -> DENIED
+- PENDING -> EXPIRED
+- PENDING -> REVISED
+
+Rules:
+- APPROVED, DENIED, EXPIRED, and REVISED are terminal.
+- REVISED means the user altered requested parameters and the system must produce a new downstream execution or a new approval if still necessary.
+- When approval becomes APPROVED, the run may resume.
+- When approval becomes DENIED, the run must either recover with alternative action or fail/block with explanation.
+
+==================================================
+7. TOOL INVOCATION STATE MACHINE
+==================================================
+
+Tool invocation states:
+- PLANNED
+- WAITING_FOR_APPROVAL
+- AUTHORIZED
+- RUNNING
+- SUCCEEDED
+- FAILED
+- CANCELLED
+
+Allowed transitions:
+- PLANNED -> WAITING_FOR_APPROVAL
+- PLANNED -> AUTHORIZED if no approval needed
+- WAITING_FOR_APPROVAL -> AUTHORIZED
+- WAITING_FOR_APPROVAL -> CANCELLED
+- AUTHORIZED -> RUNNING
+- RUNNING -> SUCCEEDED
+- RUNNING -> FAILED
+- RUNNING -> CANCELLED
+
+Rules:
+- Every external write/send tool must pass approval evaluation.
+- Every invocation must store input payload before execution.
+- Result payload or error must be persisted after execution.
+
+==================================================
+8. SPAWN REQUEST STATE MACHINE
+==================================================
+
+Spawn request states:
+- PROPOSED
+- WAITING_FOR_APPROVAL
+- APPROVED
+- REJECTED
+- CREATED
+- FAILED
+
+Allowed transitions:
+- PROPOSED -> WAITING_FOR_APPROVAL
+- PROPOSED -> APPROVED if policy allows immediate creation
+- WAITING_FOR_APPROVAL -> APPROVED
+- WAITING_FOR_APPROVAL -> REJECTED
+- APPROVED -> CREATED
+- APPROVED -> FAILED
+
+Rules:
+- Spawn creation must record parent agent reference.
+- New child agent must join run through a run event and run_agent row.
+- Spawn failures must not silently disappear.
+
+==================================================
+9. RUN TURN CYCLE CONTRACT
+==================================================
+
+Each execution turn must follow this order:
+
+1. LOAD_CONTEXT
+2. LOAD_MEMORY
+3. LOAD_PEER_DIRECTORY
+4. DECIDE_ACTION
+5. EVALUATE_APPROVAL_NEED
+6. EITHER
+   a. SEND_MESSAGE
+   b. CREATE_BOARD_ITEM
+   c. PROPOSE_TOOL_USE
+   d. PROPOSE_SPAWN
+   e. GENERATE_OUTPUT
+   f. FINALIZE
+7. PERSIST_RESULTS
+8. UPDATE_MEMORY
+9. EMIT_EVENTS
+10. SELECT_NEXT_TURN
+
+Required run events should correspond to these phases.
+
+==================================================
+10. RUN EVENT TYPES
+==================================================
+
+Minimum event types for run_events.event_type:
+
+- RUN_CREATED
+- RUN_READY
+- RUN_STARTED
+- RUN_RESUMED
+- RUN_PAUSED_FOR_APPROVAL
+- RUN_PAUSED_FOR_INPUT
+- RUN_BLOCKED
+- RUN_COMPLETED
+- RUN_FAILED
+- RUN_CANCELLED
+
+- AGENT_JOINED_RUN
+- AGENT_ACTIVATED
+- AGENT_WAITING
+- AGENT_COMPLETED
+- AGENT_ERROR
+- AGENT_SUSPENDED
+
+- CONTEXT_ASSEMBLED
+- MEMORY_LOADED
+- PEER_DIRECTORY_LOADED
+- DECISION_MADE
+
+- MESSAGE_SENT
+- MESSAGE_RECEIVED
+- BOARD_ITEM_CREATED
+- BOARD_ITEM_ASSIGNED
+- BOARD_ITEM_COMPLETED
+- CONTEXT_ENTRY_CREATED
+
+- TOOL_INTENT_CREATED
+- TOOL_APPROVAL_REQUIRED
+- TOOL_AUTHORIZED
+- TOOL_EXECUTION_STARTED
+- TOOL_EXECUTION_SUCCEEDED
+- TOOL_EXECUTION_FAILED
+
+- APPROVAL_CREATED
+- APPROVAL_APPROVED
+- APPROVAL_DENIED
+- APPROVAL_REVISED
+- APPROVAL_EXPIRED
+
+- SPAWN_PROPOSED
+- SPAWN_APPROVAL_REQUIRED
+- SPAWN_APPROVED
+- SPAWN_REJECTED
+- SPAWN_CREATED
+- SPAWN_FAILED
+
+- DOCUMENT_CREATED
+- DOCUMENT_EXPORTED
+
+- MEMORY_ITEM_CREATED
+- MEMORY_SUMMARY_UPDATED
+
+- USAGE_RECORDED
+- NOTIFICATION_QUEUED
+
+==================================================
+11. RUN EVENT PAYLOAD CONTRACT
+==================================================
+
+Every run event payload must include a common envelope:
+
+{
+  "eventId": "01H...",
+  "runId": "01H...",
+  "sequenceNumber": 42,
+  "eventType": "AGENT_ACTIVATED",
+  "occurredAt": "2026-03-09T12:00:00Z",
+  "runAgentId": "01H...",
+  "agentId": "01H...",
+  "reasonSummary": "Planner agent took ownership of the next research step.",
+  "payload": { ... }
+}
+
+Common envelope rules:
+- eventId required
+- runId required
+- sequenceNumber required and increasing per run
+- eventType required
+- occurredAt required
+- reasonSummary should be present when user comprehension benefits
+- payload is event-specific
+
+==================================================
+12. MESSAGE CONTRACT
+==================================================
+
+Agent message contract:
+
+{
+  "messageId": "01H...",
+  "runId": "01H...",
+  "fromRunAgentId": "01H...",
+  "toRunAgentId": "01H...",
+  "messageType": "DELEGATION_REQUEST",
+  "contentText": "Please review the draft response for customer clarity.",
+  "structuredPayload": {
+    "taskRef": "01H...",
+    "documentRef": "01H..."
+  },
+  "isBroadcast": false,
+  "createdAt": "2026-03-09T12:00:00Z"
+}
+
+Rules:
+- Broadcast messages may omit toRunAgentId
+- Direct messages must include toRunAgentId
+- Message type must come from the allowed enum
+
+==================================================
+13. APPROVAL EVENT PAYLOAD CONTRACT
+==================================================
+
+When approval is created, the event payload should look like:
+
+{
+  "approvalId": "01H...",
+  "approvalType": "EMAIL_SEND",
+  "riskClass": "EXTERNAL_SEND",
+  "status": "PENDING",
+  "actionSummary": "Send a follow-up email to the customer.",
+  "reasonSummary": "The agent completed a draft and needs permission to send it.",
+  "proposedPayloadPreview": {
+    "recipient": "customer@example.com",
+    "subject": "Follow-up on your order"
+  },
+  "rememberOptions": ["ONCE", "TASK", "AGENT", "USER"],
+  "expiresAt": "2026-03-10T12:00:00Z"
+}
+
+==================================================
+14. TOOL INVOCATION EVENT PAYLOAD CONTRACT
+==================================================
+
+Example event payload for tool execution started:
+
+{
+  "toolInvocationId": "01H...",
+  "toolCode": "EMAIL_SEND",
+  "approvalId": "01H...",
+  "inputPreview": {
+    "recipientCount": 1,
+    "subject": "Project follow-up"
+  },
+  "startedAt": "2026-03-09T12:00:00Z"
+}
+
+Success result example:
+
+{
+  "toolInvocationId": "01H...",
+  "toolCode": "EMAIL_SEND",
+  "status": "SUCCEEDED",
+  "outputPreview": {
+    "providerMessageId": "abc123"
+  },
+  "durationMs": 631
+}
+
+==================================================
+15. SPAWN EVENT PAYLOAD CONTRACT
+==================================================
+
+Spawn proposed example:
+
+{
+  "spawnRequestId": "01H...",
+  "parentRunAgentId": "01H...",
+  "proposedAgentSpec": {
+    "displayName": "Customer Reply Reviewer",
+    "roleTitle": "Review Agent",
+    "capabilities": ["critique", "rewrite", "tone-check"]
+  },
+  "reasonSummary": "A specialized review agent is needed to improve customer-facing quality."
+}
+
+Spawn created example:
+
+{
+  "spawnRequestId": "01H...",
+  "newAgentId": "01H...",
+  "newRunAgentId": "01H...",
+  "parentRunAgentId": "01H...",
+  "joinedAt": "2026-03-09T12:00:00Z"
+}
+
+==================================================
+16. GRAPH PROJECTION CONTRACT
+==================================================
+
+The frontend graph view should be able to request a projection with this shape:
+
+{
+  "runId": "01H...",
+  "nodes": [
+    {
+      "id": "task-01H",
+      "nodeType": "TASK",
+      "label": "Manage this week's customer follow-ups",
+      "status": "RUNNING"
+    },
+    {
+      "id": "agent-01H",
+      "nodeType": "AGENT",
+      "label": "Planner Agent",
+      "status": "ACTIVE"
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-01",
+      "from": "agent-01H",
+      "to": "agent-02H",
+      "edgeType": "DELEGATION",
+      "label": "delegated review"
+    }
+  ]
+}
+
+Node types:
+- TASK
+- AGENT
+- APPROVAL
+- DOCUMENT
+- TOOL
+
+Edge types:
+- OWNS
+- MESSAGES
+- DELEGATION
+- SPAWNED
+- PRODUCED
+- BLOCKED_BY
+- USED_TOOL
+
+==================================================
+17. STREAM CONTRACTS
+==================================================
+
+17.1 Run stream item
+
+{
+  "streamType": "RUN_EVENT",
+  "runId": "01H...",
+  "sequenceNumber": 42,
+  "event": { ...common run event envelope... }
+}
+
+17.2 Notification stream item
+
+{
+  "streamType": "NOTIFICATION",
+  "notificationId": "01H...",
+  "type": "APPROVAL_NEEDED",
+  "title": "Approval needed",
+  "bodyText": "Your agent wants to send an email.",
+  "relatedEntityType": "APPROVAL",
+  "relatedEntityId": "01H...",
+  "createdAt": "2026-03-09T12:00:00Z"
+}
+
+==================================================
+18. API REQUEST/RESPONSE STATE RULES
+==================================================
+
+1. POST approve endpoint must return updated approval detail and a run resume hint.
+2. POST deny endpoint must return updated approval detail and downstream effect summary.
+3. Resume run endpoint must fail if no valid pending blocking state exists.
+4. Cancel run endpoint must be idempotent.
+5. Start run endpoint must create initial RUN_CREATED and RUN_STARTED events.
+
+==================================================
+19. FRONTEND STATE DERIVATION RULES
+==================================================
+
+Frontend should derive:
+- run banner from run.status
+- approval badges from approvals with status PENDING
+- graph nodes from graph projection response
+- chat timeline from agent_messages plus key run_events
+- board columns from shared_task_board_items.status
+
+Frontend must not invent state transitions that are not reflected by backend records.
+
+==================================================
+20. FINAL IMPLEMENTATION NOTE
+==================================================
+
+This contract is designed so that:
+- execution is deterministic
+- auditability is preserved
+- real-time UX stays consistent
+- approvals remain understandable
+- dynamic spawning remains traceable

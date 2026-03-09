@@ -1,0 +1,329 @@
+ENVIRONMENT AND CONFIGURATION PACK
+Runtime AI Agent Platform
+Version 1
+
+==================================================
+1. PURPOSE
+==================================================
+
+This pack defines environment variables, application configuration structure,
+local development setup, and deployment-ready configuration rules for both
+frontend and backend.
+
+The goal is to make the app reproducible across local, test, and production
+environments without hard-coded secrets.
+
+==================================================
+2. ENVIRONMENTS
+==================================================
+
+Required environments:
+1. local
+2. test
+3. production
+
+Version 1 deployment target:
+- local/dev first
+- later web deployment on GoDaddy-compatible hosting
+
+==================================================
+3. BACKEND CONFIGURATION
+==================================================
+
+Use:
+- application.yml for shared defaults
+- application-local.yml
+- application-test.yml
+- application-prod.yml
+
+Recommended Spring profile names:
+- local
+- test
+- prod
+
+==================================================
+4. REQUIRED BACKEND ENVIRONMENT VARIABLES
+==================================================
+
+4.1 Core application
+- APP_NAME=AgentFlow
+- APP_ENV=local
+- APP_BASE_URL=http://localhost:8080
+- FRONTEND_BASE_URL=http://localhost:4200
+
+4.2 Database
+- DB_HOST=localhost
+- DB_PORT=3306
+- DB_NAME=agentflow
+- DB_USERNAME=agentflow_user
+- DB_PASSWORD=change_me
+
+4.3 JWT and auth
+- JWT_SECRET=change_this_to_a_long_random_secret
+- JWT_ACCESS_TOKEN_MINUTES=15
+- JWT_REFRESH_TOKEN_DAYS=30
+
+4.4 Encryption
+- ENCRYPTION_KEY=change_this_to_a_32_byte_key
+
+4.5 Email and notification
+- SMTP_HOST=localhost
+- SMTP_PORT=1025
+- SMTP_USERNAME=
+- SMTP_PASSWORD=
+- SMTP_FROM_EMAIL=no-reply@example.com
+- SMTP_FROM_NAME=AgentFlow
+
+4.6 Billing provider
+- BILLING_PROVIDER=stripe
+- STRIPE_SECRET_KEY=
+- STRIPE_WEBHOOK_SECRET=
+- STRIPE_PUBLIC_KEY=
+
+4.7 Local model provider
+- LOCAL_MODEL_PROVIDER=ollama
+- LOCAL_MODEL_BASE_URL=http://localhost:11434
+- LOCAL_MODEL_DEFAULT=llama3
+
+4.8 Cloud model provider
+- CLOUD_MODEL_PROVIDER=openai
+- CLOUD_MODEL_API_KEY=
+- CLOUD_MODEL_BASE_URL=
+- CLOUD_MODEL_DEFAULT=gpt-4o-mini
+
+4.9 Connection providers
+- EMAIL_PROVIDER_MODE=oauth_or_mock
+- CALENDAR_PROVIDER_MODE=oauth_or_mock
+- WEB_SEARCH_PROVIDER_MODE=provider_or_mock
+- ECOMMERCE_PROVIDER_MODE=provider_or_mock
+
+4.10 Logging and monitoring
+- LOG_LEVEL_ROOT=INFO
+- LOG_LEVEL_APP=INFO
+
+==================================================
+5. FRONTEND CONFIGURATION
+==================================================
+
+Recommended Angular environment or runtime config approach:
+- prefer runtime config JSON loaded at app start for deploy flexibility
+- fallback to Angular environment files for dev convenience
+
+Required frontend configuration values:
+- apiBaseUrl
+- appName
+- environmentName
+- enablePwa
+- enableGraphView
+- enableMockConnections
+- supportedModelProviders
+- billingPublicKey
+- helpCenterUrl optional
+
+Example runtime config JSON:
+{
+  "apiBaseUrl": "http://localhost:8080/api",
+  "appName": "AgentFlow",
+  "environmentName": "local",
+  "enablePwa": true,
+  "enableGraphView": true,
+  "enableMockConnections": true,
+  "supportedModelProviders": ["local", "cloud"],
+  "billingPublicKey": ""
+}
+
+==================================================
+6. LOCAL DEVELOPMENT STACK
+==================================================
+
+Minimum local setup:
+1. Node.js for Angular
+2. Java 21 or project-required version
+3. Maven
+4. MySQL
+5. Optional Ollama or local model runtime
+6. Local SMTP test tool such as MailHog or equivalent
+
+Recommended local ports:
+- Frontend: 4200
+- Backend: 8080
+- MySQL: 3306
+- Local model provider: 11434
+- Local SMTP test UI: 8025
+- Local SMTP server: 1025
+
+==================================================
+7. LOCAL DEVELOPMENT BOOT ORDER
+==================================================
+
+1. Start MySQL
+2. Create database and user
+3. Start local SMTP test service
+4. Start local model provider if using local routing
+5. Start backend with local profile
+6. Start frontend
+7. Verify health endpoints and sign-in flow
+
+==================================================
+8. BACKEND APPLICATION.YML GUIDANCE
+==================================================
+
+Shared defaults should include:
+- server port
+- datasource placeholders
+- JPA settings appropriate for Flyway usage
+- Flyway enabled
+- management health endpoint exposure
+- logging patterns
+- CORS allowed origins via environment
+
+Do not hard-code:
+- secrets
+- billing keys
+- OAuth credentials
+- encryption keys
+
+==================================================
+9. SECURITY CONFIGURATION RULES
+==================================================
+
+1. JWT secret must be environment-sourced.
+2. Encryption key must be environment-sourced.
+3. OAuth client secrets must be environment-sourced.
+4. Production must not allow wildcard CORS.
+5. Production cookies and headers should use secure settings where applicable.
+6. Connection secrets must be encrypted before persistence.
+
+==================================================
+10. FILE STORAGE CONFIGURATION
+==================================================
+
+Version 1 recommendation:
+- local filesystem storage in local/dev
+- abstract storage service so production can switch later
+
+Required config:
+- FILE_STORAGE_MODE=local
+- FILE_STORAGE_BASE_PATH=./data/storage
+
+Use this for:
+- document exports
+- user data export bundles
+- temporary artifacts
+
+==================================================
+11. MOCK MODE SUPPORT
+==================================================
+
+For development and testing, support mock connectors and mock providers.
+
+Recommended flags:
+- ENABLE_MOCK_EMAIL=true
+- ENABLE_MOCK_CALENDAR=true
+- ENABLE_MOCK_WEB_SEARCH=true
+- ENABLE_MOCK_ECOMMERCE=true
+- ENABLE_MOCK_BILLING=true
+
+Purpose:
+- make the app usable without all external integrations wired first
+- enable deterministic automated testing
+
+==================================================
+12. HEALTH AND OBSERVABILITY
+==================================================
+
+Expose:
+- /actuator/health
+- /actuator/info
+- /actuator/metrics where practical
+
+Recommended additional health checks:
+- database reachable
+- storage writable
+- local model provider reachable if enabled
+- SMTP reachable if email notifications enabled
+
+==================================================
+13. FRONTEND BUILD CONFIGURATION
+==================================================
+
+Requirements:
+1. production build must use optimized Angular output
+2. PWA build must include manifest and service worker
+3. environment config must be replaceable without code edits if runtime config approach is used
+4. API URL must not be hard-coded in source business logic
+
+==================================================
+14. DEPLOYMENT PREPARATION CHECKLIST
+==================================================
+
+Before deployment:
+1. production DB credentials set
+2. JWT secret rotated and strong
+3. encryption key set
+4. billing keys configured
+5. provider API keys configured as needed
+6. CORS set to production host only
+7. HTTPS available
+8. storage path writable
+9. migrations tested on blank DB
+10. seeded plans and templates present
+
+==================================================
+15. SAMPLE .ENV FILE FOR LOCAL BACKEND
+==================================================
+
+APP_NAME=AgentFlow
+APP_ENV=local
+APP_BASE_URL=http://localhost:8080
+FRONTEND_BASE_URL=http://localhost:4200
+
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=agentflow
+DB_USERNAME=agentflow_user
+DB_PASSWORD=change_me
+
+JWT_SECRET=replace_with_long_random_string
+JWT_ACCESS_TOKEN_MINUTES=15
+JWT_REFRESH_TOKEN_DAYS=30
+
+ENCRYPTION_KEY=replace_with_32_byte_secret_key
+
+SMTP_HOST=localhost
+SMTP_PORT=1025
+SMTP_FROM_EMAIL=no-reply@example.com
+SMTP_FROM_NAME=AgentFlow
+
+BILLING_PROVIDER=stripe
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+STRIPE_PUBLIC_KEY=
+
+LOCAL_MODEL_PROVIDER=ollama
+LOCAL_MODEL_BASE_URL=http://localhost:11434
+LOCAL_MODEL_DEFAULT=llama3
+
+CLOUD_MODEL_PROVIDER=openai
+CLOUD_MODEL_API_KEY=
+CLOUD_MODEL_DEFAULT=gpt-4o-mini
+
+ENABLE_MOCK_EMAIL=true
+ENABLE_MOCK_CALENDAR=true
+ENABLE_MOCK_WEB_SEARCH=true
+ENABLE_MOCK_ECOMMERCE=true
+ENABLE_MOCK_BILLING=true
+
+FILE_STORAGE_MODE=local
+FILE_STORAGE_BASE_PATH=./data/storage
+
+==================================================
+16. FINAL IMPLEMENTATION NOTE
+==================================================
+
+A correct configuration system for this app must:
+- separate secrets from code
+- support local-first development
+- support future hosted deployment
+- allow mocked integrations during build-out
+- keep provider selection flexible

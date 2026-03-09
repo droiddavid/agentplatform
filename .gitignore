@@ -1,0 +1,36 @@
+# Java / Maven
+/target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Maven local repository
+/.m2/
+
+# Spring Boot devtools
+spring-boot-devtools.properties
+
+# Node
+node_modules/
+frontend/agentplatform/node_modules/
+
+# Angular build outputs
+/frontend/agentplatform/dist/
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+
+# Logs
+.log
+
+# OS files
+Thumbs.db
+ehthumbs.db
+.DS_Store
+
+# Backend migrations (keep SQL files under source control) - do not ignore db/migration
+# Ignore local IDE or build artifacts in resources
+backend/src/main/resources/static/
