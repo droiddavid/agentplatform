@@ -42,6 +42,35 @@ public class AuthService {
         return new SignInResult(accessToken, refreshToken);
     }
 
+    public SignInResult refreshWithRotation(String refreshToken, JwtUtil jwtUtil, RefreshTokenRepository refreshTokenRepository, long refreshExpirySeconds) {
+        var rtOpt = refreshTokenRepository.findByToken(refreshToken);
+        if (rtOpt.isEmpty()) throw new IllegalArgumentException("Invalid refresh token");
+        var rt = rtOpt.get();
+        if (rt.getExpiresAt().isBefore(java.time.Instant.now())) {
+            // expired - remove
+            refreshTokenRepository.delete(rt);
+            throw new IllegalArgumentException("Refresh token expired");
+        }
+
+        var userOpt = userRepository.findById(rt.getUserId());
+        if (userOpt.isEmpty()) {
+            refreshTokenRepository.delete(rt);
+            throw new IllegalArgumentException("Invalid refresh token (user not found)");
+        }
+        var user = userOpt.get();
+
+        String newAccess = jwtUtil.generateAccessToken(user.getId(), user.getEmail());
+
+        // rotate refresh token: delete old and save a new one
+        refreshTokenRepository.delete(rt);
+        String newRefresh = java.util.UUID.randomUUID().toString();
+        java.time.Instant expires = java.time.Instant.now().plusSeconds(refreshExpirySeconds);
+        var newRt = new RefreshToken(newRefresh, user.getId(), expires);
+        refreshTokenRepository.save(newRt);
+
+        return new SignInResult(newAccess, newRefresh);
+    }
+
     public static class SignInResult {
         public final String accessToken;
         public final String refreshToken;

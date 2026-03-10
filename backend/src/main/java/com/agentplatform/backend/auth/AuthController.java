@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import com.agentplatform.backend.auth.jwt.JwtUtil;
 import com.agentplatform.backend.auth.RefreshTokenRepository;
 import org.springframework.beans.factory.annotation.Value;
+import com.agentplatform.backend.auth.dto.RefreshRequest;
+import com.agentplatform.backend.auth.dto.RefreshResponse;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -38,5 +40,11 @@ public class AuthController {
             "accessToken", result.accessToken,
             "refreshToken", result.refreshToken
         ));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<RefreshResponse> refresh(@RequestBody RefreshRequest req) {
+        var result = authService.refreshWithRotation(req.getRefreshToken(), jwtUtil, refreshTokenRepository, refreshExpirySeconds);
+        return ResponseEntity.ok(new RefreshResponse(result.accessToken, result.refreshToken));
     }
 }
