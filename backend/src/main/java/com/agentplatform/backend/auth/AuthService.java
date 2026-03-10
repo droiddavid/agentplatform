@@ -71,6 +71,11 @@ public class AuthService {
         return new SignInResult(newAccess, newRefresh);
     }
 
+    public void revokeRefreshToken(String refreshToken, RefreshTokenRepository refreshTokenRepository) {
+        var rtOpt = refreshTokenRepository.findByToken(refreshToken);
+        rtOpt.ifPresent(refreshTokenRepository::delete);
+    }
+
     public static class SignInResult {
         public final String accessToken;
         public final String refreshToken;

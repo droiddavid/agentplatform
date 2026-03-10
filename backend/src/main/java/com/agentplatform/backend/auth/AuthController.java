@@ -47,4 +47,11 @@ public class AuthController {
         var result = authService.refreshWithRotation(req.getRefreshToken(), jwtUtil, refreshTokenRepository, refreshExpirySeconds);
         return ResponseEntity.ok(new RefreshResponse(result.accessToken, result.refreshToken));
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestBody RefreshRequest req) {
+        // revoke the provided refresh token
+        authService.revokeRefreshToken(req.getRefreshToken(), refreshTokenRepository);
+        return ResponseEntity.ok().build();
+    }
 }
