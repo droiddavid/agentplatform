@@ -10,10 +10,20 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final com.agentplatform.backend.audit.AuditEventRepository dummyForCompile; // placeholder to ensure package import resolution
+    private final com.agentplatform.backend.audit.AuditService auditService;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    @org.springframework.beans.factory.annotation.Autowired
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, com.agentplatform.backend.audit.AuditService auditService, com.agentplatform.backend.audit.AuditEventRepository dummyForCompile) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.auditService = auditService;
+        this.dummyForCompile = dummyForCompile;
+    }
+
+    // Backwards-compatible constructor for unit tests and simple wiring
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this(userRepository, passwordEncoder, new com.agentplatform.backend.audit.AuditService(null), null);
     }
 
     public User signUp(SignUpRequest req) {
@@ -38,6 +48,7 @@ public class AuthService {
         java.time.Instant expires = java.time.Instant.now().plusSeconds(refreshExpirySeconds);
         var rt = new RefreshToken(refreshToken, user.getId(), expires);
         refreshTokenRepository.save(rt);
+        try { auditService.record(user.getId(), "REFRESH_ISSUED", "issued refresh for user"); } catch (Exception ignored) {}
 
         return new SignInResult(accessToken, refreshToken);
     }
@@ -67,13 +78,14 @@ public class AuthService {
         java.time.Instant expires = java.time.Instant.now().plusSeconds(refreshExpirySeconds);
         var newRt = new RefreshToken(newRefresh, user.getId(), expires);
         refreshTokenRepository.save(newRt);
+        try { auditService.record(user.getId(), "REFRESH_ROTATED", "rotated refresh token"); } catch (Exception ignored) {}
 
         return new SignInResult(newAccess, newRefresh);
     }
 
     public void revokeRefreshToken(String refreshToken, RefreshTokenRepository refreshTokenRepository) {
         var rtOpt = refreshTokenRepository.findByToken(refreshToken);
-        rtOpt.ifPresent(refreshTokenRepository::delete);
+        rtOpt.ifPresent(r -> { refreshTokenRepository.delete(r); try { auditService.record(r.getUserId(), "REFRESH_REVOKED", "revoked refresh token"); } catch (Exception ignored) {} });
     }
 
     public static class SignInResult {

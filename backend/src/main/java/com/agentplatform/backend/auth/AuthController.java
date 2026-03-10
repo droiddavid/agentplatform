@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import com.agentplatform.backend.auth.jwt.JwtUtil;
 import com.agentplatform.backend.auth.RefreshTokenRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.RequestHeader;
 import com.agentplatform.backend.auth.dto.RefreshRequest;
 import com.agentplatform.backend.auth.dto.RefreshResponse;
 
@@ -52,6 +53,14 @@ public class AuthController {
     public ResponseEntity<?> logout(@RequestBody RefreshRequest req) {
         // revoke the provided refresh token
         authService.revokeRefreshToken(req.getRefreshToken(), refreshTokenRepository);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/logout-all")
+    public ResponseEntity<?> logoutAll(@RequestHeader("Authorization") String authHeader) {
+        Long userId = jwtUtil.parseUserIdFromToken(authHeader);
+        if (userId == null) return ResponseEntity.status(401).build();
+        refreshTokenRepository.deleteByUserId(userId);
         return ResponseEntity.ok().build();
     }
 }

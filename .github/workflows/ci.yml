@@ -49,9 +49,12 @@ jobs:
       - name: Build and run Flyway migrations
         env:
           FLYWAY_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: |
           ./mvnw -B -DskipTests=true org.flywaydb:flyway-maven-plugin:9.22.0:migrate -Dflyway.url=jdbc:mysql://127.0.0.1:3306/agentplatform -Dflyway.user=root -Dflyway.password=${FLYWAY_PASSWORD}
 
       - name: Build
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: |
           ./mvnw -B -DskipTests=true clean package

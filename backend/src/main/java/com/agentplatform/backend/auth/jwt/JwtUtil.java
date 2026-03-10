@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import io.jsonwebtoken.Claims;
 
 @Component
 public class JwtUtil {
@@ -37,5 +38,28 @@ public class JwtUtil {
                 .setExpiration(exp)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public Long parseUserIdFromToken(String token) {
+        if (token == null) return null;
+        if (token.startsWith("Bearer ")) token = token.substring(7);
+        try {
+            Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+            String sub = claims.getSubject();
+            return sub == null ? null : Long.parseLong(sub);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid JWT token");
+        }
+    }
+
+    public String parseEmailFromToken(String token) {
+        if (token == null) return null;
+        if (token.startsWith("Bearer ")) token = token.substring(7);
+        try {
+            Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+            return claims.get("email", String.class);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
