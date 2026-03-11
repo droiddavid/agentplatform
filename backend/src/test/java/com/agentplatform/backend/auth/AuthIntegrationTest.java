@@ -3,17 +3,14 @@ package com.agentplatform.backend.auth;
 import com.agentplatform.backend.auth.dto.SignUpRequest;
 import com.agentplatform.backend.auth.dto.RefreshRequest;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.jupiter.api.Disabled;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.testcontainers.containers.MySQLContainer;
-import org.junit.jupiter.api.Disabled;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.core.ParameterizedTypeReference;
 
 import java.util.Map;
 
@@ -38,12 +35,22 @@ public class AuthIntegrationTest {
         signup.setEmail("it_user@example.com");
         signup.setPassword("s3cretpass");
 
-        ResponseEntity<Map> signupResp = restTemplate.postForEntity("http://localhost:" + port + "/api/auth/signup", signup, Map.class);
+        ResponseEntity<Map<String, Object>> signupResp = restTemplate.exchange(
+            "http://localhost:" + port + "/api/auth/signup",
+            HttpMethod.POST,
+            new HttpEntity<>(signup),
+            new ParameterizedTypeReference<Map<String, Object>>(){}
+        );
         assertThat(signupResp.getStatusCode().is2xxSuccessful()).isTrue();
         assertThat(signupResp.getBody()).containsKeys("id", "email");
 
         // signin
-        ResponseEntity<Map> signinResp = restTemplate.postForEntity("http://localhost:" + port + "/api/auth/signin", signup, Map.class);
+        ResponseEntity<Map<String, Object>> signinResp = restTemplate.exchange(
+            "http://localhost:" + port + "/api/auth/signin",
+            HttpMethod.POST,
+            new HttpEntity<>(signup),
+            new ParameterizedTypeReference<Map<String, Object>>() {}
+        );
         assertThat(signinResp.getStatusCode().is2xxSuccessful()).isTrue();
         assertThat(signinResp.getBody()).containsKeys("accessToken", "refreshToken");
 
@@ -52,7 +59,12 @@ public class AuthIntegrationTest {
         // refresh
         var refreshReq = new RefreshRequest();
         refreshReq.setRefreshToken(refreshToken);
-        ResponseEntity<Map> refreshResp = restTemplate.postForEntity("http://localhost:" + port + "/api/auth/refresh", refreshReq, Map.class);
+        ResponseEntity<Map<String, Object>> refreshResp = restTemplate.exchange(
+            "http://localhost:" + port + "/api/auth/refresh",
+            HttpMethod.POST,
+            new HttpEntity<>(refreshReq),
+            new ParameterizedTypeReference<Map<String, Object>>() {}
+        );
         assertThat(refreshResp.getStatusCode().is2xxSuccessful()).isTrue();
         assertThat(refreshResp.getBody()).containsKeys("accessToken", "refreshToken");
 
@@ -63,7 +75,12 @@ public class AuthIntegrationTest {
         assertThat(logoutResp.getStatusCode().is2xxSuccessful()).isTrue();
 
         // attempt to refresh again using revoked token -> should be unauthorized or error
-        ResponseEntity<Map<String, Object>> refreshAfterLogout = restTemplate.postForEntity("http://localhost:" + port + "/api/auth/refresh", logoutReq, new org.springframework.core.ParameterizedTypeReference<Map<String, Object>>(){});
+        ResponseEntity<Map<String, Object>> refreshAfterLogout = restTemplate.exchange(
+            "http://localhost:" + port + "/api/auth/refresh",
+            HttpMethod.POST,
+            new HttpEntity<>(logoutReq),
+            new ParameterizedTypeReference<Map<String, Object>>() {}
+        );
         assertThat(refreshAfterLogout.getStatusCode().value()).isGreaterThanOrEqualTo(400);
     }
 }
