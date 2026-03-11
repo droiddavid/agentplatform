@@ -14,6 +14,15 @@ export const routes: Routes = [
 		]
 	},
 
+	// Signin (public with PublicShellComponent)
+	{ 
+		path: 'signin', 
+		loadComponent: () => import('./shared/shells/public-shell.component').then(m => m.PublicShellComponent),
+		children: [
+			{ path: '', loadComponent: () => import('./sign-in.component').then(m => m.SignInComponent) }
+		]
+	},
+
 	// Protected routes wrapped in AppShellComponent
 	{
 		path: 'dashboard',

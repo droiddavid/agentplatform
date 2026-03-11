@@ -7,7 +7,7 @@ export class AuthGuard implements CanActivate {
   constructor(private store: AuthStoreService, private router: Router) {}
   canActivate(): boolean {
     const t = this.store.getAccessToken();
-    if (!t) { this.router.navigateByUrl('/signup'); return false; }
+    if (!t) { this.router.navigateByUrl('/signin'); return false; }
     return true;
   }
 }
