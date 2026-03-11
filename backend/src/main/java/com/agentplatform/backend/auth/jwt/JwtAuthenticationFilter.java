@@ -31,21 +31,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            Long userId = jwtUtil.parseUserIdFromToken(authHeader);
-            if (userId != null) {
-                var userOpt = userRepository.findById(userId);
-                if (userOpt.isPresent()) {
-                    String email = jwtUtil.parseEmailFromToken(authHeader);
-                    List<SimpleGrantedAuthority> authorities = roleRepository.findByUserId(userId).stream()
-                            .map(r -> new SimpleGrantedAuthority("ROLE_" + r.getName()))
-                            .collect(Collectors.toList());
+        try {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                try {
+                    Long userId = jwtUtil.parseUserIdFromToken(authHeader);
+                    if (userId != null) {
+                        var userOpt = userRepository.findById(userId);
+                        if (userOpt.isPresent()) {
+                            String email = jwtUtil.parseEmailFromToken(authHeader);
+                            List<SimpleGrantedAuthority> authorities = roleRepository.findByUserId(userId).stream()
+                                    .map(r -> new SimpleGrantedAuthority("ROLE_" + r.getName()))
+                                    .collect(Collectors.toList());
 
-                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(email != null ? email : userId.toString(), null, authorities);
-                    SecurityContextHolder.getContext().setAuthentication(auth);
+                            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(email != null ? email : userId.toString(), null, authorities);
+                            SecurityContextHolder.getContext().setAuthentication(auth);
+                        }
+                    }
+                } catch (Exception e) {
+                    // Invalid or expired token - let security filter handle it
                 }
             }
+        } catch (Exception e) {
+            // Silently continue if any error occurs
         }
         filterChain.doFilter(request, response);
     }
