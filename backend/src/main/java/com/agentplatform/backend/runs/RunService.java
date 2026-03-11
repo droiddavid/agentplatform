@@ -133,4 +133,8 @@ public class RunService {
                 .map(RunResponse::new)
                 .collect(Collectors.toList());
     }
+
+    public RunResponse toResponse(Run run) {
+        return new RunResponse(run);
+    }
 }

@@ -29,4 +29,10 @@ public interface RunRepository extends JpaRepository<Run, Long> {
     long countByOwnerIdAndStatus(Long ownerId, String status);
 
     List<Run> findByOwnerIdAndStatusOrderByCreatedAtDesc(Long ownerId, String status);
+
+    // Find all runs for a task
+    List<Run> findByTaskId(Long taskId);
+
+    // Find all runs for an agent
+    List<Run> findByAgentId(Long agentId);
 }
