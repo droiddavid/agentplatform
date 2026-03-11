@@ -1,0 +1,13 @@
+<section>
+  <h2>Create Agent</h2>
+  <form (ngSubmit)="submit()">
+    <label>Name
+      <input name="name" [(ngModel)]="name" required />
+    </label>
+    <label>Description
+      <textarea name="description" [(ngModel)]="description"></textarea>
+    </label>
+    @if (error) { <div class="error">{{ error }}</div> }
+    <button type="submit" [disabled]="loading">Create</button>
+  </form>
+</section>

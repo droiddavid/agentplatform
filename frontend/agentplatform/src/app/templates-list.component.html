@@ -1,0 +1,9 @@
+<div class="templates-list">
+  <h2>Templates</h2>
+  <div *ngIf="!templates()">Loading templates…</div>
+  <ul *ngIf="templates()">
+    <li *ngFor="let t of templates()">
+      <strong>{{ t.name }}</strong> — <span>{{ t.description }}</span>
+    </li>
+  </ul>
+</div>
