@@ -18,186 +18,201 @@ import { RunService, Run } from '../../services/run.service';
     </button>
   </div>
 
-  <div *ngIf="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-    {{ errorMessage }}
-  </div>
-
-  <div *ngIf="isLoading" class="text-center py-8">
-    <div class="inline-block animate-spin">
-      <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-      </svg>
+  @if (errorMessage) {
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+      {{ errorMessage }}
     </div>
-  </div>
+  }
 
-  <div *ngIf="!isLoading && run" class="bg-white shadow rounded-lg">
-    <!-- Header -->
-    <div class="border-b border-gray-200 p-6">
-      <div class="flex items-center justify-between mb-4">
+  @if (isLoading) {
+    <div class="text-center py-8">
+      <div class="inline-block animate-spin">
+        <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg>
+      </div>
+    </div>
+  }
+
+  @if (!isLoading && run) {
+    <div class="bg-white shadow rounded-lg">
+      <!-- Header -->
+      <div class="border-b border-gray-200 p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-2xl font-bold">Run #{{ run.id }}</h2>
+              <span [ngClass]="getStatusColor(run.status)" class="px-3 py-1 rounded-full text-sm font-semibold">
+                {{ run.status }}
+              </span>
+            </div>
+            <p class="text-gray-600 text-sm mt-1">Created {{ formatDate(run.createdAt) }}</p>
+          </div>
+          <div class="text-right">
+            <div class="text-sm text-gray-600">Task #{{ run.taskId }} • Agent #{{ run.agentId }}</div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-2">
+          @if (run.status === 'pending') {
+            <button
+              (click)="startRun()"
+              class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+              Start Run
+            </button>
+          }
+          @if (run.status === 'running') {
+            <button
+              (click)="cancelRun()"
+              class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+              Cancel Run
+            </button>
+          }
+          <button
+            (click)="goBack()"
+            class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+            Back
+          </button>
+        </div>
+      </div>
+
+      <!-- Summary Stats -->
+      <div class="grid grid-cols-4 gap-4 p-6 border-b border-gray-200 bg-gray-50">
         <div>
-          <div class="flex items-center gap-2">
-            <h2 class="text-2xl font-bold">Run #{{ run.id }}</h2>
-            <span [ngClass]="getStatusColor(run.status)" class="px-3 py-1 rounded-full text-sm font-semibold">
-              {{ run.status }}
-            </span>
-          </div>
-          <p class="text-gray-600 text-sm mt-1">Created {{ formatDate(run.createdAt) }}</p>
+          <div class="text-sm text-gray-600 mb-1">Started</div>
+          <div class="font-semibold">{{ formatDate(run.startedAt) }}</div>
         </div>
-        <div class="text-right">
-          <div class="text-sm text-gray-600">Task #{{ run.taskId }} • Agent #{{ run.agentId }}</div>
+        <div>
+          <div class="text-sm text-gray-600 mb-1">Completed</div>
+          <div class="font-semibold">{{ formatDate(run.completedAt) }}</div>
+        </div>
+        <div>
+          <div class="text-sm text-gray-600 mb-1">Duration</div>
+          <div class="font-semibold">{{ getDuration() }}</div>
+        </div>
+        <div>
+          <div class="text-sm text-gray-600 mb-1">Last Updated</div>
+          <div class="font-semibold text-xs">{{ formatDate(run.updatedAt) }}</div>
         </div>
       </div>
 
-      <!-- Actions -->
-      <div class="flex gap-2">
-        <button
-          *ngIf="run.status === 'pending'"
-          (click)="startRun()"
-          class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-          Start Run
-        </button>
-        <button
-          *ngIf="run.status === 'running'"
-          (click)="cancelRun()"
-          class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
-          Cancel Run
-        </button>
-        <button
-          (click)="goBack()"
-          class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
-          Back
-        </button>
+      <!-- Tabs -->
+      <div class="border-b border-gray-200">
+        <div class="flex">
+          <button
+            (click)="selectTab('overview')"
+            [class.bg-blue-50]="activeTab === 'overview'"
+            [class.border-blue-500]="activeTab === 'overview'"
+            class="px-6 py-3 border-b-2 border-transparent text-sm font-medium">
+            Overview
+          </button>
+          <button
+            (click)="selectTab('input')"
+            [class.bg-blue-50]="activeTab === 'input'"
+            [class.border-blue-500]="activeTab === 'input'"
+            class="px-6 py-3 border-b-2 border-transparent text-sm font-medium">
+            Input
+          </button>
+          @if (run.output) {
+            <button
+              (click)="selectTab('output')"
+              [class.bg-blue-50]="activeTab === 'output'"
+              [class.border-blue-500]="activeTab === 'output'"
+              class="px-6 py-3 border-b-2 border-transparent text-sm font-medium">
+              Output
+            </button>
+          }
+          @if (run.logs) {
+            <button
+              (click)="selectTab('logs')"
+              [class.bg-blue-50]="activeTab === 'logs'"
+              [class.border-blue-500]="activeTab === 'logs'"
+              class="px-6 py-3 border-b-2 border-transparent text-sm font-medium">
+              Logs
+            </button>
+          }
+          @if (run.errorMessage) {
+            <button
+              (click)="selectTab('error')"
+              [class.bg-blue-50]="activeTab === 'error'"
+              [class.border-blue-500]="activeTab === 'error'"
+              class="px-6 py-3 border-b-2 border-transparent text-sm font-medium">
+              Error
+            </button>
+          }
+        </div>
       </div>
-    </div>
 
-    <!-- Summary Stats -->
-    <div class="grid grid-cols-4 gap-4 p-6 border-b border-gray-200 bg-gray-50">
-      <div>
-        <div class="text-sm text-gray-600 mb-1">Started</div>
-        <div class="font-semibold">{{ formatDate(run.startedAt) }}</div>
-      </div>
-      <div>
-        <div class="text-sm text-gray-600 mb-1">Completed</div>
-        <div class="font-semibold">{{ formatDate(run.completedAt) }}</div>
-      </div>
-      <div>
-        <div class="text-sm text-gray-600 mb-1">Duration</div>
-        <div class="font-semibold">{{ getDuration() }}</div>
-      </div>
-      <div>
-        <div class="text-sm text-gray-600 mb-1">Last Updated</div>
-        <div class="font-semibold text-xs">{{ formatDate(run.updatedAt) }}</div>
-      </div>
-    </div>
-
-    <!-- Tabs -->
-    <div class="border-b border-gray-200">
-      <div class="flex">
-        <button
-          (click)="selectTab('overview')"
-          [class.bg-blue-50]="activeTab === 'overview'"
-          [class.border-blue-500]="activeTab === 'overview'"
-          class="px-6 py-3 border-b-2 border-transparent text-sm font-medium">
-          Overview
-        </button>
-        <button
-          (click)="selectTab('input')"
-          [class.bg-blue-50]="activeTab === 'input'"
-          [class.border-blue-500]="activeTab === 'input'"
-          class="px-6 py-3 border-b-2 border-transparent text-sm font-medium">
-          Input
-        </button>
-        <button
-          *ngIf="run.output"
-          (click)="selectTab('output')"
-          [class.bg-blue-50]="activeTab === 'output'"
-          [class.border-blue-500]="activeTab === 'output'"
-          class="px-6 py-3 border-b-2 border-transparent text-sm font-medium">
-          Output
-        </button>
-        <button
-          *ngIf="run.logs"
-          (click)="selectTab('logs')"
-          [class.bg-blue-50]="activeTab === 'logs'"
-          [class.border-blue-500]="activeTab === 'logs'"
-          class="px-6 py-3 border-b-2 border-transparent text-sm font-medium">
-          Logs
-        </button>
-        <button
-          *ngIf="run.errorMessage"
-          (click)="selectTab('error')"
-          [class.bg-blue-50]="activeTab === 'error'"
-          [class.border-blue-500]="activeTab === 'error'"
-          class="px-6 py-3 border-b-2 border-transparent text-sm font-medium">
-          Error
-        </button>
-      </div>
-    </div>
-
-    <!-- Tab Content -->
-    <div class="p-6">
-      <!-- Overview Tab -->
-      <div *ngIf="activeTab === 'overview'">
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Run ID</label>
-            <div class="text-gray-900 font-mono">{{ run.id }}</div>
-          </div>
-          <div class="grid grid-cols-2 gap-4">
+      <!-- Tab Content -->
+      <div class="p-6">
+        <!-- Overview Tab -->
+        @if (activeTab === 'overview') {
+          <div class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Task ID</label>
-              <div class="text-gray-900 font-mono">#{{ run.taskId }}</div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Run ID</label>
+              <div class="text-gray-900 font-mono">{{ run.id }}</div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Task ID</label>
+                <div class="text-gray-900 font-mono">#{{ run.taskId }}</div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Agent ID</label>
+                <div class="text-gray-900 font-mono">#{{ run.agentId }}</div>
+              </div>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Agent ID</label>
-              <div class="text-gray-900 font-mono">#{{ run.agentId }}</div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <span [ngClass]="getStatusColor(run.status)" class="px-3 py-1 rounded-full text-sm font-semibold inline-block">
+                {{ run.status }}
+              </span>
             </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Created At</label>
+              <div class="text-gray-900">{{ formatDate(run.createdAt) }}</div>
+            </div>
+            @if (run.startedAt) {
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Started At</label>
+                <div class="text-gray-900">{{ formatDate(run.startedAt) }}</div>
+              </div>
+            }
+            @if (run.completedAt) {
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Completed At</label>
+                <div class="text-gray-900">{{ formatDate(run.completedAt) }}</div>
+              </div>
+            }
           </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-            <span [ngClass]="getStatusColor(run.status)" class="px-3 py-1 rounded-full text-sm font-semibold inline-block">
-              {{ run.status }}
-            </span>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Created At</label>
-            <div class="text-gray-900">{{ formatDate(run.createdAt) }}</div>
-          </div>
-          <div *ngIf="run.startedAt">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Started At</label>
-            <div class="text-gray-900">{{ formatDate(run.startedAt) }}</div>
-          </div>
-          <div *ngIf="run.completedAt">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Completed At</label>
-            <div class="text-gray-900">{{ formatDate(run.completedAt) }}</div>
-          </div>
-        </div>
-      </div>
+        }
 
-      <!-- Input Tab -->
-      <div *ngIf="activeTab === 'input'">
-        <pre class="bg-gray-100 p-4 rounded overflow-auto text-sm"><code>{{ formatJson(tryParseJson(run.input)) }}</code></pre>
-      </div>
+        <!-- Input Tab -->
+        @if (activeTab === 'input') {
+          <pre class="bg-gray-100 p-4 rounded overflow-auto text-sm"><code>{{ formatJson(tryParseJson(run.input)) }}</code></pre>
+        }
 
-      <!-- Output Tab -->
-      <div *ngIf="activeTab === 'output' && run.output">
-        <pre class="bg-gray-100 p-4 rounded overflow-auto text-sm"><code>{{ formatJson(tryParseJson(run.output)) }}</code></pre>
-      </div>
+        <!-- Output Tab -->
+        @if (activeTab === 'output' && run.output) {
+          <pre class="bg-gray-100 p-4 rounded overflow-auto text-sm"><code>{{ formatJson(tryParseJson(run.output)) }}</code></pre>
+        }
 
-      <!-- Logs Tab -->
-      <div *ngIf="activeTab === 'logs' && run.logs">
-        <pre class="bg-gray-900 text-gray-100 p-4 rounded overflow-auto text-xs"><code>{{ run.logs }}</code></pre>
-      </div>
+        <!-- Logs Tab -->
+        @if (activeTab === 'logs' && run.logs) {
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded overflow-auto text-xs"><code>{{ run.logs }}</code></pre>
+        }
 
-      <!-- Error Tab -->
-      <div *ngIf="activeTab === 'error' && run.errorMessage">
-        <div class="bg-red-50 border border-red-200 rounded p-4">
-          <h3 class="text-red-800 font-semibold mb-2">Error Details</h3>
-          <pre class="text-red-700 text-xs overflow-auto"><code>{{ run.errorMessage }}</code></pre>
-        </div>
+        <!-- Error Tab -->
+        @if (activeTab === 'error' && run.errorMessage) {
+          <div class="bg-red-50 border border-red-200 rounded p-4">
+            <h3 class="text-red-800 font-semibold mb-2">Error Details</h3>
+            <pre class="text-red-700 text-xs overflow-auto"><code>{{ run.errorMessage }}</code></pre>
+          </div>
+        }
       </div>
     </div>
-  </div>
+  }
 </div>`,
   styles: [`
     :host {
