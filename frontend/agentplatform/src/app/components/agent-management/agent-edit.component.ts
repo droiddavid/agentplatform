@@ -1,21 +1,21 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
-import { AgentService } from './services/agent.service';
-import { PageHeaderComponent } from './shared/components/page-header.component';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AgentService, AgentResponse } from '../../services/agent.service';
+import { PageHeaderComponent } from '../../shared/components/page-header.component';
 
 @Component({
-  selector: 'app-agent-create',
+  selector: 'app-agent-edit',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, PageHeaderComponent],
+  imports: [CommonModule, FormsModule, PageHeaderComponent],
   template: `
-    <app-page-header title="Create Agent" subtitle="Start with a name and description">
+    <app-page-header title="Edit Agent" [subtitle]="'Update ' + name">
       <a routerLink="/agents" class="btn btn-secondary">Cancel</a>
     </app-page-header>
 
     <div class="form-container">
-      <form (ngSubmit)="submit()" class="create-form">
+      <form (ngSubmit)="submit()" class="edit-form">
         @if (error()) {
           <div class="error-banner">
             <div class="error-icon">⚠️</div>
@@ -30,7 +30,7 @@ import { PageHeaderComponent } from './shared/components/page-header.component';
             type="text" 
             name="name" 
             [(ngModel)]="name" 
-            placeholder="e.g., Email Assistant, Research Bot"
+            placeholder="Agent name"
             required 
             class="form-input"
           />
@@ -42,7 +42,7 @@ import { PageHeaderComponent } from './shared/components/page-header.component';
             id="description" 
             name="description" 
             [(ngModel)]="description" 
-            placeholder="What should this agent do? Be specific."
+            placeholder="Agent description"
             rows="6"
             class="form-textarea"
           ></textarea>
@@ -50,7 +50,7 @@ import { PageHeaderComponent } from './shared/components/page-header.component';
 
         <div class="form-actions">
           <button type="submit" [disabled]="loading()" class="btn btn-primary">
-            {{ loading() ? 'Creating...' : 'Create Agent' }}
+            {{ loading() ? 'Saving...' : 'Save Changes' }}
           </button>
           <a routerLink="/agents" class="btn btn-secondary">Cancel</a>
         </div>
@@ -64,7 +64,7 @@ import { PageHeaderComponent } from './shared/components/page-header.component';
       padding: 0 1.5rem;
     }
 
-    .create-form {
+    .edit-form {
       background: white;
       border: 1px solid #e0e0e0;
       border-radius: 8px;
@@ -172,7 +172,7 @@ import { PageHeaderComponent } from './shared/components/page-header.component';
         margin: 1rem auto;
       }
 
-      .create-form {
+      .edit-form {
         padding: 1.5rem;
       }
 
@@ -186,26 +186,53 @@ import { PageHeaderComponent } from './shared/components/page-header.component';
     }
   `]
 })
-export class AgentCreateComponent {
+export class AgentEditComponent {
+  private route = inject(ActivatedRoute);
   private service = inject(AgentService);
   private router = inject(Router);
 
+  id = 0;
   name = '';
   description = '';
   loading = signal(false);
   error = signal<string | null>(null);
 
+  constructor() {
+    const val = this.route.snapshot.paramMap.get('id');
+    if (val) {
+      this.id = +val;
+      this.load();
+    }
+  }
+
+  load() {
+    if (!this.id) return;
+    this.loading.set(true);
+    this.error.set(null);
+    this.service.getAgent(this.id).subscribe({
+      next: (agent: AgentResponse) => {
+        this.name = agent.name;
+        this.description = agent.description || '';
+        this.loading.set(false);
+      },
+      error: (err: any) => {
+        this.error.set(err?.message || 'Failed to load agent');
+        this.loading.set(false);
+      }
+    });
+  }
+
   submit() {
     this.loading.set(true);
     this.error.set(null);
-    this.service.create({ name: this.name, description: this.description }).subscribe({
+    this.service.updateAgent(this.id, { name: this.name, description: this.description }).subscribe({
       next: () => {
         this.loading.set(false);
         this.router.navigateByUrl('/agents');
       },
-      error: err => {
+      error: (err: any) => {
         this.loading.set(false);
-        this.error.set(err?.error?.message || err?.message || 'Failed to create agent');
+        this.error.set(err?.error?.message || err?.message || 'Failed to update agent');
       }
     });
   }

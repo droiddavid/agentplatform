@@ -1,10 +1,10 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { AgentService, AgentResponse } from './services/agent.service';
-import { PageHeaderComponent } from './shared/components/page-header.component';
-import { EmptyStateComponent } from './shared/components/empty-state.component';
-import { LoadingStateComponent } from './shared/components/loading-state.component';
+import { AgentService, AgentResponse } from '../../services/agent.service';
+import { PageHeaderComponent } from '../../shared/components/page-header.component';
+import { EmptyStateComponent } from '../../shared/components/empty-state.component';
+import { LoadingStateComponent } from '../../shared/components/loading-state.component';
 
 @Component({
   selector: 'app-agent-list',
