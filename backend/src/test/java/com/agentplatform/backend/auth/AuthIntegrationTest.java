@@ -63,7 +63,7 @@ public class AuthIntegrationTest {
         assertThat(logoutResp.getStatusCode().is2xxSuccessful()).isTrue();
 
         // attempt to refresh again using revoked token -> should be unauthorized or error
-        ResponseEntity<Map> refreshAfterLogout = restTemplate.postForEntity("http://localhost:" + port + "/api/auth/refresh", logoutReq, Map.class);
+        ResponseEntity<Map<String, Object>> refreshAfterLogout = restTemplate.postForEntity("http://localhost:" + port + "/api/auth/refresh", logoutReq, new org.springframework.core.ParameterizedTypeReference<Map<String, Object>>(){});
         assertThat(refreshAfterLogout.getStatusCode().value()).isGreaterThanOrEqualTo(400);
     }
 }
