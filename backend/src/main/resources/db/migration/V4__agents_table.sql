@@ -11,4 +11,4 @@ CREATE TABLE IF NOT EXISTS agents (
   CONSTRAINT fk_agents_owner FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS idx_agents_owner ON agents(owner_id);
+CREATE INDEX idx_agents_owner ON agents(owner_id);
