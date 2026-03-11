@@ -9,6 +9,23 @@ export interface AgentResponse {
   ownerId?: number;
 }
 
+export interface ParseAgentRequest {
+  prompt: string;
+}
+
+export interface ProposedAgent {
+  name: string;
+  role: string;
+  capabilities: string[];
+  toolPermissions: string[];
+  approvalSummary: string;
+}
+
+export interface ParseAgentResponse {
+  proposedAgents: ProposedAgent[];
+  requiresReview: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AgentService {
   private readonly baseUrl = 'http://localhost:8083';
@@ -26,4 +43,8 @@ export class AgentService {
   getAgent(id: number) { return this.http.get<AgentResponse>(`${this.baseUrl}/api/agents/${id}`); }
 
   updateAgent(id: number, req: { name?: string; description?: string }) { return this.http.put(`${this.baseUrl}/api/agents/${id}`, req); }
+
+  parseDescription(req: ParseAgentRequest): Observable<ParseAgentResponse> {
+    return this.http.post<ParseAgentResponse>(`${this.baseUrl}/api/agents/from-text`, req);
+  }
 }
