@@ -44,7 +44,7 @@ public class JwtUtil {
         if (token == null) return null;
         if (token.startsWith("Bearer ")) token = token.substring(7);
         try {
-            Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+            Claims claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
             String sub = claims.getSubject();
             return sub == null ? null : Long.parseLong(sub);
         } catch (Exception e) {
@@ -56,7 +56,7 @@ public class JwtUtil {
         if (token == null) return null;
         if (token.startsWith("Bearer ")) token = token.substring(7);
         try {
-            Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+            Claims claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
             return claims.get("email", String.class);
         } catch (Exception e) {
             return null;

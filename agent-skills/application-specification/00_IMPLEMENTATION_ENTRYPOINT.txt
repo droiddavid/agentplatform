@@ -1,269 +1,270 @@
-00_IMPLEMENTATION_ENTRYPOINT
-Runtime AI Agent Platform
-Version 1
-Master Reading and Execution Entry File for an AI Implementation Agent
 
-==================================================
-1. PURPOSE
-==================================================
-
-This is the single first file an AI implementation agent must read before reading any other file in the specification set.
-
-Its job is to:
-- define the correct reading order
-- prevent drift
-- explain why the order matters
-- establish execution discipline
-- ensure the implementation agent builds the platform in the right sequence
-
-Do not begin coding before reading and understanding this file.
-
-==================================================
-2. CRITICAL RULE
-==================================================
-
-The 23 numbered specification files are not meant to be read in simple numeric order from 01 to 23.
-
-They must be read in the specific phased order defined below.
-
-Reason:
-Some files define product intent.
-Some define architecture.
-Some define schema and contracts.
-Some define code structure.
-Some define implementation order.
-Some define validation.
-
-If these are read out of order, the implementation agent may:
-- design incorrect entities
-- build incorrect APIs
-- misunderstand runtime agents
-- break approval logic
-- build the wrong UI flow
-- create drift from the product specification
-
-==================================================
-3. NON-NEGOTIABLE BUILD PRINCIPLES
-==================================================
-
-1. Agents are runtime-defined entities, not hard-coded compile-time role services.
-2. Approval-first external action handling is mandatory.
-3. The database is the primary system of record.
-4. Run events and approvals must be persisted before UI confirmation where relevant.
-5. The user is non-technical and the UI must remain plain-language and trust-building.
-6. Multi-agent collaboration is a core feature, not an optional later add-on.
-7. Privacy, memory controls, export, deletion, and auditability are required.
-8. The implementation must stay aligned with the full specification library.
-
-==================================================
-4. REQUIRED READING ORDER
-==================================================
-
-PHASE 1. SYSTEM ORIENTATION
-Read these files first to understand the system, users, goals, and architectural philosophy.
-
-1. developer_handoff_master_index_pack.txt
-2. master_implementation_prompt_pack.txt
-3. autonomous_implementation_agent_prompt.txt
-4. frontend_spec_pack.txt
-5. backend_spec_pack.txt
-
-Outcome of Phase 1:
-You should understand:
-- what the platform is
-- who it is for
-- what runtime-defined agents mean
-- what the frontend and backend must generally accomplish
-- the non-technical user requirement
-- the product boundaries for version 1
-
---------------------------------------------------
-
-PHASE 2. CORE ARCHITECTURE AND CONTRACTS
-Read these next to understand data structure, database design, migrations, and runtime behavior.
-
-6. database_api_contract_pack.txt
-7. database_schema_pack.txt
-8. database_migration_pack.txt
-9. seed_data_curated_template_pack.txt
-10. state_machine_event_contract_pack.txt
-
-Outcome of Phase 2:
-You should understand:
-- the schema
-- the migrations
-- seed data
-- system state machines
-- event contracts
-- API contract strategy
-
-Do not start coding before Phase 2 is understood, because the schema and contracts drive nearly every other module.
-
---------------------------------------------------
-
-PHASE 3. CODE STRUCTURE AND MODULE SHAPE
-Read these next to understand how the source code must be organized.
-
-11. module_dto_entity_interface_pack.txt
-12. backend_package_class_file_map_pack.txt
-13. frontend_route_component_file_map_pack.txt
-14. screen_by_screen_ux_spec_pack.txt
-15. api_endpoint_request_response_examples_pack.txt
-
-Outcome of Phase 3:
-You should understand:
-- DTOs
-- entities
-- interfaces
-- backend file organization
-- frontend file organization
-- route structure
-- screen behavior
-- endpoint shapes
-
-Only after this phase should implementation file creation begin in earnest.
-
---------------------------------------------------
-
-PHASE 4. IMPLEMENTATION EXECUTION PLAN
-Read these next to understand the step-by-step build process.
-
-16. atomic_build_backlog.txt
-17. project_bootstrap_pack.txt
-18. starter_commands_initial_file_stub_order_pack.txt
-19. environment_configuration_pack.txt
-
-Outcome of Phase 4:
-You should understand:
-- what to build first
-- repository bootstrap order
-- first commands
-- first file stubs
-- environment setup
-- local development wiring
-
-These files are the main construction sequence.
-
---------------------------------------------------
-
-PHASE 5. USER-FACING EXPERIENCE
-Read this next so final screens and flows remain understandable to non-technical users.
-
-20. ux_copy_onboarding_pack.txt
-
-Outcome of Phase 5:
-You should understand:
-- onboarding language
-- approval wording
-- error language
-- dashboard language
-- trust-building UX copy
-
---------------------------------------------------
-
-PHASE 6. TESTING AND VALIDATION
-Read this next to know what counts as complete.
-
-21. acceptance_test_pack.txt
-
-Outcome of Phase 6:
-You should understand:
-- critical test scenarios
-- release-gating behaviors
-- product acceptance requirements
-
---------------------------------------------------
-
-PHASE 7. RELEASE AND RISK CONTROL
-Read these last.
-
-22. release_checklist_pack.txt
-23. risk_register_gap_tracker_pack.txt
-
-Outcome of Phase 7:
-You should understand:
-- final release gates
-- risk categories
-- known implementation dangers
-- where to record gaps and mitigations
-
-==================================================
-5. EXECUTION ORDER AFTER READING
-==================================================
-
-After reading all files in the required phased order, build the system in this implementation order:
-
-1. repository skeleton and project bootstrap
-2. frontend shell and backend shell
-3. database migrations and seed data
-4. auth and user foundations
-5. onboarding and template browser
-6. agent domain
-7. task and run domain
-8. messaging and collaboration
-9. runtime execution engine
-10. connections and tools
-11. approvals and remembered rules
-12. memory, privacy, export, deletion
-13. billing and usage
-14. notifications and streaming
-15. UX refinement and help content
-16. responsive and accessibility pass
-17. acceptance testing
-18. release readiness review
-
-==================================================
-6. IMPLEMENTATION DISCIPLINE RULES
-==================================================
-
-For every module:
-1. Re-read the relevant spec files before implementing.
-2. Create only the files required by the file-map packs or clearly implied by them.
-3. Do not invent alternate architecture when the specification already defines one.
-4. Validate against acceptance criteria before moving to the next module.
-5. Preserve runtime agent architecture at all times.
-6. Preserve approval-first behavior at all times.
-7. Preserve user privacy controls at all times.
-
-==================================================
-7. ANTI-DRIFT RULES
-==================================================
-
-Do not do any of the following:
-
-1. Do not turn agents into hard-coded role classes as the primary model.
-2. Do not reduce the product to a single-agent chat app.
-3. Do not skip the approval engine just to make tool execution easier.
-4. Do not replace the event ledger with only in-memory frontend state.
-5. Do not omit memory, privacy, export, deletion, or audit because they seem like polish.
-6. Do not treat graph view and collaboration as optional decorations.
-7. Do not ignore seed data, because the product must feel ready on first boot.
-
-==================================================
-8. SELF-CHECK BEFORE CODING EACH PHASE
-==================================================
-
-Before implementing a phase, ask and verify:
-
-- Which files in the spec set govern this phase?
-- What exact entities, DTOs, routes, and endpoints are required?
-- What acceptance criteria apply?
-- What UX text or user-facing wording applies?
-- What migration or seed data changes are required?
-- What tests must pass for this phase?
-
-If the answer is unclear, re-read the corresponding pack before coding.
-
-==================================================
-9. FINAL INSTRUCTION TO THE IMPLEMENTATION AGENT
-==================================================
-
-Read the files in the exact order defined here.
-Understand before building.
-Build in the defined sequence.
-Test before declaring complete.
-Do not drift.
-Do not simplify away the core architecture.
-
-This platform is meant for non-technical paying users.
-Build it with the discipline, traceability, and care required for real use.
+1: 00_IMPLEMENTATION_ENTRYPOINT
+2: Runtime AI Agent Platform
+3: Version 1
+4: Master Reading and Execution Entry File for an AI Implementation Agent
+5: 
+6: ==================================================
+7: 1. PURPOSE
+8: ==================================================
+9: 
+10: This is the single first file an AI implementation agent must read before reading any other file in the specification set.
+11: 
+12: Its job is to:
+13: - define the correct reading order
+14: - prevent drift
+15: - explain why the order matters
+16: - establish execution discipline
+17: - ensure the implementation agent builds the platform in the right sequence
+18: 
+19: Do not begin coding before reading and understanding this file.
+20: 
+21: ==================================================
+22: 2. CRITICAL RULE
+23: ==================================================
+24: 
+25: The 23 numbered specification files are not meant to be read in simple numeric order from 01 to 23.
+26: 
+27: They must be read in the specific phased order defined below.
+28: 
+29: Reason:
+30: Some files define product intent.
+31: Some define architecture.
+32: Some define schema and contracts.
+33: Some define code structure.
+34: Some define implementation order.
+35: Some define validation.
+36: 
+37: If these are read out of order, the implementation agent may:
+38: - design incorrect entities
+39: - build incorrect APIs
+40: - misunderstand runtime agents
+41: - break approval logic
+42: - build the wrong UI flow
+43: - create drift from the product specification
+44: 
+45: ==================================================
+46: 3. NON-NEGOTIABLE BUILD PRINCIPLES
+47: ==================================================
+48: 
+49: 1. Agents are runtime-defined entities, not hard-coded compile-time role services.
+50: 2. Approval-first external action handling is mandatory.
+51: 3. The database is the primary system of record.
+52: 4. Run events and approvals must be persisted before UI confirmation where relevant.
+53: 5. The user is non-technical and the UI must remain plain-language and trust-building.
+54: 6. Multi-agent collaboration is a core feature, not an optional later add-on.
+55: 7. Privacy, memory controls, export, deletion, and auditability are required.
+56: 8. The implementation must stay aligned with the full specification library.
+57: 
+58: ==================================================
+59: 4. REQUIRED READING ORDER
+60: ==================================================
+61: 
+62: PHASE 1. SYSTEM ORIENTATION
+63: Read these files first to understand the system, users, goals, and architectural philosophy.
+64: 
+65: 1. developer_handoff_master_index_pack.txt
+66: 2. master_implementation_prompt_pack.txt
+67: 3. autonomous_implementation_agent_prompt.txt
+68: 4. frontend_spec_pack.txt
+69: 5. backend_spec_pack.txt
+70: 
+71: Outcome of Phase 1:
+72: You should understand:
+73: - what the platform is
+74: - who it is for
+75: - what runtime-defined agents mean
+76: - what the frontend and backend must generally accomplish
+77: - the non-technical user requirement
+78: - the product boundaries for version 1
+79: 
+80: --------------------------------------------------
+81: 
+82: PHASE 2. CORE ARCHITECTURE AND CONTRACTS
+83: Read these next to understand data structure, database design, migrations, and runtime behavior.
+84: 
+85: 6. database_api_contract_pack.txt
+86: 7. database_schema_pack.txt
+87: 8. database_migration_pack.txt
+88: 9. seed_data_curated_template_pack.txt
+89: 10. state_machine_event_contract_pack.txt
+90: 
+91: Outcome of Phase 2:
+92: You should understand:
+93: - the schema
+94: - the migrations
+95: - seed data
+96: - system state machines
+97: - event contracts
+98: - API contract strategy
+99: 
+100: Do not start coding before Phase 2 is understood, because the schema and contracts drive nearly every other module.
+101: 
+102: --------------------------------------------------
+103: 
+104: PHASE 3. CODE STRUCTURE AND MODULE SHAPE
+105: Read these next to understand how the source code must be organized.
+106: 
+107: 11. module_dto_entity_interface_pack.txt
+108: 12. backend_package_class_file_map_pack.txt
+109: 13. frontend_route_component_file_map_pack.txt
+110: 14. screen_by_screen_ux_spec_pack.txt
+111: 15. api_endpoint_request_response_examples_pack.txt
+112: 
+113: Outcome of Phase 3:
+114: You should understand:
+115: - DTOs
+116: - entities
+117: - interfaces
+118: - backend file organization
+119: - frontend file organization
+120: - route structure
+121: - screen behavior
+122: - endpoint shapes
+123: 
+124: Only after this phase should implementation file creation begin in earnest.
+125: 
+126: --------------------------------------------------
+127: 
+128: PHASE 4. IMPLEMENTATION EXECUTION PLAN
+129: Read these next to understand the step-by-step build process.
+130: 
+131: 16. atomic_build_backlog.txt
+132: 17. project_bootstrap_pack.txt
+133: 18. starter_commands_initial_file_stub_order_pack.txt
+134: 19. environment_configuration_pack.txt
+135: 
+136: Outcome of Phase 4:
+137: You should understand:
+138: - what to build first
+139: - repository bootstrap order
+140: - first commands
+141: - first file stubs
+142: - environment setup
+143: - local development wiring
+144: 
+145: These files are the main construction sequence.
+146: 
+147: --------------------------------------------------
+148: 
+149: PHASE 5. USER-FACING EXPERIENCE
+150: Read this next so final screens and flows remain understandable to non-technical users.
+151: 
+152: 20. ux_copy_onboarding_pack.txt
+153: 
+154: Outcome of Phase 5:
+155: You should understand:
+156: - onboarding language
+157: - approval wording
+158: - error language
+159: - dashboard language
+160: - trust-building UX copy
+161: 
+162: --------------------------------------------------
+163: 
+164: PHASE 6. TESTING AND VALIDATION
+165: Read this next to know what counts as complete.
+166: 
+167: 21. acceptance_test_pack.txt
+168: 
+169: Outcome of Phase 6:
+170: You should understand:
+171: - critical test scenarios
+172: - release-gating behaviors
+173: - product acceptance requirements
+174: 
+175: --------------------------------------------------
+176: 
+177: PHASE 7. RELEASE AND RISK CONTROL
+178: Read these last.
+179: 
+180: 22. release_checklist_pack.txt
+181: 23. risk_register_gap_tracker_pack.txt
+182: 
+183: Outcome of Phase 7:
+184: You should understand:
+185: - final release gates
+186: - risk categories
+187: - known implementation dangers
+188: - where to record gaps and mitigations
+189: 
+190: ==================================================
+191: 5. EXECUTION ORDER AFTER READING
+192: ==================================================
+193: 
+194: After reading all files in the required phased order, build the system in this implementation order:
+195: 
+196: 1. repository skeleton and project bootstrap
+197: 2. frontend shell and backend shell
+198: 3. database migrations and seed data
+199: 4. auth and user foundations
+200: 5. onboarding and template browser
+201: 6. agent domain
+202: 7. task and run domain
+203: 8. messaging and collaboration
+204: 9. runtime execution engine
+205: 10. connections and tools
+206: 11. approvals and remembered rules
+207: 12. memory, privacy, export, deletion
+208: 13. billing and usage
+209: 14. notifications and streaming
+210: 15. UX refinement and help content
+211: 16. responsive and accessibility pass
+212: 17. acceptance testing
+213: 18. release readiness review
+214: 
+215: ==================================================
+216: 6. IMPLEMENTATION DISCIPLINE RULES
+217: ==================================================
+218: 
+219: For every module:
+220: 1. Re-read the relevant spec files before implementing.
+221: 2. Create only the files required by the file-map packs or clearly implied by them.
+222: 3. Do not invent alternate architecture when the specification already defines one.
+223: 4. Validate against acceptance criteria before moving to the next module.
+224: 5. Preserve runtime agent architecture at all times.
+225: 6. Preserve approval-first behavior at all times.
+226: 7. Preserve user privacy controls at all times.
+227: 
+228: ==================================================
+229: 7. ANTI-DRIFT RULES
+230: ==================================================
+231: 
+232: Do not do any of the following:
+233: 
+234: 1. Do not turn agents into hard-coded role classes as the primary model.
+235: 2. Do not reduce the product to a single-agent chat app.
+236: 3. Do not skip the approval engine just to make tool execution easier.
+237: 4. Do not replace the event ledger with only in-memory frontend state.
+238: 5. Do not omit memory, privacy, export, deletion, or audit because they seem like polish.
+239: 6. Do not treat graph view and collaboration as optional decorations.
+240: 7. Do not ignore seed data, because the product must feel ready on first boot.
+241: 
+242: ==================================================
+243: 8. SELF-CHECK BEFORE CODING EACH PHASE
+244: ==================================================
+245: 
+246: Before implementing a phase, ask and verify:
+247: 
+248: - Which files in the spec set govern this phase?
+249: - What exact entities, DTOs, routes, and endpoints are required?
+250: - What acceptance criteria apply?
+251: - What UX text or user-facing wording applies?
+252: - What migration or seed data changes are required?
+253: - What tests must pass for this phase?
+254: 
+255: If the answer is unclear, re-read the corresponding pack before coding.
+256: 
+257: ==================================================
+258: 9. FINAL INSTRUCTION TO THE IMPLEMENTATION AGENT
+259: ==================================================
+260: 
+261: Read the files in the exact order defined here.
+262: Understand before building.
+263: Build in the defined sequence.
+264: Test before declaring complete.
+265: Do not drift.
+266: Do not simplify away the core architecture.
+267: 
+268: This platform is meant for non-technical paying users.
+269: Build it with the discipline, traceability, and care required for real use.

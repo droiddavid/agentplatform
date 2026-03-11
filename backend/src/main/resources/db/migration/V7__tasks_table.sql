@@ -1,0 +1,21 @@
+CREATE TABLE tasks (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    owner_id BIGINT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description LONGTEXT,
+    category VARCHAR(100) NOT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'draft',
+    priority VARCHAR(50) NOT NULL DEFAULT 'medium',
+    due_at TIMESTAMP NULL,
+    current_run_id BIGINT NULL,
+    archived BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    KEY idx_owner_id (owner_id),
+    KEY idx_status (status),
+    KEY idx_priority (priority),
+    KEY idx_category (category),
+    KEY idx_due_at (due_at),
+    KEY idx_created_at (created_at),
+    CONSTRAINT fk_tasks_users FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

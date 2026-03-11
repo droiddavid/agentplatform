@@ -160,3 +160,30 @@ Next steps (immediate)
 1. Create the Backend Specification Pack from the Database & API Contract Pack (map DTOs, validation rules, errors)
 2. Implement the first prioritized items: seed+roles migration, audit events, and CI integration test for auth flows
 3. Add frontend onboarding route and minimal UI to exercise onboarding API
+
+Prioritized sprint plan (runnable demo focus)
+--------------------------------------------
+Sprint 1 — Foundation (goal: backend runs with migrations, seeds, basic auth)
+- Task S1.1: Validate Flyway migrations run in local dev and CI (V1..V5) and fix any errors.
+- Task S1.2: Ensure `roles`, `user_roles`, and basic `ADMIN`/`USER` seeds are applied and that `DataInitializer` assigns an admin when configured.
+- Task S1.3: Add integration profile for CI and a small Testcontainers-based health smoke test for DB connectivity.
+
+Sprint 2 — Onboarding + Templates (goal: minimal frontend + API flows)
+- Task S2.1: Expose onboarding API endpoints and add minimal frontend `/onboarding` route placeholder.
+- Task S2.2: Ensure template catalog migrations and seed data are present and API to list templates exists.
+
+Sprint 3 — Agent Core & Run Skeleton (goal: create/list agents and start a simple run record)
+- Task S3.1: Finalize `Agent` DTOs, service, controller and full integration tests (create/list/get/update/delete).
+- Task S3.2: Implement `Run` entity + start-run endpoint that persists a run record and emits an initial event.
+
+Sprint 4 — Execution Engine & Approvals (goal: single-agent execution with approval gating)
+- Task S4.1: Implement a minimal execution engine skeleton that can execute one agent turn and persist run events.
+- Task S4.2: Add approvals table and approval request/decision endpoints; block external actions until approved.
+
+Sprint 5 — Frontend Demo and Acceptance Tests (goal: end-to-end demo)
+- Task S5.1: Build agent creation wizard UI (minimal), agent list, and run view that streams events via SSE/WebSocket.
+- Task S5.2: Add E2E tests for core user journey: register → onboarding → create agent → start run → approve action.
+
+Notes:
+- Each sprint is broken into small PR-sized tasks (one task → one branch → tests → merge).
+- I'll start with Sprint 1 Task S1.1 and work through S1.2 and S1.3, running tests and committing incremental changes.
