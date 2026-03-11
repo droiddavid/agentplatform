@@ -272,12 +272,14 @@ export class SignInComponent {
     this.error.set(null);
     this.loading.set(true);
     this.auth.signIn({ email: this.email, password: this.password }).subscribe({
-      next: () => {
+      next: (response) => {
+        console.log('Sign in response:', response);
         this.loading.set(false);
         this.router.navigateByUrl('/dashboard');
       },
       error: err => {
         this.loading.set(false);
+        console.error('Sign in error:', err);
         const message = err?.error?.message || 'Invalid email or password';
         this.error.set(message);
       }
