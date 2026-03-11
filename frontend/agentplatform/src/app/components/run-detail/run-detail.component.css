@@ -1,0 +1,29 @@
+/* Run Detail Component Styles */
+
+:host {
+  display: block;
+}
+
+.container {
+  max-width: 56rem;
+  margin: 0 auto;
+}
+
+pre {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+code {
+  font-family: 'Courier New', monospace;
+}
+
+/* Tab styling */
+button[class*="border-blue"] {
+  border-bottom-color: rgb(59, 130, 246);
+  color: rgb(59, 130, 246);
+}
+
+button[class*="bg-blue-50"] {
+  background-color: rgb(239, 246, 255);
+}

@@ -1,0 +1,23 @@
+CREATE TABLE runs (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    task_id BIGINT NOT NULL,
+    agent_id BIGINT NOT NULL,
+    owner_id BIGINT NOT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'pending',
+    input LONGTEXT,
+    output LONGTEXT,
+    logs LONGTEXT,
+    error_message LONGTEXT,
+    started_at TIMESTAMP NULL,
+    completed_at TIMESTAMP NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    KEY idx_owner_id (owner_id),
+    KEY idx_task_id (task_id),
+    KEY idx_agent_id (agent_id),
+    KEY idx_status (status),
+    KEY idx_created_at (created_at),
+    CONSTRAINT fk_runs_tasks FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+    CONSTRAINT fk_runs_agents FOREIGN KEY (agent_id) REFERENCES agents(id) ON DELETE CASCADE,
+    CONSTRAINT fk_runs_users FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
