@@ -71,7 +71,7 @@ export class AgentService {
     return this.http.get<AgentResponse[]>(`${this.baseUrl}/api/agents`);
   }
 
-  create(req: { name: string; description?: string; templateId?: number; modelPreference?: string; instructions?: string; systemPrompt?: string }): Observable<AgentResponse> {
+  create(req: any): Observable<AgentResponse> {
     return this.http.post<AgentResponse>(`${this.baseUrl}/api/agents`, req);
   }
 

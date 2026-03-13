@@ -36,6 +36,42 @@ public class AgentService {
         if (req.getInstructions() != null) a.setInstructions(req.getInstructions());
         if (req.getSystemPrompt() != null) a.setSystemPrompt(req.getSystemPrompt());
         var saved = agentRepository.save(a);
+        
+        // Create capabilities from wizard data
+        if (req.getCapabilities() != null && !req.getCapabilities().isEmpty()) {
+            for (String capName : req.getCapabilities()) {
+                var cap = new AgentCapability(saved, capName, "Added from wizard");
+                capabilityRepository.save(cap);
+            }
+        }
+        
+        // Create tool permissions from wizard data
+        if (req.getAllowedTools() != null && !req.getAllowedTools().isEmpty()) {
+            for (String toolName : req.getAllowedTools()) {
+                var perm = new AgentToolPermission(saved, toolName, "execute", 
+                    req.getApproveEveryAction() != null ? req.getApproveEveryAction() : false);
+                toolPermissionRepository.save(perm);
+            }
+        }
+        
+        // Create policies from wizard data
+        if (req.getApproveEveryAction() != null && req.getApproveEveryAction()) {
+            var policy = new AgentPolicy(saved, "approveEveryAction", "true");
+            policyRepository.save(policy);
+        }
+        if (req.getRememberApprovals() != null && req.getRememberApprovals()) {
+            var policy = new AgentPolicy(saved, "rememberApprovals", "true");
+            policyRepository.save(policy);
+        }
+        if (req.getEnableMemory() != null) {
+            var policy = new AgentPolicy(saved, "enableMemory", req.getEnableMemory().toString());
+            policyRepository.save(policy);
+        }
+        if (req.getMemoryType() != null) {
+            var policy = new AgentPolicy(saved, "memoryType", req.getMemoryType());
+            policyRepository.save(policy);
+        }
+        
         return map(saved);
     }
 

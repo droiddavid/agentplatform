@@ -148,6 +148,32 @@ public class AgentController {
             ));
         }
     }
+
+    /**
+     * Validate wizard payload before agent creation
+     */
+    @PostMapping("/validate")
+    public ResponseEntity<?> validateWizardPayload(@RequestBody AgentCreateRequest req, Authentication auth) {
+        if (auth == null) throw new IllegalStateException("Not authenticated");
+        
+        var errors = new java.util.ArrayList<String>();
+        if (req.getName() == null || req.getName().trim().isEmpty()) {
+            errors.add("Agent name is required");
+        }
+        if (req.getName() != null && req.getName().length() > 255) {
+            errors.add("Agent name must be less than 255 characters");
+        }
+        
+        if (!errors.isEmpty()) {
+            return ResponseEntity.status(400).body(Map.of(
+                    "valid", false,
+                    "errors", errors
+            ));
+        }
+        
+        return ResponseEntity.ok(Map.of("valid", true));
+    }
+    
     // ==================== Execution Endpoints ====================
 
     /**

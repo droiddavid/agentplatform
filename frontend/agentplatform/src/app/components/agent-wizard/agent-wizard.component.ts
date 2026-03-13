@@ -289,16 +289,34 @@ export class AgentWizardComponent implements OnInit {
 
   submitAgent() {
     const data = this.wizard.data();
+    // Build agent payload from complete wizard data
     const agentData = {
       name: data.name || data.role || 'New Agent',
-      description: data.description || data.goal || ''
+      description: data.description || data.goal || '',
+      goal: data.goal,
+      goalCategory: data.goalCategory,
+      role: data.role,
+      capabilities: data.capabilities || [],
+      allowedTools: data.allowedTools || [],
+      workAlone: data.workAlone ?? true,
+      collaboration: data.collaboration || [],
+      approveEveryAction: data.approveEveryAction ?? false,
+      rememberApprovals: data.rememberApprovals ?? false,
+      enableMemory: data.enableMemory ?? true,
+      memoryType: data.memoryType || 'short-term',
+      modelPreference: data.modelPreference || 'balanced'
     };
+    
     this.agentService.create(agentData).subscribe({
       next: () => {
+        // Reset wizard state
+        this.wizard.data.set({});
+        this.wizard.currentStep.set(1);
         this.router.navigateByUrl('/agents');
       },
       error: (err) => {
         console.error('Failed to create agent:', err);
+        alert('Error creating agent: ' + (err.error?.message || err.message));
       }
     });
   }
