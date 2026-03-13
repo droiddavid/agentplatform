@@ -2,6 +2,8 @@ package com.agentplatform.backend.tasks;
 
 import jakarta.persistence.*;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "tasks")
@@ -44,6 +46,9 @@ public class Task {
     @Column(name = "archived")
     private Boolean archived = false;
 
+    @Transient
+    private List<AgentTask> agents = new ArrayList<>();
+
     public Task() {}
 
     public Task(Long ownerId, String title, String category) {
@@ -85,4 +90,7 @@ public class Task {
 
     public Boolean getArchived() { return archived; }
     public void setArchived(Boolean archived) { this.archived = archived; }
+
+    public List<AgentTask> getAgents() { return agents; }
+    public void setAgents(List<AgentTask> agents) { this.agents = agents; }
 }

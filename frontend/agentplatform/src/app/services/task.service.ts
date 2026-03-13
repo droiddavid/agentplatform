@@ -105,4 +105,33 @@ export class TaskService {
   clearRunFromTask(taskId: number): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/${taskId}/clear-run`, {});
   }
+
+  // Agent assignment methods
+  assignAgentToTask(agentId: number, taskId: number): Observable<any> {
+    return this.http.post<any>('/api/tasks/agent-assignments', { agentId, taskId });
+  }
+
+  unassignAgentFromTask(agentId: number, taskId: number): Observable<void> {
+    return this.http.delete<void>(`/api/tasks/agent-assignments/${agentId}/${taskId}`);
+  }
+
+  getAgentsForTask(taskId: number): Observable<any[]> {
+    return this.http.get<any[]>(`/api/tasks/agent-assignments/task/${taskId}/agents`);
+  }
+
+  getAgentIdsForTask(taskId: number): Observable<number[]> {
+    return this.http.get<number[]>(`/api/tasks/agent-assignments/task/${taskId}/agent-ids`);
+  }
+
+  getTasksForAgent(agentId: number): Observable<any[]> {
+    return this.http.get<any[]>(`/api/tasks/agent-assignments/agent/${agentId}/tasks`);
+  }
+
+  getTaskIdsForAgent(agentId: number): Observable<number[]> {
+    return this.http.get<number[]>(`/api/tasks/agent-assignments/agent/${agentId}/task-ids`);
+  }
+
+  isAgentAssignedToTask(agentId: number, taskId: number): Observable<boolean> {
+    return this.http.get<boolean>(`/api/tasks/agent-assignments/${agentId}/${taskId}/exists`);
+  }
 }
