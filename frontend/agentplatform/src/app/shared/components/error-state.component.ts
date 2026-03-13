@@ -55,6 +55,6 @@ import { CommonModule } from '@angular/common';
   `]
 })
 export class ErrorStateComponent {
-  title = input.required<string>();
-  message = input.required<string>();
+  title = input('Error');
+  message = input('Something went wrong');
 }

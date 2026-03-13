@@ -77,15 +77,6 @@ public class AgentController {
             ));
         }
     }
-
-    /**
-     * Parse natural language description into proposed agent specifications (alias for /parse)
-     */
-    @PostMapping("/from-text")
-    public ResponseEntity<?> parseFromText(@RequestBody AgentParseRequest req, Authentication auth) {
-        return parseDescription(req, auth);
-    }
-
     // ==================== Execution Endpoints ====================
 
     /**

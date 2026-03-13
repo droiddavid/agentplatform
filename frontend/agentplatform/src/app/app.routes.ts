@@ -52,7 +52,8 @@ export const routes: Routes = [
 		loadComponent: () => import('./shared/shells/app-shell.component').then(m => m.AppShellComponent),
 		canActivate: [AuthGuard],
 		children: [
-			{ path: '', loadComponent: () => import('./templates-list.component').then(m => m.TemplatesListComponent) }
+			{ path: '', loadComponent: () => import('./templates-list.component').then(m => m.TemplatesListComponent) },
+			{ path: ':id', loadComponent: () => import('./template-detail.component').then(m => m.TemplateDetailComponent) }
 		]
 	},
 

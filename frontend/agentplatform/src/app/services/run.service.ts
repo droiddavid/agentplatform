@@ -33,6 +33,25 @@ export class RunService {
 
   constructor(private http: HttpClient) { }
 
+  /**
+   * Start a new run for an agent
+   */
+  startAgentRun(agentId: number, taskId?: number, description?: string): Observable<Run> {
+    const payload = {
+      agentId,
+      taskId: taskId || null,
+      description: description || 'Run started from dashboard'
+    };
+    return this.http.post<Run>(`/api/agents/${agentId}/runs`, payload);
+  }
+
+  /**
+   * List runs for a specific agent
+   */
+  listAgentRuns(agentId: number): Observable<Run[]> {
+    return this.http.get<Run[]>(`/api/agents/${agentId}/runs`);
+  }
+
   createRun(request: RunRequest): Observable<Run> {
     return this.http.post<Run>(this.apiUrl, request);
   }
