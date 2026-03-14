@@ -129,7 +129,34 @@
           class="px-6 py-3 border-b-2 border-transparent text-sm font-medium">
           Events ({{ events.length }})
         </button>
-      </div>
+        <button
+          (click)="selectTab('messages')"
+          [class.bg-blue-50]="activeTab === 'messages'"
+          [class.border-blue-500]="activeTab === 'messages'"
+          class="px-6 py-3 border-b-2 border-transparent text-sm font-medium">
+          Messages ({{ messageCount }})
+        </button>
+        <button
+          (click)="selectTab('board')"
+          [class.bg-blue-50]="activeTab === 'board'"
+          [class.border-blue-500]="activeTab === 'board'"
+          class="px-6 py-3 border-b-2 border-transparent text-sm font-medium">
+          Board ({{ boardItemCount }})
+        </button>
+        <button
+          (click)="selectTab('context')"
+          [class.bg-blue-50]="activeTab === 'context'"
+          [class.border-blue-500]="activeTab === 'context'"
+          class="px-6 py-3 border-b-2 border-transparent text-sm font-medium">
+          Context ({{ contextEntryCount }})
+        </button>
+        <button
+          (click)="selectTab('graph')"
+          [class.bg-blue-50]="activeTab === 'graph'"
+          [class.border-blue-500]="activeTab === 'graph'"
+          class="px-6 py-3 border-b-2 border-transparent text-sm font-medium">
+          Graph
+        </button>
     </div>
 
     <!-- Tab Content -->
@@ -209,6 +236,23 @@
           <pre class="bg-gray-900 text-gray-100 p-4 rounded overflow-auto text-xs"><code>{{ run.logs }}</code></pre>
         </div>
       </div>
-    </div>
-  </div>
-</div>
+
+      <!-- Messages Tab -->
+      <div *ngIf="activeTab === 'messages'">
+        <app-message-thread [runId]="run.id"></app-message-thread>
+      </div>
+
+      <!-- Board Tab -->
+      <div *ngIf="activeTab === 'board'">
+        <app-shared-task-board [runId]="run.id"></app-shared-task-board>
+      </div>
+
+      <!-- Context Tab -->
+      <div *ngIf="activeTab === 'context'">
+        <app-shared-context-panel [runId]="run.id"></app-shared-context-panel>
+      </div>
+
+      <!-- Graph Tab -->
+      <div *ngIf="activeTab === 'graph'" class="p-0" style="min-height: 600px;">
+        <app-graph-visualization [runId]="run.id.toString()"></app-graph-visualization>
+      </div>

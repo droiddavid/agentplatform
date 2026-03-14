@@ -3,6 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { RunService, Run, RunEvent } from '../../services/run.service';
+import { MessageThreadComponent } from '../message-thread/message-thread.component';
+import { MessageService } from '../../services/message.service';
+import { SharedTaskBoardComponent } from '../shared-task-board/shared-task-board.component';
+import { SharedContextPanelComponent } from '../shared-context-panel/shared-context-panel.component';
+import { TaskBoardItemService } from '../../services/task-board-item.service';
+import { SharedContextEntryService } from '../../services/shared-context-entry.service';
+import { GraphVisualizationComponent } from '../graph-visualization/graph-visualization.component';
 
 @Component({
   selector: 'app-run-detail',
@@ -241,12 +248,18 @@ import { RunService, Run, RunEvent } from '../../services/run.service';
 export class RunDetailComponent implements OnInit {
   run: Run | null = null;
   events: RunEvent[] = [];
+  messageCount = 0;
+  boardItemCount = 0;
+  contextEntryCount = 0;
   isLoading = false;
   errorMessage = '';
-  activeTab = 'overview'; // overview, output, logs, error, events
+  activeTab = 'overview'; // overview, output, logs, error, events, messages, board, context, graph
 
   constructor(
     private runService: RunService,
+    private messageService: MessageService,
+    private taskBoardItemService: TaskBoardItemService,
+    private contextEntryService: SharedContextEntryService,
     private router: Router,
     private route: ActivatedRoute
   ) { }
@@ -256,6 +269,9 @@ export class RunDetailComponent implements OnInit {
     if (runId) {
       this.loadRun(Number(runId));
       this.loadEvents(Number(runId));
+      this.loadMessageCount(Number(runId));
+      this.loadBoardItemCount(Number(runId));
+      this.loadContextEntryCount(Number(runId));
     }
   }
 
@@ -284,11 +300,46 @@ export class RunDetailComponent implements OnInit {
     });
   }
 
+  loadMessageCount(runId: number) {
+    this.messageService.getMessageCount(runId).subscribe({
+      next: (count: number) => {
+        this.messageCount = count;
+      },
+      error: (error: any) => {
+        console.error('Failed to load message count:', error);
+      }
+    });
+  }
+
+  loadBoardItemCount(runId: number) {
+    this.taskBoardItemService.getTaskBoardItemCount(runId).subscribe({
+      next: (count: number) => {
+        this.boardItemCount = count;
+      },
+      error: (error: any) => {
+        console.error('Failed to load board item count:', error);
+      }
+    });
+  }
+
+  loadContextEntryCount(runId: number) {
+    this.contextEntryService.getContextEntryCount(runId).subscribe({
+      next: (count: number) => {
+        this.contextEntryCount = count;
+      },
+      error: (error: any) => {
+        console.error('Failed to load context entry count:', error);
+      }
+    });
+  }
+
   startRun() {
     if (this.run) {
       this.runService.startRun(this.run.id).subscribe({
         next: (updatedRun: Run) => {
           this.run = updatedRun;
+          // Refresh events after starting run
+          this.loadEvents(updatedRun.id);
         },
         error: (error: any) => {
           this.errorMessage = 'Failed to start run: ' + (error.error?.message || error.message);
@@ -303,6 +354,8 @@ export class RunDetailComponent implements OnInit {
         next: () => {
           if (this.run) {
             this.run.status = 'cancelled';
+            // Refresh events after cancelling run
+            this.loadEvents(this.run.id);
           }
         },
         error: (error: any) => {
@@ -318,6 +371,22 @@ export class RunDetailComponent implements OnInit {
 
   selectTab(tab: string) {
     this.activeTab = tab;
+    // Auto-refresh events when events tab is selected
+    if (tab === 'events' && this.run) {
+      this.loadEvents(this.run.id);
+    }
+    // Auto-refresh message count when messages tab is selected
+    if (tab === 'messages' && this.run) {
+      this.loadMessageCount(this.run.id);
+    }
+    // Auto-refresh board count when board tab is selected
+    if (tab === 'board' && this.run) {
+      this.loadBoardItemCount(this.run.id);
+    }
+    // Auto-refresh context count when context tab is selected
+    if (tab === 'context' && this.run) {
+      this.loadContextEntryCount(this.run.id);
+    }
   }
 
   getStatusColor(status: string): string {

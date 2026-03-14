@@ -34,6 +34,11 @@ public class RunService {
         }
 
         Run saved = runRepository.save(run);
+        
+        // Record run created event
+        String inputSummary = request.getInput() != null ? request.getInput().substring(0, Math.min(100, request.getInput().length())) : "No input";
+        recordEvent(saved.getId(), "run_created", "Run created for task #" + request.getTaskId() + " with agent #" + request.getAgentId());
+        
         return new RunResponse(saved);
     }
 
@@ -82,6 +87,10 @@ public class RunService {
         run.setUpdatedAt(Instant.now());
 
         Run updated = runRepository.save(run);
+        
+        // Record run started event
+        recordEvent(id, "run_started", "Run execution started at " + run.getStartedAt());
+        
         return new RunResponse(updated);
     }
 
@@ -96,6 +105,11 @@ public class RunService {
         run.setUpdatedAt(Instant.now());
 
         Run updated = runRepository.save(run);
+        
+        // Record run completed event with output summary
+        String outputSummary = output != null ? output.substring(0, Math.min(100, output.length())) : "No output";
+        recordEvent(id, "run_completed", "Run completed successfully. Output: " + outputSummary);
+        
         return new RunResponse(updated);
     }
 
@@ -110,6 +124,11 @@ public class RunService {
         run.setUpdatedAt(Instant.now());
 
         Run updated = runRepository.save(run);
+        
+        // Record run failed event with error details
+        String errorSummary = errorMessage != null ? errorMessage.substring(0, Math.min(100, errorMessage.length())) : "Unknown error";
+        recordEvent(id, "run_failed", "Run failed with error: " + errorSummary);
+        
         return new RunResponse(updated);
     }
 
@@ -122,6 +141,9 @@ public class RunService {
             run.setCompletedAt(Instant.now());
             run.setUpdatedAt(Instant.now());
             runRepository.save(run);
+            
+            // Record run cancelled event
+            recordEvent(id, "run_cancelled", "Run was cancelled by user at " + run.getCompletedAt());
         }
     }
 
