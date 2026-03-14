@@ -136,6 +136,20 @@
           class="px-6 py-3 border-b-2 border-transparent text-sm font-medium">
           Messages ({{ messageCount }})
         </button>
+        <button
+          (click)="selectTab('board')"
+          [class.bg-blue-50]="activeTab === 'board'"
+          [class.border-blue-500]="activeTab === 'board'"
+          class="px-6 py-3 border-b-2 border-transparent text-sm font-medium">
+          Board ({{ boardItemCount }})
+        </button>
+        <button
+          (click)="selectTab('context')"
+          [class.bg-blue-50]="activeTab === 'context'"
+          [class.border-blue-500]="activeTab === 'context'"
+          class="px-6 py-3 border-b-2 border-transparent text-sm font-medium">
+          Context ({{ contextEntryCount }})
+        </button>
       </div>
     </div>
 
@@ -220,6 +234,16 @@
       <!-- Messages Tab -->
       <div *ngIf="activeTab === 'messages'">
         <app-message-thread [runId]="run.id"></app-message-thread>
+      </div>
+
+      <!-- Board Tab -->
+      <div *ngIf="activeTab === 'board'">
+        <app-shared-task-board [runId]="run.id"></app-shared-task-board>
+      </div>
+
+      <!-- Context Tab -->
+      <div *ngIf="activeTab === 'context'">
+        <app-shared-context-panel [runId]="run.id"></app-shared-context-panel>
       </div>
     </div>
   </div>
