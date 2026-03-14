@@ -104,6 +104,7 @@ export class RunService {
   }
 
   startRun(id: number): Observable<Run> {
+    // Start run and automatically record event
     return this.http.post<Run>(`${this.apiUrl}/${id}/start`, {});
   }
 
@@ -111,6 +112,7 @@ export class RunService {
     let params = new HttpParams();
     if (output) params = params.set('output', output);
     if (logs) params = params.set('logs', logs);
+    // Complete run - backend will automatically record completion event
     return this.http.post<Run>(`${this.apiUrl}/${id}/complete`, {}, { params });
   }
 
@@ -118,6 +120,7 @@ export class RunService {
     let params = new HttpParams();
     if (errorMessage) params = params.set('errorMessage', errorMessage);
     if (logs) params = params.set('logs', logs);
+    // Fail run - backend will automatically record failure event
     return this.http.post<Run>(`${this.apiUrl}/${id}/fail`, {}, { params });
   }
 

@@ -62,6 +62,8 @@ export class RunDetailComponent implements OnInit {
       this.runService.startRun(this.run.id).subscribe({
         next: (updatedRun: Run) => {
           this.run = updatedRun;
+          // Refresh events after starting run
+          this.loadEvents(updatedRun.id);
         },
         error: (error: any) => {
           this.errorMessage = 'Failed to start run: ' + (error.error?.message || error.message);
@@ -76,6 +78,8 @@ export class RunDetailComponent implements OnInit {
         next: () => {
           if (this.run) {
             this.run.status = 'cancelled';
+            // Refresh events after cancelling run
+            this.loadEvents(this.run.id);
           }
         },
         error: (error: any) => {
@@ -91,6 +95,10 @@ export class RunDetailComponent implements OnInit {
 
   selectTab(tab: string) {
     this.activeTab = tab;
+    // Auto-refresh events when events tab is selected
+    if (tab === 'events' && this.run) {
+      this.loadEvents(this.run.id);
+    }
   }
 
   getStatusColor(status: string): string {
