@@ -9,11 +9,12 @@ import { SharedTaskBoardComponent } from '../shared-task-board/shared-task-board
 import { SharedContextPanelComponent } from '../shared-context-panel/shared-context-panel.component';
 import { TaskBoardItemService } from '../../services/task-board-item.service';
 import { SharedContextEntryService } from '../../services/shared-context-entry.service';
+import { GraphVisualizationComponent } from '../graph-visualization/graph-visualization.component';
 
 @Component({
   selector: 'app-run-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, MessageThreadComponent, SharedTaskBoardComponent, SharedContextPanelComponent],
+  imports: [CommonModule, FormsModule, MessageThreadComponent, SharedTaskBoardComponent, SharedContextPanelComponent, GraphVisualizationComponent],
   templateUrl: './run-detail.component.html',
   styleUrls: ['./run-detail.component.css']
 })
@@ -25,7 +26,7 @@ export class RunDetailComponent implements OnInit {
   contextEntryCount = 0;
   isLoading = false;
   errorMessage = '';
-  activeTab = 'overview'; // overview, output, logs, error, events, messages, board, context
+  activeTab = 'overview'; // overview, output, logs, error, events, messages, board, context, graph
 
   constructor(
     private runService: RunService,

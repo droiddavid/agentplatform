@@ -150,7 +150,13 @@
           class="px-6 py-3 border-b-2 border-transparent text-sm font-medium">
           Context ({{ contextEntryCount }})
         </button>
-      </div>
+        <button
+          (click)="selectTab('graph')"
+          [class.bg-blue-50]="activeTab === 'graph'"
+          [class.border-blue-500]="activeTab === 'graph'"
+          class="px-6 py-3 border-b-2 border-transparent text-sm font-medium">
+          Graph
+        </button>
     </div>
 
     <!-- Tab Content -->
@@ -245,6 +251,8 @@
       <div *ngIf="activeTab === 'context'">
         <app-shared-context-panel [runId]="run.id"></app-shared-context-panel>
       </div>
-    </div>
-  </div>
-</div>
+
+      <!-- Graph Tab -->
+      <div *ngIf="activeTab === 'graph'" class="p-0" style="min-height: 600px;">
+        <app-graph-visualization [runId]="run.id.toString()"></app-graph-visualization>
+      </div>
