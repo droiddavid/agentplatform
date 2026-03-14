@@ -54,6 +54,6 @@ import { CommonModule } from '@angular/common';
 })
 export class EmptyStateComponent {
   icon = input('📭');
-  title = input.required<string>();
-  message = input.required<string>();
+  title = input('No items');
+  message = input('No items found');
 }

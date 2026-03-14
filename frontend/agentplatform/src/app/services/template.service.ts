@@ -2,11 +2,21 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export interface TemplateCategoryResponse {
+  id: number;
+  name: string;
+  description?: string;
+  icon?: string;
+  displayOrder?: number;
+  createdAt?: string;
+}
+
 export interface TemplateResponse {
   id: number;
   name: string;
   description?: string;
-  category?: string;
+  content?: string;
+  category?: TemplateCategoryResponse;
   createdAt?: string;
 }
 
@@ -20,5 +30,19 @@ export class TemplateService {
     return this.http.get<TemplateResponse[]>(`${this.baseUrl}/api/templates`);
   }
 
-  get(id: number) { return this.http.get<TemplateResponse>(`${this.baseUrl}/api/templates/${id}`); }
+  get(id: number): Observable<TemplateResponse> {
+    return this.http.get<TemplateResponse>(`${this.baseUrl}/api/templates/${id}`);
+  }
+
+  listByCategory(categoryId: number): Observable<TemplateResponse[]> {
+    return this.http.get<TemplateResponse[]>(`${this.baseUrl}/api/templates/category/${categoryId}`);
+  }
+
+  listCategories(): Observable<TemplateCategoryResponse[]> {
+    return this.http.get<TemplateCategoryResponse[]>(`${this.baseUrl}/api/templates/categories/all`);
+  }
+
+  getCategory(id: number): Observable<TemplateCategoryResponse> {
+    return this.http.get<TemplateCategoryResponse>(`${this.baseUrl}/api/templates/categories/${id}`);
+  }
 }

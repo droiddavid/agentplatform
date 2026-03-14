@@ -19,8 +19,9 @@ public class Template {
     @Column(columnDefinition = "JSON")
     private String content;
 
-    @Column
-    private String category;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id", nullable = true)
+    private TemplateCategory category;
 
     @Column(name = "created_at")
     private Instant createdAt = Instant.now();
@@ -34,7 +35,7 @@ public class Template {
     public void setDescription(String description) { this.description = description; }
     public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }
-    public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
+    public TemplateCategory getCategory() { return category; }
+    public void setCategory(TemplateCategory category) { this.category = category; }
     public Instant getCreatedAt() { return createdAt; }
 }

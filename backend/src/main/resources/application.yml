@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: ${SERVER_PORT:8083}
 
 spring:
   datasource:
@@ -16,3 +16,20 @@ management:
     web:
       exposure:
         include: health,info
+
+jwt:
+  secret: ${JWT_SECRET:change_this_secret_for_dev_only_please_change}
+  access:
+    token:
+      expiry:
+        seconds: 900
+  refresh:
+    token:
+      expiry:
+        seconds: 1209600
+
+logging:
+  level:
+    com.agentplatform.backend.auth.jwt: INFO
+    com.agentplatform.backend.agents: INFO
+    org.springframework.security: DEBUG

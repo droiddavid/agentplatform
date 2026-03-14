@@ -69,5 +69,5 @@ CREATE TABLE IF NOT EXISTS `approvals` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Basic indexes (non-blocking)
-CREATE INDEX IF NOT EXISTS idx_runs_task_id ON runs(task_id);
-CREATE INDEX IF NOT EXISTS idx_run_events_run_id_sequence ON run_events(run_id, sequence);
+CREATE INDEX idx_runs_task_id ON `runs`(`task_id`);
+CREATE INDEX idx_run_events_run_id_sequence ON `run_events`(`run_id`, `sequence`);

@@ -10,8 +10,11 @@ export class AuthStoreService {
   constructor() {}
 
   setTokens(tokens: SignInResponse) {
+    console.log('AuthStore.setTokens called with:', tokens);
     localStorage.setItem(this.accessKey, tokens.accessToken);
     localStorage.setItem(this.refreshKey, tokens.refreshToken);
+    console.log('AuthStore.setTokens - tokens saved to localStorage');
+    console.log('AuthStore verify - access token in storage:', localStorage.getItem(this.accessKey));
     this.scheduleRefresh(tokens.accessToken);
   }
 

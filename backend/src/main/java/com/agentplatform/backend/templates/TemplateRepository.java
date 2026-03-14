@@ -7,5 +7,5 @@ import java.util.List;
 
 @Repository
 public interface TemplateRepository extends JpaRepository<Template, Long> {
-    List<Template> findByCategory(String category);
+    List<Template> findByCategory(TemplateCategory category);
 }

@@ -1,10 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { AgentService, AgentResponse } from './services/agent.service';
-import { PageHeaderComponent } from './shared/components/page-header.component';
-import { EmptyStateComponent } from './shared/components/empty-state.component';
-import { LoadingStateComponent } from './shared/components/loading-state.component';
+import { AgentService, AgentResponse } from '../../services/agent.service';
+import { RunService } from '../../services/run.service';
+import { PageHeaderComponent } from '../../shared/components/page-header.component';
+import { EmptyStateComponent } from '../../shared/components/empty-state.component';
+import { LoadingStateComponent } from '../../shared/components/loading-state.component';
 
 @Component({
   selector: 'app-agent-list',
@@ -44,7 +45,15 @@ import { LoadingStateComponent } from './shared/components/loading-state.compone
           <div class="agent-card">
             <div class="agent-header">
               <h3>{{ agent.name }}</h3>
-              <a [routerLink]="['/agents', agent.id, 'edit']" class="btn btn-secondary">Edit</a>
+              <div class="agent-actions">
+                <button 
+                  class="btn btn-primary" 
+                  (click)="startRun(agent.id)" 
+                  [disabled]="runningAgents().has(agent.id)">
+                  {{ runningAgents().has(agent.id) ? 'Running...' : 'Run Agent' }}
+                </button>
+                <a [routerLink]="['/agents', agent.id, 'edit']" class="btn btn-secondary">Edit</a>
+              </div>
             </div>
             <p class="agent-description">{{ agent.description }}</p>
             <div class="agent-meta">
@@ -120,6 +129,11 @@ import { LoadingStateComponent } from './shared/components/loading-state.compone
       flex: 1;
     }
 
+    .agent-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
     .agent-description {
       color: #666;
       margin: 0 0 1rem 0;
@@ -190,11 +204,13 @@ import { LoadingStateComponent } from './shared/components/loading-state.compone
 })
 export class AgentListComponent {
   private service = inject(AgentService);
+  private runService = inject(RunService);
   private router = inject(Router);
 
   agents = signal<AgentResponse[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
+  runningAgents = signal<Set<number>>(new Set());
 
   constructor() {
     this.load();
@@ -217,5 +233,33 @@ export class AgentListComponent {
 
   openCreate() {
     this.router.navigateByUrl('/agents/wizard');
+  }
+
+  startRun(agentId: number) {
+    // Add to running set
+    const running = new Set(this.runningAgents());
+    running.add(agentId);
+    this.runningAgents.set(running);
+
+    this.runService.startAgentRun(agentId, undefined, 'Run started from agents list').subscribe({
+      next: run => {
+        console.log('Run started successfully:', run);
+        alert(`✅ Run ${run.id} started! Status: ${run.status}`);
+        
+        // Remove from running set
+        const updated = new Set(this.runningAgents());
+        updated.delete(agentId);
+        this.runningAgents.set(updated);
+      },
+      error: err => {
+        console.error('Failed to start run:', err);
+        alert(`❌ Failed to start run: ${err?.message || 'Unknown error'}`);
+        
+        // Remove from running set
+        const updated = new Set(this.runningAgents());
+        updated.delete(agentId);
+        this.runningAgents.set(updated);
+      }
+    });
   }
 }

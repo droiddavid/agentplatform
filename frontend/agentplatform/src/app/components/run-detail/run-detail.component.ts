@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { RunService, Run } from '../../services/run.service';
+import { RunService, Run, RunEvent } from '../../services/run.service';
 
 @Component({
   selector: 'app-run-detail',
@@ -240,9 +240,10 @@ import { RunService, Run } from '../../services/run.service';
 })
 export class RunDetailComponent implements OnInit {
   run: Run | null = null;
+  events: RunEvent[] = [];
   isLoading = false;
   errorMessage = '';
-  activeTab = 'overview'; // overview, output, logs, error
+  activeTab = 'overview'; // overview, output, logs, error, events
 
   constructor(
     private runService: RunService,
@@ -254,6 +255,7 @@ export class RunDetailComponent implements OnInit {
     const runId = this.route.snapshot.paramMap.get('id');
     if (runId) {
       this.loadRun(Number(runId));
+      this.loadEvents(Number(runId));
     }
   }
 
@@ -267,6 +269,17 @@ export class RunDetailComponent implements OnInit {
       error: (error: any) => {
         this.errorMessage = 'Failed to load run: ' + (error.error?.message || error.message);
         this.isLoading = false;
+      }
+    });
+  }
+
+  loadEvents(runId: number) {
+    this.runService.getRunEvents(runId).subscribe({
+      next: (events: RunEvent[]) => {
+        this.events = events;
+      },
+      error: (error: any) => {
+        console.error('Failed to load events:', error);
       }
     });
   }

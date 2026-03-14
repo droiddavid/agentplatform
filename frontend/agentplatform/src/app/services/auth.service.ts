@@ -18,13 +18,24 @@ export class AuthService {
 
   signIn(req: SignUpRequest): Observable<SignInResponse> {
     return this.http.post<SignInResponse>(`${this.baseUrl}/api/auth/signin`, req).pipe(
-      tap(res => this.store.setTokens(res))
+      tap(res => {
+        console.log('SignIn tap - received response:', res);
+        if (res && res.accessToken && res.refreshToken) {
+          console.log('SignIn tap - calling setTokens');
+          this.store.setTokens(res);
+        } else {
+          console.error('SignIn tap - missing tokens in response:', res);
+        }
+      })
     );
   }
 
   refresh(refreshToken: string): Observable<SignInResponse> {
     return this.http.post<SignInResponse>(`${this.baseUrl}/api/auth/refresh`, { refreshToken }).pipe(
-      tap(res => this.store.setTokens(res))
+      tap(res => {
+        console.log('Refresh tap - received response:', res);
+        this.store.setTokens(res);
+      })
     );
   }
 

@@ -14,6 +14,15 @@ export const routes: Routes = [
 		]
 	},
 
+	// Signin (public with PublicShellComponent)
+	{ 
+		path: 'signin', 
+		loadComponent: () => import('./shared/shells/public-shell.component').then(m => m.PublicShellComponent),
+		children: [
+			{ path: '', loadComponent: () => import('./sign-in.component').then(m => m.SignInComponent) }
+		]
+	},
+
 	// Protected routes wrapped in AppShellComponent
 	{
 		path: 'dashboard',
@@ -29,10 +38,12 @@ export const routes: Routes = [
 		loadComponent: () => import('./shared/shells/app-shell.component').then(m => m.AppShellComponent),
 		canActivate: [AuthGuard],
 		children: [
-			{ path: '', loadComponent: () => import('./agent-list.component').then(m => m.AgentListComponent) },
-			{ path: 'wizard', loadComponent: () => import('./agent-wizard.component').then(m => m.AgentWizardComponent) },
-			{ path: 'create', loadComponent: () => import('./agent-create.component').then(m => m.AgentCreateComponent) },
-			{ path: ':id/edit', loadComponent: () => import('./agent-edit.component').then(m => m.AgentEditComponent) }
+			{ path: '', loadComponent: () => import('./components/agent-management/agent-list.component').then(m => m.AgentListComponent) },
+			{ path: 'wizard', loadComponent: () => import('./components/agent-management/agent-wizard.component').then(m => m.AgentWizardComponent) },
+			{ path: 'from-text', loadComponent: () => import('./components/agent-management/natural-language-builder.component').then(m => m.NaturalLanguageBuilderComponent) },
+			{ path: 'create', loadComponent: () => import('./components/agent-management/agent-create.component').then(m => m.AgentCreateComponent) },
+			{ path: ':id/edit', loadComponent: () => import('./components/agent-management/agent-edit.component').then(m => m.AgentEditComponent) },
+			{ path: ':id', loadComponent: () => import('./components/agent-management/agent-detail.component').then(m => m.AgentDetailComponent) }
 		]
 	},
 
@@ -41,7 +52,8 @@ export const routes: Routes = [
 		loadComponent: () => import('./shared/shells/app-shell.component').then(m => m.AppShellComponent),
 		canActivate: [AuthGuard],
 		children: [
-			{ path: '', loadComponent: () => import('./templates-list.component').then(m => m.TemplatesListComponent) }
+			{ path: '', loadComponent: () => import('./templates-list.component').then(m => m.TemplatesListComponent) },
+			{ path: ':id', loadComponent: () => import('./template-detail.component').then(m => m.TemplateDetailComponent) }
 		]
 	},
 
@@ -59,7 +71,8 @@ export const routes: Routes = [
 		loadComponent: () => import('./shared/shells/app-shell.component').then(m => m.AppShellComponent),
 		canActivate: [AuthGuard],
 		children: [
-			{ path: '', loadComponent: () => import('./shared/components/empty-state.component').then(m => m.EmptyStateComponent) }
+			{ path: '', loadComponent: () => import('./shared/components/empty-state.component').then(m => m.EmptyStateComponent) },
+			{ path: ':id', loadComponent: () => import('./components/task-detail/task-detail.component').then(m => m.TaskDetailComponent) }
 		]
 	},
 

@@ -18,6 +18,15 @@ export interface Run {
   updatedAt: string;
 }
 
+export interface RunEvent {
+  id: number;
+  runId: number;
+  sequence: number;
+  eventType: string; // started, message, action, approval_needed, completed, failed, etc.
+  payload?: string; // JSON details
+  createdAt: string;
+}
+
 export interface RunRequest {
   taskId: number;
   agentId: number;
@@ -32,6 +41,25 @@ export class RunService {
   private apiUrl = '/api/runs';
 
   constructor(private http: HttpClient) { }
+
+  /**
+   * Start a new run for an agent
+   */
+  startAgentRun(agentId: number, taskId?: number, description?: string): Observable<Run> {
+    const payload = {
+      agentId,
+      taskId: taskId || null,
+      description: description || 'Run started from dashboard'
+    };
+    return this.http.post<Run>(`/api/agents/${agentId}/runs`, payload);
+  }
+
+  /**
+   * List runs for a specific agent
+   */
+  listAgentRuns(agentId: number): Observable<Run[]> {
+    return this.http.get<Run[]>(`/api/agents/${agentId}/runs`);
+  }
 
   createRun(request: RunRequest): Observable<Run> {
     return this.http.post<Run>(this.apiUrl, request);
@@ -100,5 +128,15 @@ export class RunService {
   countRunsByStatus(status: string): Observable<number> {
     let params = new HttpParams().set('status', status);
     return this.http.get<number>(`${this.apiUrl}/stats/count`, { params });
+  }
+
+  // ==================== Event Methods ====================
+
+  recordEvent(runId: number, eventType: string, payload?: string): Observable<RunEvent> {
+    return this.http.post<RunEvent>(`${this.apiUrl}/${runId}/events`, { eventType, payload });
+  }
+
+  getRunEvents(runId: number): Observable<RunEvent[]> {
+    return this.http.get<RunEvent[]>(`${this.apiUrl}/${runId}/events`);
   }
 }

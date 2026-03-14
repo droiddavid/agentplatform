@@ -121,6 +121,14 @@
           class="px-6 py-3 border-b-2 border-transparent text-sm font-medium">
           Error
         </button>
+        <button
+          *ngIf="events && events.length > 0"
+          (click)="selectTab('events')"
+          [class.bg-blue-50]="activeTab === 'events'"
+          [class.border-blue-500]="activeTab === 'events'"
+          class="px-6 py-3 border-b-2 border-transparent text-sm font-medium">
+          Events ({{ events.length }})
+        </button>
       </div>
     </div>
 
@@ -149,18 +157,29 @@
               {{ run.status }}
             </span>
           </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Created At</label>
-            <div class="text-gray-900">{{ formatDate(run.createdAt) }}</div>
+        </div>
+      </div>
+
+      <!-- Event Timeline Tab -->
+      <div *ngIf="activeTab === 'events'">
+        <div class="space-y-4">
+          <div *ngIf="events && events.length > 0; else noEvents" class="event-timeline">
+            <div *ngFor="let event of events; let i = index" class="event-item">
+              <div class="event-marker"></div>
+              <div class="event-content">
+                <div class="event-header">
+                  <span class="event-type font-semibold text-blue-600">{{ event.eventType }}</span>
+                  <span class="event-time text-gray-500 text-sm">{{ event.createdAt | date:'short' }}</span>
+                </div>
+                <div *ngIf="event.payload" class="event-payload mt-2 bg-gray-50 p-3 rounded text-sm font-mono text-gray-700">
+                  {{ event.payload }}
+                </div>
+              </div>
+            </div>
           </div>
-          <div *ngIf="run.startedAt">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Started At</label>
-            <div class="text-gray-900">{{ formatDate(run.startedAt) }}</div>
-          </div>
-          <div *ngIf="run.completedAt">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Completed At</label>
-            <div class="text-gray-900">{{ formatDate(run.completedAt) }}</div>
-          </div>
+          <ng-template #noEvents>
+            <p class="text-gray-500">No events recorded for this run.</p>
+          </ng-template>
         </div>
       </div>
 

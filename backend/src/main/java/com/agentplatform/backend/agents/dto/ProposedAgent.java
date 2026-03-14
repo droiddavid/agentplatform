@@ -12,7 +12,9 @@ public class ProposedAgent {
     private String goalCategory;
     private List<String> capabilities;
     private List<String> allowedTools;
+    private List<String> toolPermissions; // alias for allowedTools (frontend)
     private String approvalPolicy; // "auto", "every_action", "remember"
+    private String approvalSummary; // human-readable approval summary
     private Boolean workAlone; // collaboration setting
     private Boolean enableMemory;
     private String memoryType; // "short_term", "long_term", "hybrid"
@@ -49,10 +51,25 @@ public class ProposedAgent {
     public void setCapabilities(List<String> capabilities) { this.capabilities = capabilities; }
 
     public List<String> getAllowedTools() { return allowedTools; }
-    public void setAllowedTools(List<String> allowedTools) { this.allowedTools = allowedTools; }
+    public void setAllowedTools(List<String> allowedTools) { 
+        this.allowedTools = allowedTools; 
+        this.toolPermissions = allowedTools; // keep in sync
+    }
+
+    public List<String> getToolPermissions() { return toolPermissions; }
+    public void setToolPermissions(List<String> toolPermissions) { 
+        this.toolPermissions = toolPermissions;
+        this.allowedTools = toolPermissions; // keep in sync
+    }
 
     public String getApprovalPolicy() { return approvalPolicy; }
-    public void setApprovalPolicy(String approvalPolicy) { this.approvalPolicy = approvalPolicy; }
+    public void setApprovalPolicy(String approvalPolicy) { 
+        this.approvalPolicy = approvalPolicy;
+        this.approvalSummary = generateApprovalSummary(approvalPolicy);
+    }
+
+    public String getApprovalSummary() { return approvalSummary; }
+    public void setApprovalSummary(String approvalSummary) { this.approvalSummary = approvalSummary; }
 
     public Boolean getWorkAlone() { return workAlone; }
     public void setWorkAlone(Boolean workAlone) { this.workAlone = workAlone; }
@@ -68,4 +85,14 @@ public class ProposedAgent {
 
     public Map<String, Object> getAdditionalConfig() { return additionalConfig; }
     public void setAdditionalConfig(Map<String, Object> additionalConfig) { this.additionalConfig = additionalConfig; }
+
+    private String generateApprovalSummary(String policy) {
+        if (policy == null) return "Standard approvals apply";
+        return switch (policy) {
+            case "auto" -> "Agent proceeds automatically";
+            case "every_action" -> "Will ask before all external actions";
+            case "remember" -> "Will remember your approval decisions";
+            default -> "Will follow approval rules";
+        };
+    }
 }

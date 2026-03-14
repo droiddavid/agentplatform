@@ -60,6 +60,77 @@ public class AgentController {
         if (res == null) return ResponseEntity.status(404).build();
         return ResponseEntity.ok(res);
     }
+
+    // ==================== Capability Endpoints ====================
+
+    @PostMapping("/{agentId}/capabilities")
+    public ResponseEntity<?> addCapability(@PathVariable Long agentId, 
+                                          @RequestBody Map<String, String> body, 
+                                          Authentication auth) {
+        Long userId = parseUserId(auth);
+        String name = body.get("capabilityName");
+        String description = body.get("description");
+        if (name == null) return ResponseEntity.badRequest().build();
+        var res = agentService.addCapability(userId, agentId, name, description);
+        if (res == null) return ResponseEntity.status(404).build();
+        return ResponseEntity.ok(res);
+    }
+
+    @GetMapping("/{agentId}/capabilities")
+    public ResponseEntity<?> listCapabilities(@PathVariable Long agentId, Authentication auth) {
+        Long userId = parseUserId(auth);
+        return ResponseEntity.ok(agentService.listCapabilities(userId, agentId));
+    }
+
+    @DeleteMapping("/{agentId}/capabilities/{capabilityId}")
+    public ResponseEntity<?> removeCapability(@PathVariable Long agentId, @PathVariable Long capabilityId, Authentication auth) {
+        Long userId = parseUserId(auth);
+        agentService.removeCapability(userId, agentId, capabilityId);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ==================== Tool Permission Endpoints ====================
+
+    @PostMapping("/{agentId}/tool-permissions")
+    public ResponseEntity<?> addToolPermission(@PathVariable Long agentId,
+                                              @RequestBody Map<String, Object> body,
+                                              Authentication auth) {
+        Long userId = parseUserId(auth);
+        String toolName = (String) body.get("toolName");
+        String permLevel = (String) body.getOrDefault("permissionLevel", "execute");
+        Boolean requiresApproval = (Boolean) body.getOrDefault("requiresApproval", false);
+        if (toolName == null) return ResponseEntity.badRequest().build();
+        var res = agentService.addToolPermission(userId, agentId, toolName, permLevel, requiresApproval);
+        if (res == null) return ResponseEntity.status(404).build();
+        return ResponseEntity.ok(res);
+    }
+
+    @GetMapping("/{agentId}/tool-permissions")
+    public ResponseEntity<?> listToolPermissions(@PathVariable Long agentId, Authentication auth) {
+        Long userId = parseUserId(auth);
+        return ResponseEntity.ok(agentService.listToolPermissions(userId, agentId));
+    }
+
+    // ==================== Policy Endpoints ====================
+
+    @PostMapping("/{agentId}/policies")
+    public ResponseEntity<?> addPolicy(@PathVariable Long agentId,
+                                      @RequestBody Map<String, String> body,
+                                      Authentication auth) {
+        Long userId = parseUserId(auth);
+        String policyName = body.get("policyName");
+        String policyValue = body.get("policyValue");
+        if (policyName == null || policyValue == null) return ResponseEntity.badRequest().build();
+        var res = agentService.addPolicy(userId, agentId, policyName, policyValue);
+        if (res == null) return ResponseEntity.status(404).build();
+        return ResponseEntity.ok(res);
+    }
+
+    @GetMapping("/{agentId}/policies")
+    public ResponseEntity<?> listPolicies(@PathVariable Long agentId, Authentication auth) {
+        Long userId = parseUserId(auth);
+        return ResponseEntity.ok(agentService.listPolicies(userId, agentId));
+    }
     // ==================== Parser Endpoints ====================
 
     /**
@@ -77,6 +148,32 @@ public class AgentController {
             ));
         }
     }
+
+    /**
+     * Validate wizard payload before agent creation
+     */
+    @PostMapping("/validate")
+    public ResponseEntity<?> validateWizardPayload(@RequestBody AgentCreateRequest req, Authentication auth) {
+        if (auth == null) throw new IllegalStateException("Not authenticated");
+        
+        var errors = new java.util.ArrayList<String>();
+        if (req.getName() == null || req.getName().trim().isEmpty()) {
+            errors.add("Agent name is required");
+        }
+        if (req.getName() != null && req.getName().length() > 255) {
+            errors.add("Agent name must be less than 255 characters");
+        }
+        
+        if (!errors.isEmpty()) {
+            return ResponseEntity.status(400).body(Map.of(
+                    "valid", false,
+                    "errors", errors
+            ));
+        }
+        
+        return ResponseEntity.ok(Map.of("valid", true));
+    }
+    
     // ==================== Execution Endpoints ====================
 
     /**

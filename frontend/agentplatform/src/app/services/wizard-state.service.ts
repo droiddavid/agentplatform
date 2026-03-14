@@ -1,6 +1,9 @@
 import { Injectable, signal } from '@angular/core';
 
 export interface WizardData {
+  // Step 0: Name (from NLP parser or direct input)
+  name?: string;
+  
   // Step 1: Goals
   goal?: string;
   goalCategory?: 'life' | 'work' | 'business' | 'family' | 'content';
@@ -38,7 +41,7 @@ export interface WizardData {
 })
 export class WizardStateService {
   currentStep = signal(1);
-  totalSteps = 9;
+  totalSteps = 10;
   data = signal<WizardData>({});
 
   constructor() {}

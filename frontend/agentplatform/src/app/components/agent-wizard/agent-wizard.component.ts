@@ -1,19 +1,19 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { AgentService } from './services/agent.service';
-import { WizardStateService } from './services/wizard-state.service';
-import { PageHeaderComponent } from './shared/components/page-header.component';
-import { WizardStepNlpParserComponent } from './shared/components/wizard-steps/wizard-step-nlp-parser.component';
-import { WizardStepGoalsComponent } from './shared/components/wizard-steps/wizard-step-goals.component';
-import { WizardStepRoleComponent } from './shared/components/wizard-steps/wizard-step-role.component';
-import { WizardStepCapabilitiesComponent } from './shared/components/wizard-steps/wizard-step-capabilities.component';
-import { WizardStepToolsComponent } from './shared/components/wizard-steps/wizard-step-tools.component';
-import { WizardStepCollaborationComponent } from './shared/components/wizard-steps/wizard-step-collaboration.component';
-import { WizardStepApprovalsComponent } from './shared/components/wizard-steps/wizard-step-approvals.component';
-import { WizardStepMemoryComponent } from './shared/components/wizard-steps/wizard-step-memory.component';
-import { WizardStepModelComponent } from './shared/components/wizard-steps/wizard-step-model.component';
-import { WizardStepReviewComponent } from './shared/components/wizard-steps/wizard-step-review.component';
+import { AgentService } from '../../services/agent.service';
+import { WizardStateService } from '../../services/wizard-state.service';
+import { PageHeaderComponent } from '../../shared/components/page-header.component';
+import { WizardStepNlpParserComponent } from '../../shared/components/wizard-steps/wizard-step-nlp-parser.component';
+import { WizardStepGoalsComponent } from '../../shared/components/wizard-steps/wizard-step-goals.component';
+import { WizardStepRoleComponent } from '../../shared/components/wizard-steps/wizard-step-role.component';
+import { WizardStepCapabilitiesComponent } from '../../shared/components/wizard-steps/wizard-step-capabilities.component';
+import { WizardStepToolsComponent } from '../../shared/components/wizard-steps/wizard-step-tools.component';
+import { WizardStepCollaborationComponent } from '../../shared/components/wizard-steps/wizard-step-collaboration.component';
+import { WizardStepApprovalsComponent } from '../../shared/components/wizard-steps/wizard-step-approvals.component';
+import { WizardStepMemoryComponent } from '../../shared/components/wizard-steps/wizard-step-memory.component';
+import { WizardStepModelComponent } from '../../shared/components/wizard-steps/wizard-step-model.component';
+import { WizardStepReviewComponent } from '../../shared/components/wizard-steps/wizard-step-review.component';
 
 @Component({
   selector: 'app-agent-wizard',
@@ -51,30 +51,51 @@ import { WizardStepReviewComponent } from './shared/components/wizard-steps/wiza
 
       <!-- Step indicator -->
       <div class="steps-indicator">
-        <button 
-          *ngFor="let step of stepLabels; let i = index"
-          [class.active]="wizard.currentStep() === i + 1"
-          [class.completed]="wizard.currentStep() > i + 1"
-          (click)="wizard.goToStep(i + 1)"
-          class="step-dot"
-          [title]="step"
-        >
-          {{ i + 1 }}
-        </button>
+        @for (step of stepLabels; let i = $index; track i) {
+          <button 
+            [class.active]="wizard.currentStep() === i + 1"
+            [class.completed]="wizard.currentStep() > i + 1"
+            (click)="wizard.goToStep(i + 1)"
+            class="step-dot"
+            [title]="step"
+          >
+            {{ i + 1 }}
+          </button>
+        }
       </div>
 
       <!-- Step content -->
       <div class="step-content">
-        <app-wizard-step-nlp-parser *ngIf="wizard.currentStep() === 1" (parseCompleted)="onParseCompleted()"></app-wizard-step-nlp-parser>
-        <app-wizard-step-goals *ngIf="wizard.currentStep() === 2"></app-wizard-step-goals>
-        <app-wizard-step-role *ngIf="wizard.currentStep() === 3"></app-wizard-step-role>
-        <app-wizard-step-capabilities *ngIf="wizard.currentStep() === 4"></app-wizard-step-capabilities>
-        <app-wizard-step-tools *ngIf="wizard.currentStep() === 5"></app-wizard-step-tools>
-        <app-wizard-step-collaboration *ngIf="wizard.currentStep() === 6"></app-wizard-step-collaboration>
-        <app-wizard-step-approvals *ngIf="wizard.currentStep() === 7"></app-wizard-step-approvals>
-        <app-wizard-step-memory *ngIf="wizard.currentStep() === 8"></app-wizard-step-memory>
-        <app-wizard-step-model *ngIf="wizard.currentStep() === 9"></app-wizard-step-model>
-        <app-wizard-step-review *ngIf="wizard.currentStep() === 10" (submit)="submitAgent()"></app-wizard-step-review>
+        @if (wizard.currentStep() === 1) {
+          <app-wizard-step-nlp-parser (parseCompleted)="onParseCompleted()"></app-wizard-step-nlp-parser>
+        }
+        @if (wizard.currentStep() === 2) {
+          <app-wizard-step-goals></app-wizard-step-goals>
+        }
+        @if (wizard.currentStep() === 3) {
+          <app-wizard-step-role></app-wizard-step-role>
+        }
+        @if (wizard.currentStep() === 4) {
+          <app-wizard-step-capabilities></app-wizard-step-capabilities>
+        }
+        @if (wizard.currentStep() === 5) {
+          <app-wizard-step-tools></app-wizard-step-tools>
+        }
+        @if (wizard.currentStep() === 6) {
+          <app-wizard-step-collaboration></app-wizard-step-collaboration>
+        }
+        @if (wizard.currentStep() === 7) {
+          <app-wizard-step-approvals></app-wizard-step-approvals>
+        }
+        @if (wizard.currentStep() === 8) {
+          <app-wizard-step-memory></app-wizard-step-memory>
+        }
+        @if (wizard.currentStep() === 9) {
+          <app-wizard-step-model></app-wizard-step-model>
+        }
+        @if (wizard.currentStep() === 10) {
+          <app-wizard-step-review (submit)="submitAgent()"></app-wizard-step-review>
+        }
       </div>
 
       <!-- Navigation buttons -->
@@ -262,33 +283,45 @@ export class AgentWizardComponent implements OnInit {
     'Review'
   ];
 
-  cancel() {
-    this.wizard.reset();
-    this.wizard.totalSteps = 10;
-    this.router.navigate(['/agents']);
-  }
-
   onParseCompleted() {
-    // When NLP parsing completes, skip to review step
-    this.wizard.goToStep(10);
+    this.wizard.nextStep();
   }
 
   submitAgent() {
     const data = this.wizard.data();
-    const agentPayload = {
-      name: `${data.role || 'Agent'}`,
-      description: data.description || ''
+    // Build agent payload from complete wizard data
+    const agentData = {
+      name: data.name || data.role || 'New Agent',
+      description: data.description || data.goal || '',
+      goal: data.goal,
+      goalCategory: data.goalCategory,
+      role: data.role,
+      capabilities: data.capabilities || [],
+      allowedTools: data.allowedTools || [],
+      workAlone: data.workAlone ?? true,
+      collaboration: data.collaboration || [],
+      approveEveryAction: data.approveEveryAction ?? false,
+      rememberApprovals: data.rememberApprovals ?? false,
+      enableMemory: data.enableMemory ?? true,
+      memoryType: data.memoryType || 'short-term',
+      modelPreference: data.modelPreference || 'balanced'
     };
-
-    this.agentService.create(agentPayload).subscribe({
-      next: (agent: any) => {
-        this.wizard.reset();
-        this.wizard.totalSteps = 10;
-        this.router.navigate(['/agents', agent.id]);
+    
+    this.agentService.create(agentData).subscribe({
+      next: () => {
+        // Reset wizard state
+        this.wizard.data.set({});
+        this.wizard.currentStep.set(1);
+        this.router.navigateByUrl('/agents');
       },
-      error: (err: any) => {
-        console.error('Failed to create agent', err);
+      error: (err) => {
+        console.error('Failed to create agent:', err);
+        alert('Error creating agent: ' + (err.error?.message || err.message));
       }
     });
+  }
+
+  cancel() {
+    this.router.navigateByUrl('/agents');
   }
 }
