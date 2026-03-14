@@ -13,8 +13,7 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          # Use GitHub Secrets to provide sensitive credentials.
-          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_ROOT_PASSWORD: testpassword123
         ports:
           - 3306:3306
         options: >-
@@ -33,28 +32,25 @@ jobs:
           distribution: 'temurin'
 
       - name: Wait for MySQL
-        env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
         run: |
           for i in {1..30}; do
-            mysql -h 127.0.0.1 -P 3306 -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SELECT 1" && break || sleep 2
+            mysql -h 127.0.0.1 -P 3306 -u root -ptestpassword123 -e "SELECT 1" && break || sleep 2
           done
 
       - name: Create database
-        env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
         run: |
-          mysql -h 127.0.0.1 -P 3306 -u root -p"${MYSQL_ROOT_PASSWORD}" -e "CREATE DATABASE IF NOT EXISTS agentplatform CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+          mysql -h 127.0.0.1 -P 3306 -u root -ptestpassword123 -e "CREATE DATABASE IF NOT EXISTS agentplatform CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
       - name: Build and run Flyway migrations
         env:
-          FLYWAY_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET || 'test-secret-key' }}
+        working-directory: backend
         run: |
-          ./mvnw -B -DskipTests=true org.flywaydb:flyway-maven-plugin:9.22.0:migrate -Dflyway.url=jdbc:mysql://127.0.0.1:3306/agentplatform -Dflyway.user=root -Dflyway.password=${FLYWAY_PASSWORD}
+          ./mvnw -B -DskipTests=true org.flywaydb:flyway-maven-plugin:9.22.0:migrate -Dflyway.url=jdbc:mysql://127.0.0.1:3306/agentplatform -Dflyway.user=root -Dflyway.password=testpassword123
 
       - name: Build
         env:
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET || 'test-secret-key' }}
+        working-directory: backend
         run: |
           ./mvnw -B -DskipTests=true clean package
