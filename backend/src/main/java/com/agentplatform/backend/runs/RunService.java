@@ -12,9 +12,11 @@ import java.util.stream.Collectors;
 public class RunService {
 
     private final RunRepository runRepository;
+    private final RunEventRepository runEventRepository;
 
-    public RunService(RunRepository runRepository) {
+    public RunService(RunRepository runRepository, RunEventRepository runEventRepository) {
         this.runRepository = runRepository;
+        this.runEventRepository = runEventRepository;
     }
 
     public RunResponse createRun(Long ownerId, RunRequest request) {
@@ -136,5 +138,21 @@ public class RunService {
 
     public RunResponse toResponse(Run run) {
         return new RunResponse(run);
+    }
+
+    // ==================== Event Handling ====================
+
+    public RunEvent recordEvent(Long runId, String eventType, String payload) {
+        long sequence = runEventRepository.countByRunId(runId);
+        RunEvent event = new RunEvent(runId, sequence + 1, eventType, payload);
+        return runEventRepository.save(event);
+    }
+
+    public List<RunEvent> getRunEvents(Long runId) {
+        return runEventRepository.findByRunIdOrderBySequenceAsc(runId);
+    }
+
+    public long getEventCount(Long runId) {
+        return runEventRepository.countByRunId(runId);
     }
 }

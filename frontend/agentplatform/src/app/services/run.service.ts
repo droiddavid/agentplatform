@@ -18,6 +18,15 @@ export interface Run {
   updatedAt: string;
 }
 
+export interface RunEvent {
+  id: number;
+  runId: number;
+  sequence: number;
+  eventType: string; // started, message, action, approval_needed, completed, failed, etc.
+  payload?: string; // JSON details
+  createdAt: string;
+}
+
 export interface RunRequest {
   taskId: number;
   agentId: number;
@@ -119,5 +128,15 @@ export class RunService {
   countRunsByStatus(status: string): Observable<number> {
     let params = new HttpParams().set('status', status);
     return this.http.get<number>(`${this.apiUrl}/stats/count`, { params });
+  }
+
+  // ==================== Event Methods ====================
+
+  recordEvent(runId: number, eventType: string, payload?: string): Observable<RunEvent> {
+    return this.http.post<RunEvent>(`${this.apiUrl}/${runId}/events`, { eventType, payload });
+  }
+
+  getRunEvents(runId: number): Observable<RunEvent[]> {
+    return this.http.get<RunEvent[]>(`${this.apiUrl}/${runId}/events`);
   }
 }

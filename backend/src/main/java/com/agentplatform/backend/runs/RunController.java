@@ -157,6 +157,26 @@ public class RunController {
         return ResponseEntity.ok(count);
     }
 
+    // ==================== Event Endpoints ====================
+
+    @PostMapping("/{runId}/events")
+    public ResponseEntity<?> recordEvent(@PathVariable Long runId, @RequestBody java.util.Map<String, String> payload, Authentication auth) {
+        parseUserId(auth);
+        try {
+            RunEvent event = runService.recordEvent(runId, payload.get("eventType"), payload.get("payload"));
+            return ResponseEntity.status(HttpStatus.CREATED).body(event);
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(java.util.Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/{runId}/events")
+    public ResponseEntity<java.util.List<RunEvent>> getRunEvents(@PathVariable Long runId, Authentication auth) {
+        parseUserId(auth);
+        java.util.List<RunEvent> events = runService.getRunEvents(runId);
+        return ResponseEntity.ok(events);
+    }
+
     private Long parseUserId(Authentication auth) {
         if (auth == null) throw new IllegalStateException("Not authenticated");
         try {

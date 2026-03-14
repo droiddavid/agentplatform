@@ -27,3 +27,67 @@ button[class*="border-blue"] {
 button[class*="bg-blue-50"] {
   background-color: rgb(239, 246, 255);
 }
+
+/* Event Timeline Styles */
+.event-timeline {
+  position: relative;
+  padding: 20px 0;
+}
+
+.event-timeline::before {
+  content: '';
+  position: absolute;
+  left: 20px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #e5e7eb;
+}
+
+.event-item {
+  position: relative;
+  margin-bottom: 24px;
+  margin-left: 60px;
+}
+
+.event-marker {
+  position: absolute;
+  left: -58px;
+  top: 5px;
+  width: 16px;
+  height: 16px;
+  background: #3b82f6;
+  border: 3px solid white;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #e5e7eb;
+}
+
+.event-content {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.event-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.event-type {
+  color: #1f2937;
+  font-size: 14px;
+}
+
+.event-time {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.event-payload {
+  margin-top: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  word-break: break-word;
+}
