@@ -129,6 +129,13 @@
           class="px-6 py-3 border-b-2 border-transparent text-sm font-medium">
           Events ({{ events.length }})
         </button>
+        <button
+          (click)="selectTab('messages')"
+          [class.bg-blue-50]="activeTab === 'messages'"
+          [class.border-blue-500]="activeTab === 'messages'"
+          class="px-6 py-3 border-b-2 border-transparent text-sm font-medium">
+          Messages ({{ messageCount }})
+        </button>
       </div>
     </div>
 
@@ -208,6 +215,11 @@
           <h3 class="font-semibold mb-2">Execution Logs</h3>
           <pre class="bg-gray-900 text-gray-100 p-4 rounded overflow-auto text-xs"><code>{{ run.logs }}</code></pre>
         </div>
+      </div>
+
+      <!-- Messages Tab -->
+      <div *ngIf="activeTab === 'messages'">
+        <app-message-thread [runId]="run.id"></app-message-thread>
       </div>
     </div>
   </div>

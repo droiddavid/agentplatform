@@ -3,23 +3,27 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { RunService, Run, RunEvent } from '../../services/run.service';
+import { MessageThreadComponent } from '../message-thread/message-thread.component';
+import { MessageService } from '../../services/message.service';
 
 @Component({
   selector: 'app-run-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MessageThreadComponent],
   templateUrl: './run-detail.component.html',
   styleUrls: ['./run-detail.component.css']
 })
 export class RunDetailComponent implements OnInit {
   run: Run | null = null;
   events: RunEvent[] = [];
+  messageCount = 0;
   isLoading = false;
   errorMessage = '';
-  activeTab = 'overview'; // overview, output, logs, error, events
+  activeTab = 'overview'; // overview, output, logs, error, events, messages
 
   constructor(
     private runService: RunService,
+    private messageService: MessageService,
     private router: Router,
     private route: ActivatedRoute
   ) { }
@@ -29,6 +33,7 @@ export class RunDetailComponent implements OnInit {
     if (runId) {
       this.loadRun(Number(runId));
       this.loadEvents(Number(runId));
+      this.loadMessageCount(Number(runId));
     }
   }
 
@@ -53,6 +58,17 @@ export class RunDetailComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Failed to load events:', error);
+      }
+    });
+  }
+
+  loadMessageCount(runId: number) {
+    this.messageService.getMessageCount(runId).subscribe({
+      next: (count: number) => {
+        this.messageCount = count;
+      },
+      error: (error: any) => {
+        console.error('Failed to load message count:', error);
       }
     });
   }
@@ -98,6 +114,10 @@ export class RunDetailComponent implements OnInit {
     // Auto-refresh events when events tab is selected
     if (tab === 'events' && this.run) {
       this.loadEvents(this.run.id);
+    }
+    // Auto-refresh message count when messages tab is selected
+    if (tab === 'messages' && this.run) {
+      this.loadMessageCount(this.run.id);
     }
   }
 
